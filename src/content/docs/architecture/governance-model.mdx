@@ -5,22 +5,11 @@ sidebar:
   order: 4
 ---
 
+import DrawioDiagram from '../../../components/DrawioDiagram.astro';
+
 ## Delegation Hierarchy
 
-```
-Organization Admin
-    │
-    ├── Sets security blocks
-    ├── Defines marketplaces
-    ├── Creates team profiles
-    └── Delegates to teams
-            │
-            ├── Team adds plugins (if delegated)
-            ├── Team adds MCP servers (if delegated)
-            └── Delegates to projects
-                    │
-                    └── Project adds plugins (if allowed)
-```
+<DrawioDiagram src="/diagrams/governance-delegation2.svg" alt="Governance & Delegation Model" />
 
 ## Delegation Controls
 

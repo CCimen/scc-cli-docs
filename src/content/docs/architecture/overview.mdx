@@ -6,34 +6,13 @@ sidebar:
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
 SCC provides a secure, sandboxed environment for running Claude Code with organization-managed configurations.
 
 ## System Components
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                     Developer Machine                    │
-├─────────────────────────────────────────────────────────┤
-│  SCC CLI                                                 │
-│  ├── Config Resolution                                   │
-│  ├── Session Management                                  │
-│  └── Docker Orchestration                                │
-├─────────────────────────────────────────────────────────┤
-│  Docker Container (Sandbox)                              │
-│  ├── Claude Code                                         │
-│  ├── Plugins (hooks)                                     │
-│  ├── MCP Servers                                         │
-│  └── Mounted Workspace                                   │
-└─────────────────────────────────────────────────────────┘
-            │
-            ▼
-┌─────────────────────────────────────────────────────────┐
-│               Remote Configuration                       │
-│  ├── Organization Config (hosted)                       │
-│  └── Federated Team Configs (optional)                  │
-└─────────────────────────────────────────────────────────┘
-```
+<DrawioDiagram src="/diagrams/system-components2.svg" alt="SCC Architecture Overview" />
 
 ## Key Design Principles
 

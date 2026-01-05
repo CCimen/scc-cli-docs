@@ -1,0 +1,106 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- Title -->
+    <mxCell id="title" value="Configuration Inheritance Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="200" y="20" width="360" height="35" as="geometry"/>
+    </mxCell>
+    
+    <!-- Organization Config -->
+    <mxCell id="org" value="Organization Config" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c3aed;strokeColor=#6d28d9;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="80" width="200" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_detail" value="security blocks + defaults" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#a78bfa;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="280" y="130" width="200" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow 1 -->
+    <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#7c3aed;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="150" as="sourcePoint"/>
+        <mxPoint x="380" y="190" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Team Profile -->
+    <mxCell id="team" value="Team Profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="190" width="200" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_detail" value="additional plugins/servers" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#93c5fd;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="280" y="240" width="200" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow 2 -->
+    <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#3b82f6;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="260" as="sourcePoint"/>
+        <mxPoint x="380" y="300" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Project Config -->
+    <mxCell id="project" value="Project (.scc.yaml)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#06b6d4;strokeColor=#0891b2;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="300" width="200" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="project_detail" value="project-specific additions" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#67e8f9;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="280" y="350" width="200" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow 3 to Effective -->
+    <mxCell id="arrow3" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#06b6d4;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="370" as="sourcePoint"/>
+        <mxPoint x="380" y="410" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Effective Config Result -->
+    <mxCell id="effective" value="Effective Configuration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="410" width="200" height="50" as="geometry"/>
+    </mxCell>
+    
+    <!-- Merge Behavior Table -->
+    <mxCell id="table_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="520" y="120" width="220" height="180" as="geometry"/>
+    </mxCell>
+    <mxCell id="table_title" value="Merge Behavior" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#334155;" vertex="1" parent="1">
+      <mxGeometry x="520" y="128" width="220" height="24" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="row1" value="Plugins → Accumulate" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="535" y="160" width="190" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="row2" value="MCP Servers → Accumulate" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="535" y="188" width="190" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="row3" value="Security Blocks → Cannot override" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#dc2626;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="535" y="216" width="190" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="row4" value="Session Settings → Last wins" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="535" y="244" width="190" height="24" as="geometry"/>
+    </mxCell>
+    
+    <!-- Example box -->
+    <mxCell id="example_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#ca8a04;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="40" y="120" width="200" height="180" as="geometry"/>
+    </mxCell>
+    <mxCell id="example_title" value="Example" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#854d0e;" vertex="1" parent="1">
+      <mxGeometry x="40" y="128" width="200" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="ex1" value="Org: [&quot;safety-net&quot;]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#7c3aed;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="55" y="160" width="170" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="ex2" value="Team: [&quot;java-tools&quot;]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#3b82f6;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="55" y="188" width="170" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="ex3" value="Project: [&quot;linter&quot;]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#06b6d4;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="55" y="216" width="170" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="ex_result" value="= [&quot;safety-net&quot;, &quot;java-tools&quot;, &quot;linter&quot;]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#10b981;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="55" y="254" width="180" height="24" as="geometry"/>
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

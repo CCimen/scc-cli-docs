@@ -1,0 +1,130 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- Title -->
+    <mxCell id="title" value="Governance &amp; Delegation Model" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="200" y="15" width="360" height="35" as="geometry"/>
+    </mxCell>
+    
+    <!-- Org Admin Node -->
+    <mxCell id="org_admin" value="Organization Admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c3aed;strokeColor=#6d28d9;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="60" width="200" height="45" as="geometry"/>
+    </mxCell>
+    
+    <!-- Org Admin responsibilities -->
+    <mxCell id="org_resp" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#c4b5fd;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="500" y="55" width="200" height="100" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_r1" value="• Sets security blocks" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#5b21b6;" vertex="1" parent="1">
+      <mxGeometry x="510" y="60" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_r2" value="• Defines marketplaces" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#5b21b6;" vertex="1" parent="1">
+      <mxGeometry x="510" y="82" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_r3" value="• Creates team profiles" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#5b21b6;" vertex="1" parent="1">
+      <mxGeometry x="510" y="104" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_r4" value="• Delegates to teams" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#5b21b6;" vertex="1" parent="1">
+      <mxGeometry x="510" y="126" width="180" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow org to team -->
+    <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#7c3aed;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="105" as="sourcePoint"/>
+        <mxPoint x="380" y="165" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="delegates1" value="delegates" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#7c3aed;" vertex="1" parent="1">
+      <mxGeometry x="390" y="125" width="60" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Team Lead Node -->
+    <mxCell id="team_lead" value="Team Lead" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="170" width="200" height="45" as="geometry"/>
+    </mxCell>
+    
+    <!-- Team Lead responsibilities -->
+    <mxCell id="team_resp" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#93c5fd;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="500" y="165" width="200" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_r1" value="• Adds plugins (if delegated)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#1e40af;" vertex="1" parent="1">
+      <mxGeometry x="510" y="172" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_r2" value="• Adds MCP servers (if delegated)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#1e40af;" vertex="1" parent="1">
+      <mxGeometry x="510" y="194" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_r3" value="• Delegates to projects" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#1e40af;" vertex="1" parent="1">
+      <mxGeometry x="510" y="216" width="180" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow team to project -->
+    <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#3b82f6;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="215" as="sourcePoint"/>
+        <mxPoint x="380" y="275" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="delegates2" value="delegates" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#3b82f6;" vertex="1" parent="1">
+      <mxGeometry x="390" y="235" width="60" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Project/Developer Node -->
+    <mxCell id="project" value="Project / Developer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#06b6d4;strokeColor=#0891b2;strokeWidth=2;fontSize=14;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="280" width="200" height="45" as="geometry"/>
+    </mxCell>
+    
+    <!-- Project responsibilities -->
+    <mxCell id="proj_resp" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfeff;strokeColor=#67e8f9;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="500" y="275" width="200" height="55" as="geometry"/>
+    </mxCell>
+    <mxCell id="proj_r1" value="• Adds plugins (if allowed)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#0e7490;" vertex="1" parent="1">
+      <mxGeometry x="510" y="282" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="proj_r2" value="• Project-specific overrides" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#0e7490;" vertex="1" parent="1">
+      <mxGeometry x="510" y="304" width="180" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Delegation Controls Section -->
+    <mxCell id="controls_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#ca8a04;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="60" y="165" width="200" height="170" as="geometry"/>
+    </mxCell>
+    <mxCell id="controls_title" value="Delegation Controls" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#854d0e;" vertex="1" parent="1">
+      <mxGeometry x="60" y="172" width="200" height="24" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="ctrl1_label" value="Org → Teams:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+      <mxGeometry x="75" y="200" width="170" height="18" as="geometry"/>
+    </mxCell>
+    <mxCell id="ctrl1a" value="allow_additional_plugins" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="75" y="218" width="170" height="16" as="geometry"/>
+    </mxCell>
+    <mxCell id="ctrl1b" value="allow_additional_mcp_servers" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="75" y="234" width="170" height="16" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="ctrl2_label" value="Teams → Projects:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+      <mxGeometry x="75" y="260" width="170" height="18" as="geometry"/>
+    </mxCell>
+    <mxCell id="ctrl2a" value="allow_project_overrides" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="75" y="278" width="170" height="16" as="geometry"/>
+    </mxCell>
+    <mxCell id="ctrl2b" value="allow_additional_plugins" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="75" y="294" width="170" height="16" as="geometry"/>
+    </mxCell>
+    
+    <!-- Security note -->
+    <mxCell id="security_note" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="200" y="360" width="360" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="security_icon" value="🔒" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
+      <mxGeometry x="215" y="368" width="30" height="34" as="geometry"/>
+    </mxCell>
+    <mxCell id="security_text" value="Security blocks from org level can NEVER be overridden" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#b91c1c;" vertex="1" parent="1">
+      <mxGeometry x="250" y="368" width="300" height="34" as="geometry"/>
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import { Steps, Aside, FileTree } from '@astrojs/starlight/components';
+import DrawioDiagram from '../../../../components/DrawioDiagram.astro';
 
 GitOps (federated) configuration lets your team maintain its own config repository. This provides more autonomy while still respecting organization security boundaries.
 
@@ -19,20 +20,7 @@ GitOps (federated) configuration lets your team maintain its own config reposito
 
 ## How It Works
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                    Organization Config                        │
-│  Points to team's external config repository                 │
-└──────────────────────┬───────────────────────────────────────┘
-                       │
-                       ▼
-┌──────────────────────────────────────────────────────────────┐
-│                    Team Config Repo                          │
-│  github.com/acme/backend-team-scc-config                     │
-│  ├── team-config.json                                        │
-│  └── README.md                                               │
-└──────────────────────────────────────────────────────────────┘
-```
+<DrawioDiagram src="/diagrams/gitops-federation2.svg" alt="GitOps Federation Flow" />
 
 ## Setting Up
 

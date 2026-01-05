@@ -1,0 +1,129 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- Title -->
+    <mxCell id="title" value="GitOps (Federated) Configuration" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="180" y="15" width="400" height="35" as="geometry"/>
+    </mxCell>
+    
+    <!-- Organization Config Box -->
+    <mxCell id="org_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c3aed;strokeColor=#6d28d9;strokeWidth=2;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="200" y="70" width="360" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_title" value="Organization Config" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+      <mxGeometry x="200" y="80" width="360" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="org_desc" value="Points to team's external config repository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#e9d5ff;" vertex="1" parent="1">
+      <mxGeometry x="200" y="108" width="360" height="22" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow down -->
+    <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#7c3aed;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="150" as="sourcePoint"/>
+        <mxPoint x="380" y="200" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="arrow1_label" value="references" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#7c3aed;" vertex="1" parent="1">
+      <mxGeometry x="390" y="165" width="60" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Team Config Repo Box -->
+    <mxCell id="team_repo" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="140" y="200" width="480" height="140" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_title" value="Team Config Repository" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=#1e40af;" vertex="1" parent="1">
+      <mxGeometry x="140" y="210" width="480" height="26" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_url" value="github.com/acme/backend-team-scc-config" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#3b82f6;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="140" y="236" width="480" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Files inside repo -->
+    <mxCell id="file1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#93c5fd;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="170" y="270" width="200" height="55" as="geometry"/>
+    </mxCell>
+    <mxCell id="file1_icon" value="📄" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
+      <mxGeometry x="180" y="278" width="30" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="file1_name" value="team-config.json" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#1e40af;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="210" y="278" width="150" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="file1_desc" value="Team configuration" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="210" y="298" width="140" height="18" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="file2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#93c5fd;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="390" y="270" width="200" height="55" as="geometry"/>
+    </mxCell>
+    <mxCell id="file2_icon" value="📖" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
+      <mxGeometry x="400" y="278" width="30" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="file2_name" value="README.md" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#1e40af;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="430" y="278" width="150" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="file2_desc" value="Documentation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="430" y="298" width="140" height="18" as="geometry"/>
+    </mxCell>
+    
+    <!-- Trust Settings Box -->
+    <mxCell id="trust_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="60" y="370" width="280" height="120" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust_title" value="🔐 Trust Settings (Org controls)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#92400e;" vertex="1" parent="1">
+      <mxGeometry x="60" y="378" width="280" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust1" value="inherit_org_marketplaces" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="80" y="410" width="180" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust1v" value="true/false" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#92400e;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="260" y="410" width="70" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust2" value="allow_additional_marketplaces" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="80" y="435" width="200" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust2v" value="true/false" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#92400e;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="280" y="435" width="50" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust3" value="marketplace_source_patterns" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#78716c;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="80" y="460" width="200" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="trust3v" value="[patterns]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#92400e;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="280" y="460" width="50" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Workflow Box -->
+    <mxCell id="workflow_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="420" y="370" width="200" height="120" as="geometry"/>
+    </mxCell>
+    <mxCell id="workflow_title" value="PR-Based Workflow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="420" y="378" width="200" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="wf1" value="1. Create branch" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="435" y="408" width="170" height="18" as="geometry"/>
+    </mxCell>
+    <mxCell id="wf2" value="2. Edit team-config.json" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="435" y="428" width="170" height="18" as="geometry"/>
+    </mxCell>
+    <mxCell id="wf3" value="3. Create PR &amp; review" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="435" y="448" width="170" height="18" as="geometry"/>
+    </mxCell>
+    <mxCell id="wf4" value="4. Merge → scc update" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="435" y="468" width="170" height="18" as="geometry"/>
+    </mxCell>
+    
+    <!-- Security Note -->
+    <mxCell id="security_note" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="140" y="510" width="480" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="security_icon" value="🔒" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
+      <mxGeometry x="155" y="518" width="30" height="24" as="geometry"/>
+    </mxCell>
+    <mxCell id="security_text" value="Security blocks from org level still apply to federated teams" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#b91c1c;" vertex="1" parent="1">
+      <mxGeometry x="190" y="518" width="420" height="24" as="geometry"/>
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

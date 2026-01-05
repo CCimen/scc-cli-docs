@@ -6,24 +6,13 @@ sidebar:
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import DrawioDiagram from '../../../../components/DrawioDiagram.astro';
 
 Sessions are the core unit of work in SCC. Each session is a Claude Code environment running in a Docker container, tied to a specific workspace.
 
 ## Session Lifecycle
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Session Lifecycle                        │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│   scc start ──► [Running] ──► Ctrl+D/exit ──► [Stopped]     │
-│                    │                              │          │
-│                    │                              │          │
-│                    └──────────────────────────────┘          │
-│                         scc start --resume                   │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
+<DrawioDiagram src="/diagrams/session-lifecycle-detailed2.svg" alt="Session Lifecycle" />
 
 ## Starting Sessions
 

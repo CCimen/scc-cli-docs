@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
 **SCC (Sandboxed Claude CLI)** runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic's AI coding CLI) inside Docker containers with organization-managed team profiles and git worktree support.
 
@@ -38,21 +39,7 @@ When teams use AI coding assistants, several challenges emerge:
 
 Every Claude Code session runs inside a Docker container. The AI can only access files you explicitly mount, and it cannot affect your host system directly.
 
-```
-┌─────────────────────────────────────────┐
-│             Your Host Machine            │
-│  ┌───────────────────────────────────┐  │
-│  │         Docker Container          │  │
-│  │  ┌─────────────────────────────┐  │  │
-│  │  │       Claude Code           │  │  │
-│  │  │   (AI writes code here)     │  │  │
-│  │  └─────────────────────────────┘  │  │
-│  │         Mounted: ~/project        │  │
-│  └───────────────────────────────────┘  │
-│                                         │
-│  Safe: ~/.ssh, ~/.aws, other dirs       │
-└─────────────────────────────────────────┘
-```
+<DrawioDiagram src="/diagrams/docker-sandbox-isolation.svg" alt="Docker Sandbox Isolation" />
 
 ### Centralized Configuration
 

@@ -1,0 +1,67 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- Title -->
+    <mxCell id="title" value="Session Lifecycle" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#1e293b;" vertex="1" parent="1">
+      <mxGeometry x="250" y="30" width="300" height="40" as="geometry"/>
+    </mxCell>
+    
+    <!-- Start State - Green pill shape -->
+    <mxCell id="start" value="Start" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontColor=#ffffff;fontSize=14;fontStyle=1;arcSize=50;" vertex="1" parent="1">
+      <mxGeometry x="100" y="120" width="100" height="50" as="geometry"/>
+    </mxCell>
+    
+    <!-- Running State - Blue rounded rect -->
+    <mxCell id="running" value="Running" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;fontColor=#ffffff;fontSize=14;fontStyle=1;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="300" y="120" width="120" height="50" as="geometry"/>
+    </mxCell>
+    
+    <!-- Stopped State - Slate rounded rect -->
+    <mxCell id="stopped" value="Stopped" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#64748b;strokeColor=#475569;fontColor=#ffffff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="520" y="120" width="100" height="50" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow: Start to Running -->
+    <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#10b981;curved=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="start" target="running">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    
+    <!-- Label for Start to Running -->
+    <mxCell id="label1" value="scc start" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#64748b;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="190" y="95" width="80" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow: Running to Stopped -->
+    <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#64748b;curved=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="running" target="stopped">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    
+    <!-- Label for Running to Stopped -->
+    <mxCell id="label2" value="exit / timeout" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#64748b;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="425" y="95" width="80" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Resume Arrow: Curved loop from Stopped back to Running -->
+    <mxCell id="arrow3" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#f59e0b;curved=1;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" edge="1" parent="1" source="stopped" target="running">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="570" y="240"/>
+          <mxPoint x="360" y="240"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Label for Resume -->
+    <mxCell id="label3" value="scc start --resume" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#f59e0b;fontStyle=3;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="390" y="245" width="140" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Session persisted indicator -->
+    <mxCell id="persist_icon" value="💾 Session persisted" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#94a3b8;" vertex="1" parent="1">
+      <mxGeometry x="510" y="175" width="120" height="20" as="geometry"/>
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

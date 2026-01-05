@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import { Aside, Card, CardGrid } from '@astrojs/starlight/components';
+import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
 Before diving deeper into SCC, it's helpful to understand the key concepts that make it work.
 
@@ -31,15 +32,7 @@ scc start --select
 
 ### Session Lifecycle
 
-```
-┌─────────┐     ┌─────────┐     ┌─────────┐
-│  Start  │ ──► │ Running │ ──► │ Stopped │
-└─────────┘     └─────────┘     └─────────┘
-                    │               │
-                    │               │ scc start --resume
-                    │               ▼
-                    └───────────────┘
-```
+<DrawioDiagram src="/diagrams/session-lifecycle.svg" alt="Session Lifecycle Flow" />
 
 ## Sandboxes
 
@@ -112,23 +105,7 @@ scc worktree switch feature-auth
 
 SCC uses a three-layer configuration system:
 
-```
-┌──────────────────────────────────────┐
-│         Organization Config          │  ← Security policies, blocked plugins
-│         (org-config.json)            │    Set by: Org Admin
-├──────────────────────────────────────┤
-│           Team Profile               │  ← Team plugins, MCP servers
-│      (inline or federated)           │    Set by: Team Lead
-├──────────────────────────────────────┤
-│         Project Config               │  ← Project-specific overrides
-│           (.scc.yaml)                │    Set by: Developer
-└──────────────────────────────────────┘
-```
-
-**Key rules:**
-- Security blocks from org level cannot be overridden
-- Teams can add plugins within allowed patterns
-- Projects can extend but not remove team settings
+<DrawioDiagram src="/diagrams/config-layers2.svg" alt="Configuration Layers" />
 
 ## Plugins
 

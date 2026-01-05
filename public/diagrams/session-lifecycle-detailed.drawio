@@ -1,0 +1,132 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    
+    <!-- Title -->
+    <mxCell id="title" value="Session Lifecycle" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="260" y="15" width="240" height="35" as="geometry" />
+    </mxCell>
+    
+    <!-- Start action -->
+    <mxCell id="start_action" value="scc start" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#ffffff;fontFamily=monospace;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="80" y="80" width="120" height="45" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow to Running -->
+    <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#10b981;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="start_action" target="running">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    
+    <!-- Running State -->
+    <mxCell id="running" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;strokeWidth=3;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="65" width="200" height="75" as="geometry" />
+    </mxCell>
+    <mxCell id="running_label" value="Running" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+      <mxGeometry x="280" y="75" width="200" height="28" as="geometry" />
+    </mxCell>
+    <mxCell id="running_detail" value="Claude Code active in container" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#bfdbfe;" vertex="1" parent="1">
+      <mxGeometry x="280" y="102" width="200" height="20" as="geometry" />
+    </mxCell>
+    
+    <!-- Arrow to Stopped -->
+    <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#64748b;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="running" target="stopped">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="exit_label" value="Ctrl+D / exit" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="495" y="82" width="80" height="20" as="geometry" />
+    </mxCell>
+    
+    <!-- Stopped State -->
+    <mxCell id="stopped" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#64748b;strokeColor=#475569;strokeWidth=3;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="560" y="65" width="160" height="75" as="geometry" />
+    </mxCell>
+    <mxCell id="stopped_label" value="Stopped" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+      <mxGeometry x="560" y="75" width="160" height="28" as="geometry" />
+    </mxCell>
+    <mxCell id="stopped_detail" value="Container preserved" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#cbd5e1;" vertex="1" parent="1">
+      <mxGeometry x="560" y="102" width="160" height="20" as="geometry" />
+    </mxCell>
+    
+    <!-- Resume Arrow (curved loop) -->
+    <mxCell id="resume_arrow" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#f59e0b;curved=1;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="640" y="140" as="sourcePoint" />
+        <mxPoint x="380" y="140" as="targetPoint" />
+        <Array as="points">
+          <mxPoint x="640" y="200" />
+          <mxPoint x="510" y="220" />
+          <mxPoint x="380" y="200" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="resume_label" value="scc start --resume" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#f59e0b;fontFamily=monospace;" vertex="1" parent="1">
+      <mxGeometry x="450" y="222" width="140" height="22" as="geometry" />
+    </mxCell>
+    
+    <!-- Start Options Box -->
+    <mxCell id="options_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="270" width="200" height="150" as="geometry" />
+    </mxCell>
+    <mxCell id="options_title" value="Start Options" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="60" y="278" width="200" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="opt1" value="--resume" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="75" y="305" width="80" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt1d" value="Resume recent" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="155" y="305" width="90" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt2" value="--select" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="75" y="328" width="80" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt2d" value="Interactive picker" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="155" y="328" width="90" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt3" value="--fresh" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="75" y="351" width="80" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt3d" value="New container" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="155" y="351" width="90" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt4" value="--session NAME" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#166534;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="75" y="374" width="100" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="opt4d" value="Named session" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="175" y="374" width="80" height="18" as="geometry" />
+    </mxCell>
+    
+    <!-- Session List Example -->
+    <mxCell id="list_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9333ea;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="290" y="270" width="220" height="150" as="geometry" />
+    </mxCell>
+    <mxCell id="list_title" value="Session List (scc sessions)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#7e22ce;" vertex="1" parent="1">
+      <mxGeometry x="290" y="278" width="220" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="ws_label" value="Workspace: ~/project" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#6b21a8;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="305" y="310" width="180" height="20" as="geometry" /></mxCell>
+    <mxCell id="sess1" value="● feature-auth (running)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#16a34a;" vertex="1" parent="1"><mxGeometry x="315" y="335" width="180" height="20" as="geometry" /></mxCell>
+    <mxCell id="sess2" value="○ bugfix-login (stopped)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#64748b;" vertex="1" parent="1"><mxGeometry x="315" y="360" width="180" height="20" as="geometry" /></mxCell>
+    <mxCell id="sess3" value="○ main (stopped)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#64748b;" vertex="1" parent="1"><mxGeometry x="315" y="385" width="180" height="20" as="geometry" /></mxCell>
+    
+    <!-- Cleanup Box -->
+    <mxCell id="cleanup_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#dc2626;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="540" y="270" width="180" height="150" as="geometry" />
+    </mxCell>
+    <mxCell id="cleanup_title" value="Cleanup Commands" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#b91c1c;" vertex="1" parent="1">
+      <mxGeometry x="540" y="278" width="180" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="cmd1" value="scc stop" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#991b1b;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="555" y="310" width="80" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="cmd1d" value="Stop containers" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="555" y="328" width="150" height="16" as="geometry" />
+    </mxCell>
+    <mxCell id="cmd2" value="scc prune" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#991b1b;fontFamily=monospace;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="555" y="355" width="80" height="18" as="geometry" />
+    </mxCell>
+    <mxCell id="cmd2d" value="Remove stopped (⚠️ irreversible)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="555" y="373" width="160" height="16" as="geometry" />
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

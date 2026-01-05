@@ -1,0 +1,52 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+}
+
+const { src, alt } = Astro.props;
+---
+
+<figure class="diagram-figure">
+  <div class="diagram-container">
+    <img src={src} alt={alt} loading="lazy" />
+  </div>
+  <figcaption>{alt}</figcaption>
+</figure>
+
+<style>
+  .diagram-figure {
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  :global([data-theme='dark']) .diagram-figure {
+    background: #1e293b;
+  }
+
+  .diagram-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .diagram-container img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-2);
+    text-align: center;
+    font-style: italic;
+    border-top: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-bg-nav);
+  }
+</style>

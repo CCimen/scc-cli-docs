@@ -1,0 +1,125 @@
+<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- Title -->
+    <mxCell id="title" value="SCC Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="240" y="15" width="280" height="35" as="geometry"/>
+    </mxCell>
+    
+    <!-- Developer Machine - Main outer container -->
+    <mxCell id="dev_machine" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#334155;strokeWidth=3;arcSize=3;" vertex="1" parent="1">
+      <mxGeometry x="60" y="60" width="640" height="280" as="geometry"/>
+    </mxCell>
+    <mxCell id="dev_label" value="Developer Machine" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+      <mxGeometry x="80" y="70" width="180" height="28" as="geometry"/>
+    </mxCell>
+    
+    <!-- SCC CLI Section -->
+    <mxCell id="scc_cli" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="80" y="105" width="180" height="140" as="geometry"/>
+    </mxCell>
+    <mxCell id="cli_title" value="SCC CLI" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="80" y="112" width="180" height="24" as="geometry"/>
+    </mxCell>
+    
+    <!-- CLI Components -->
+    <mxCell id="cli_config" value="Config Resolution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;strokeWidth=1;fontSize=11;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="95" y="142" width="150" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="cli_session" value="Session Management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;strokeWidth=1;fontSize=11;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="95" y="176" width="150" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="cli_docker" value="Docker Orchestration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;strokeWidth=1;fontSize=11;fontColor=#166534;" vertex="1" parent="1">
+      <mxGeometry x="95" y="210" width="150" height="28" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow from CLI to Container -->
+    <mxCell id="cli_arrow" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#16a34a;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="scc_cli" target="docker_container">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="cli_arrow_label" value="manages" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#64748b;" vertex="1" parent="1">
+      <mxGeometry x="270" y="155" width="60" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Docker Container Section -->
+    <mxCell id="docker_container" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#1d4ed8;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="340" y="105" width="340" height="215" as="geometry"/>
+    </mxCell>
+    <mxCell id="container_title" value="Docker Container (Sandbox)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#1e40af;" vertex="1" parent="1">
+      <mxGeometry x="340" y="112" width="340" height="24" as="geometry"/>
+    </mxCell>
+    
+    <!-- Container Components in 2x2 grid -->
+    <mxCell id="claude_code" value="Claude Code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c3aed;strokeColor=#6d28d9;strokeWidth=2;fontSize=12;fontStyle=1;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+      <mxGeometry x="360" y="145" width="140" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="plugins" value="Plugins (hooks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=1;fontSize=12;fontColor=#92400e;" vertex="1" parent="1">
+      <mxGeometry x="520" y="145" width="140" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="mcp_servers" value="MCP Servers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#db2777;strokeWidth=1;fontSize=12;fontColor=#9d174d;" vertex="1" parent="1">
+      <mxGeometry x="360" y="195" width="140" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="workspace" value="Mounted Workspace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbf7d0;strokeColor=#16a34a;strokeWidth=1;fontSize=12;fontColor=#166534;dashed=1;" vertex="1" parent="1">
+      <mxGeometry x="520" y="195" width="140" height="40" as="geometry"/>
+    </mxCell>
+    
+    <!-- Network indicator -->
+    <mxCell id="network_policy" value="Network: controlled by org policy" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#64748b;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="360" y="248" width="300" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Base image indicator -->
+    <mxCell id="base_image" value="Base Image: org-specified Docker image" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#64748b;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="360" y="268" width="300" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Arrow to Remote Config -->
+    <mxCell id="remote_arrow" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#7c3aed;exitX=0.5;exitY=1;" edge="1" parent="1" source="dev_machine">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="380" y="400" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="arrow_label" value="fetches config" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;fontColor=#7c3aed;" vertex="1" parent="1">
+      <mxGeometry x="390" y="355" width="80" height="20" as="geometry"/>
+    </mxCell>
+    
+    <!-- Remote Configuration Box -->
+    <mxCell id="remote_config" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#9333ea;strokeWidth=2;" vertex="1" parent="1">
+      <mxGeometry x="160" y="400" width="440" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="remote_title" value="Remote Configuration" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#7e22ce;" vertex="1" parent="1">
+      <mxGeometry x="160" y="408" width="440" height="24" as="geometry"/>
+    </mxCell>
+    
+    <!-- Remote config items -->
+    <mxCell id="org_config" value="Organization Config (hosted)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#a855f7;strokeWidth=1;fontSize=11;fontColor=#6b21a8;" vertex="1" parent="1">
+      <mxGeometry x="180" y="438" width="190" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="team_config" value="Federated Team Configs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#a855f7;strokeWidth=1;fontSize=11;fontColor=#6b21a8;dashed=1;" vertex="1" parent="1">
+      <mxGeometry x="390" y="438" width="190" height="30" as="geometry"/>
+    </mxCell>
+    
+    <!-- Legend -->
+    <mxCell id="legend" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#e2e8f0;strokeWidth=1;" vertex="1" parent="1">
+      <mxGeometry x="60" y="500" width="640" height="50" as="geometry"/>
+    </mxCell>
+    <mxCell id="leg_title" value="Key Principles:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=1;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="75" y="510" width="90" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="principle1" value="🔒 Security by Default" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="165" y="510" width="130" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="principle2" value="📋 Hierarchical Config" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="300" y="510" width="130" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="principle3" value="🏛️ Governance" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="430" y="510" width="100" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="principle4" value="📡 Offline Capable" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#475569;" vertex="1" parent="1">
+      <mxGeometry x="540" y="510" width="120" height="30" as="geometry"/>
+    </mxCell>
+    
+  </root>
+</mxGraphModel>

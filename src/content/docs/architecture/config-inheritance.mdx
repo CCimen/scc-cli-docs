@@ -5,16 +5,11 @@ sidebar:
   order: 2
 ---
 
+import DrawioDiagram from '../../../components/DrawioDiagram.astro';
+
 ## The Three Layers
 
-```
-Organization Config
-    ↓ security blocks + defaults
-Team Profile
-    ↓ additional plugins/servers
-Project (.scc.yaml)
-    ↓ project-specific additions
-```
+<DrawioDiagram src="/diagrams/config-inheritance2.svg" alt="Configuration Inheritance Flow" />
 
 ## Merge Behavior
 

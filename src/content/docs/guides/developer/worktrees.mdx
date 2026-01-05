@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import DrawioDiagram from '../../../../components/DrawioDiagram.astro';
 
 Git worktrees let you check out multiple branches simultaneously in different directories. SCC uses worktrees to isolate AI experiments and enable parallel development.
 
@@ -17,21 +18,7 @@ Git worktrees let you check out multiple branches simultaneously in different di
 
 When you create a worktree, SCC places it in a sibling directory:
 
-```
-Structure:
-/Users/dev/
-├── myproject/                    ← Main repository
-│   ├── .git/
-│   ├── src/
-│   └── package.json
-└── myproject-worktrees/          ← Worktree directory (outside repo)
-    ├── feature-auth/             ← Worktree 1
-    │   ├── src/
-    │   └── package.json
-    └── bugfix-login/             ← Worktree 2
-        ├── src/
-        └── package.json
-```
+<DrawioDiagram src="/diagrams/worktree-structure2.svg" alt="Git Worktree Structure" />
 
 **Pattern:** `<repo-parent>/<repo-name>-worktrees/<feature-name>/`
 
