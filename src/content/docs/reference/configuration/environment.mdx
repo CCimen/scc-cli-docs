@@ -9,72 +9,70 @@ import { Aside } from '@astrojs/starlight/components';
 
 SCC can be configured via environment variables.
 
-## Organization Configuration
+## Authentication
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `SCC_ORG_URL` | Organization config URL | `https://example.com/org-config.json` |
-| `SCC_ORG_TOKEN` | Auth token for private configs | `ghp_xxxxx` |
-| `SCC_TEAM` | Default team profile | `backend` |
+| `SCC_ORG_TOKEN` | SCC-specific auth token (checked before GITHUB_TOKEN) | `ghp_xxxxx` |
+| `GITHUB_TOKEN` | GitHub token for private repos and configs | `ghp_xxxxx` |
 
 ```bash
-export SCC_ORG_URL="https://config.company.com/scc/org-config.json"
-export SCC_TEAM="backend"
+export SCC_ORG_TOKEN="ghp_xxxxx"
 ```
 
 <Aside type="tip">
-  Setting `SCC_ORG_URL` allows running `scc start` without `--org-url`.
+  `SCC_ORG_TOKEN` is checked first, falling back to `GITHUB_TOKEN` if not set.
 </Aside>
 
-## Debug and Logging
+## Security
 
 | Variable | Description | Values |
 |----------|-------------|--------|
-| `SCC_DEBUG` | Enable debug output | `1`, `true` |
-| `SCC_LOG_LEVEL` | Log verbosity | `debug`, `info`, `warn`, `error` |
+| `SCC_ALLOW_REMOTE_COMMANDS` | Enable `command:` auth from remote configs | `1`, `true`, `yes` |
 
 ```bash
-export SCC_DEBUG=1
-scc start ~/project
+# Enable command execution from remote configs (use with caution)
+export SCC_ALLOW_REMOTE_COMMANDS=1
 ```
 
-## Docker Configuration
+<Aside type="caution">
+  Only enable `SCC_ALLOW_REMOTE_COMMANDS` if you trust the remote config source. This allows configs to execute arbitrary commands for authentication.
+</Aside>
+
+## XDG Base Directory Specification
+
+SCC follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) for file locations:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SCC_DOCKER_HOST` | Docker host URL | System default |
-| `SCC_CONTAINER_PREFIX` | Container name prefix | `claude-` |
-
-## Cache Configuration
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SCC_CACHE_DIR` | Cache directory | `~/.cache/scc/` |
-| `SCC_CACHE_TTL` | Cache time-to-live | `24h` |
-| `SCC_OFFLINE` | Force offline mode | `false` |
+| `XDG_CONFIG_HOME` | Configuration directory | `~/.config` |
+| `XDG_DATA_HOME` | Data directory | `~/.local/share` |
+| `XDG_CACHE_HOME` | Cache directory | `~/.cache` |
 
 ```bash
-# Use custom cache directory
-export SCC_CACHE_DIR="/var/cache/scc"
-
-# Force offline mode
-export SCC_OFFLINE=1
+# Customize XDG directories
+export XDG_CONFIG_HOME="/opt/config"
+export XDG_DATA_HOME="/opt/data"
+export XDG_CACHE_HOME="/var/cache"
 ```
 
-## CI/CD Variables
+**SCC uses these locations:**
+- Config: `$XDG_CONFIG_HOME/scc/` (default: `~/.config/scc/`)
+- Data: `$XDG_DATA_HOME/scc/` (default: `~/.local/share/scc/`)
+- Cache: `$XDG_CACHE_HOME/scc/` (default: `~/.cache/scc/`)
 
-Recommended for automation:
+## Display and Output
+
+| Variable | Description | Values |
+|----------|-------------|--------|
+| `EDITOR` | Default text editor | `vim`, `nano`, `code` |
+| `NO_COLOR` | Disable colored output | `1`, `true` |
+| `SCC_NO_DEPRECATION_WARN` | Suppress deprecation warnings | `1` |
 
 ```bash
-# Required
-export SCC_ORG_URL="$SCC_ORG_URL"  # From CI secrets
-
-# Recommended
-export SCC_TEAM="ci"
-export SCC_DEBUG=1
-
-# Run validation
-scc start --dry-run --non-interactive --team ci .
+export EDITOR="code --wait"
+export NO_COLOR=1
+export SCC_NO_DEPRECATION_WARN=1
 ```
 
 ## Token References
@@ -108,7 +106,7 @@ For dynamic tokens:
 The `command:CMD` syntax executes the command and uses stdout.
 
 <Aside type="caution">
-  Command references run on each config resolution. Keep them fast.
+  Command references require `SCC_ALLOW_REMOTE_COMMANDS=1` when used in remote configs. They run on each config resolution, so keep them fast.
 </Aside>
 
 ## Shell Configuration
@@ -117,8 +115,12 @@ Add to your shell profile (`~/.bashrc`, `~/.zshrc`):
 
 ```bash
 # SCC Configuration
-export SCC_ORG_URL="https://config.company.com/scc/org-config.json"
-export SCC_TEAM="backend"
+export SCC_ORG_TOKEN="ghp_xxxxx"
+export EDITOR="code --wait"
+
+# Optional: Customize XDG directories
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
 
 # Optional: Worktree helper
 wt() {
@@ -132,8 +134,8 @@ wt() {
 
 Configuration precedence (highest to lowest):
 
-1. Command-line flags (`--team backend`)
-2. Environment variables (`SCC_TEAM=backend`)
+1. Command-line flags
+2. Environment variables
 3. Project config (`.scc.yaml`)
-4. Team config
-5. Organization defaults
+4. User config (`$XDG_CONFIG_HOME/scc/config.yaml`)
+5. System defaults

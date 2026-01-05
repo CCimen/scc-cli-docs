@@ -9,6 +9,42 @@ import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Git worktrees let you check out multiple branches simultaneously in different directories. SCC uses worktrees to isolate AI experiments and enable parallel development.
 
+## Worktree Location (CRITICAL)
+
+<Aside type="caution">
+  **Worktrees are created OUTSIDE your repository**, not inside it. This is a key design choice that keeps your main repository clean.
+</Aside>
+
+When you create a worktree, SCC places it in a sibling directory:
+
+```
+Structure:
+/Users/dev/
+├── myproject/                    ← Main repository
+│   ├── .git/
+│   ├── src/
+│   └── package.json
+└── myproject-worktrees/          ← Worktree directory (outside repo)
+    ├── feature-auth/             ← Worktree 1
+    │   ├── src/
+    │   └── package.json
+    └── bugfix-login/             ← Worktree 2
+        ├── src/
+        └── package.json
+```
+
+**Pattern:** `<repo-parent>/<repo-name>-worktrees/<feature-name>/`
+
+**Example:**
+- Main repo: `/Users/dev/myproject/`
+- Worktrees: `/Users/dev/myproject-worktrees/feature-auth/`
+- NOT: `/Users/dev/myproject/.worktrees/feature-auth/` ❌
+
+This external placement ensures:
+- Main repository stays clean (no `.worktrees/` directory)
+- No confusion with project files
+- Easy to `.gitignore` if needed (though it's already outside)
+
 ## Why Use Worktrees?
 
 <Tabs>
@@ -44,7 +80,7 @@ scc worktree create ~/project feature-auth
 ```
 
 This creates:
-- **Directory:** `~/project/.worktrees/feature-auth`
+- **Directory:** `~/project-worktrees/feature-auth/` (outside the repository)
 - **Branch:** `scc/feature-auth`
 
 ### From Existing Branch
@@ -111,10 +147,10 @@ scc worktree list -v
 
 Output:
 ```
-~/project/.worktrees/feature-auth [scc/feature-auth]
+~/project-worktrees/feature-auth [scc/feature-auth]
   +2 !1 ?3
 
-~/project/.worktrees/bugfix-login [scc/bugfix-login]
+~/project-worktrees/bugfix-login [scc/bugfix-login]
   .
 ```
 
@@ -246,19 +282,13 @@ SCC prefixes worktree branches with `scc/`:
   Branch names with `/` are sanitized to `-` in directory names. `feature/auth` becomes `feature-auth`.
 </Aside>
 
-## Worktree Location
+## Advanced: Worktree Architecture
 
-By default, worktrees are created in `.worktrees/` inside your project:
-
-```
-~/project/
-├── .git/
-├── .worktrees/
-│   ├── feature-auth/      ← Worktree 1
-│   └── bugfix-login/      ← Worktree 2
-├── src/
-└── package.json
-```
+Worktrees share the same `.git` repository as your main branch but have separate working directories. This allows:
+- Multiple branches checked out simultaneously
+- Shared Git history and configuration
+- Independent file states per worktree
+- No branch switching in your main repository
 
 ## Troubleshooting
 

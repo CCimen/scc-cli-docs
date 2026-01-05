@@ -97,23 +97,25 @@ scc start --session feature-auth
 
 ## Stopping Sessions
 
-### Stop All Running Containers
+### Stop Specific Container
+
+```bash
+scc stop <container-name>
+```
+
+Find the container name using `scc list` or `docker ps`.
+
+### Stop All SCC Containers
 
 ```bash
 scc stop
 ```
 
-### Stop Specific Session
+This stops all running SCC containers at once.
 
-```bash
-scc stop --session feature-auth
-```
-
-### Stop by Workspace
-
-```bash
-scc stop --workspace ~/project
-```
+<Aside type="note">
+  Use `scc list` to see running containers and their names before stopping specific ones.
+</Aside>
 
 ## Session Naming
 
@@ -157,12 +159,6 @@ SCC tracks context for each session, including:
 - Active files
 - Session duration
 
-View context:
-
-```bash
-scc context show
-```
-
 Clear stale context:
 
 ```bash
@@ -183,6 +179,10 @@ session:
 |---------|---------|-------------|
 | `timeout_hours` | 24 | Hours before session expires |
 | `auto_resume` | true | Automatically resume on `scc start` |
+
+<Aside type="note">
+  **Note:** Timeout configuration is available but enforcement is not yet implemented. Sessions will not automatically expire based on these settings.
+</Aside>
 
 ## Container Cleanup
 
@@ -235,8 +235,14 @@ scc
 
 **Cause:** Container in bad state.
 
-**Solution:** Force stop and restart:
+**Solution:** Stop container and restart:
 ```bash
-scc stop --force
+# Find the container name
+scc list
+
+# Stop the specific container
+scc stop <container-name>
+
+# Start fresh
 scc start --fresh
 ```

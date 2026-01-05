@@ -32,7 +32,7 @@ For `.scc.yaml` to take effect:
 ```yaml
 schema_version: "1.0.0"
 additional_plugins: []
-additional_mcp_servers: {}
+additional_mcp_servers: []
 session: {}
 ```
 
@@ -69,7 +69,7 @@ MCP servers for this project.
 
 ```yaml
 additional_mcp_servers:
-  project-api:
+  - name: project-api
     type: http
     url: https://api.myproject.com/mcp
 ```
@@ -78,7 +78,7 @@ additional_mcp_servers:
 
 ```yaml
 additional_mcp_servers:
-  context7:
+  - name: context7
     type: sse
     url: https://context7.com/api
     auth:
@@ -90,7 +90,7 @@ additional_mcp_servers:
 
 ```yaml
 additional_mcp_servers:
-  local-tool:
+  - name: local-tool
     type: stdio
     command: /usr/local/bin/tool
     args:
@@ -139,10 +139,10 @@ additional_plugins:
   - team-formatter@internal
 
 additional_mcp_servers:
-  project-api:
+  - name: project-api
     type: http
     url: https://api.myproject.com/mcp
-  local-analyzer:
+  - name: local-analyzer
     type: stdio
     command: /opt/tools/analyzer
     args:

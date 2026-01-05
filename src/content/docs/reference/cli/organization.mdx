@@ -14,19 +14,20 @@ Commands for organization administrators.
 Validate organization configuration.
 
 ```bash
-scc org validate [SOURCE] [OPTIONS]
+scc org validate <SOURCE> [OPTIONS]
 ```
 
 **Arguments:**
 
 | Argument | Description |
 |----------|-------------|
-| `SOURCE` | Config source (URL, file path, or shorthand) |
+| `SOURCE` | Config source (URL, file path, or shorthand) - **required** |
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
+| `-s`, `--schema-version` | Specify schema version to validate against |
 | `--json` | Output as JSON |
 | `--pretty` | Pretty-print JSON |
 
@@ -68,7 +69,8 @@ scc org update [OPTIONS]
 |--------|-------------|
 | `--team NAME` | Refresh specific team's config |
 | `--all-teams` | Refresh all federated team configs |
-| `-f`, `--force` | Force update even if cache is fresh |
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
 
 **Examples:**
 
@@ -81,9 +83,6 @@ scc org update --team platform
 
 # Refresh all federated teams
 scc org update --all-teams
-
-# Force refresh
-scc org update --force
 ```
 
 <Aside type="tip">
@@ -147,19 +146,22 @@ scc org import ./org-config.json
 
 ---
 
-## scc org templates
+## scc org init
 
-List available organization configuration templates.
+Initialize a new organization configuration.
 
 ```bash
-scc org templates [OPTIONS]
+scc org init [OPTIONS]
 ```
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
+| `--template NAME` | Use a specific template |
+| `--output PATH` | Output file path (default: `org-config.json`) |
 | `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
 
 **Available templates:**
 
@@ -168,3 +170,55 @@ scc org templates [OPTIONS]
 - `multi-team` - Multiple teams with delegation
 - `strict-security` - Security-focused configuration
 - `federated` - Teams with external config sources
+
+**Examples:**
+
+```bash
+# Initialize with interactive prompts
+scc org init
+
+# Initialize with specific template
+scc org init --template multi-team
+
+# Initialize to custom path
+scc org init --output ./configs/org.json
+```
+
+---
+
+## scc org schema
+
+Display or validate against the organization configuration schema.
+
+```bash
+scc org schema [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--version VERSION` | Show specific schema version |
+| `--json` | Output schema as JSON |
+| `--pretty` | Pretty-print JSON output |
+
+**Examples:**
+
+```bash
+# Show current schema
+scc org schema
+
+# Show specific schema version
+scc org schema --version 2.0
+
+# Output schema as JSON
+scc org schema --json --pretty
+```
+
+**Schema information includes:**
+
+- Version number
+- Required fields
+- Optional fields
+- Validation rules
+- Example configurations

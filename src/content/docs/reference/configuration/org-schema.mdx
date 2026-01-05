@@ -17,6 +17,7 @@ Complete schema reference for organization configuration files.
   "organization": { },
   "marketplaces": { },
   "security": { },
+  "stats": { },
   "defaults": { },
   "delegation": { },
   "profiles": { }
@@ -100,6 +101,62 @@ Security policies that cannot be overridden.
   Patterns use glob syntax (fnmatch) with case-insensitive matching.
 </Aside>
 
+### safety_net
+
+Safety net configuration for the scc-safety-net plugin.
+
+```json
+{
+  "security": {
+    "safety_net": {
+      "allow_force_push": false,
+      "allow_push_to_main": false,
+      "allow_delete_remote_branch": false,
+      "protected_branches": ["main", "master", "production"],
+      "require_pull_request": true,
+      "require_code_review": true,
+      "block_sensitive_files": true
+    }
+  }
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `allow_force_push` | boolean | `false` | Allow force push operations |
+| `allow_push_to_main` | boolean | `false` | Allow direct push to main/master |
+| `allow_delete_remote_branch` | boolean | `false` | Allow deleting remote branches |
+| `protected_branches` | string[] | `["main", "master"]` | Protected branch patterns |
+| `require_pull_request` | boolean | `true` | Require PR for protected branches |
+| `require_code_review` | boolean | `true` | Require code review approval |
+| `block_sensitive_files` | boolean | `true` | Block commits with sensitive files |
+
+## stats
+
+Usage statistics and telemetry configuration.
+
+```json
+{
+  "stats": {
+    "enabled": true,
+    "user_identity_mode": "hashed",
+    "retention_days": 90
+  }
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `enabled` | boolean | `true` | Enable usage statistics collection |
+| `user_identity_mode` | string | `"hashed"` | User identity tracking mode (`anonymous`, `hashed`, `identified`) |
+| `retention_days` | number | `90` | Number of days to retain stats data |
+
+<Aside type="note">
+  - `anonymous`: No user identification
+  - `hashed`: User IDs are hashed for privacy
+  - `identified`: Full user identification (requires user consent)
+</Aside>
+
 ## defaults
 
 Organization-wide defaults applied to all teams.
@@ -109,6 +166,9 @@ Organization-wide defaults applied to all teams.
   "defaults": {
     "enabled_plugins": ["scc-safety-net@sandboxed-code-official"],
     "allowed_plugins": ["*@internal", "*@sandboxed-code-official"],
+    "disabled_plugins": [],
+    "allowed_mcp_servers": ["*"],
+    "network_policy": "allow",
     "session": {
       "timeout_hours": 12,
       "auto_resume": true
@@ -121,6 +181,9 @@ Organization-wide defaults applied to all teams.
 |-------|------|-------------|
 | `enabled_plugins` | string[] | Plugins enabled for all teams |
 | `allowed_plugins` | string[] | Governance whitelist for plugins |
+| `disabled_plugins` | string[] | Plugins disabled by default |
+| `allowed_mcp_servers` | string[] | MCP server patterns allowed by default |
+| `network_policy` | string | Network access policy (`allow` or `deny`) |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
 | `session.auto_resume` | boolean | Auto-resume sessions |
@@ -171,12 +234,13 @@ Team profile definitions.
     "backend": {
       "description": "Backend development team",
       "additional_plugins": ["java-analyzer@internal"],
-      "additional_mcp_servers": {
-        "context7": {
+      "additional_mcp_servers": [
+        {
+          "name": "context7",
           "type": "http",
           "url": "https://context7.example.com"
         }
-      },
+      ],
       "delegation": {
         "allow_project_overrides": true,
         "allow_additional_plugins": ["project-*"]
@@ -218,7 +282,7 @@ Team profile definitions.
 |-------|------|-------------|
 | `description` | string | Human-readable description |
 | `additional_plugins` | string[] | Plugins for this team |
-| `additional_mcp_servers` | object | MCP servers for this team |
+| `additional_mcp_servers` | array | MCP servers for this team |
 | `delegation` | object | Project override settings |
 | `session` | object | Session settings |
 | `config_source` | object | External config (federated) |

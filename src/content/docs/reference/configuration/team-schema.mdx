@@ -5,29 +5,32 @@ sidebar:
   order: 2
 ---
 
+import { Aside } from '@astrojs/starlight/components';
+
 Schema reference for federated team configuration files (external team configs).
+
+<Aside type="caution">
+  Team configurations only support four fields: `schema_version`, `enabled_plugins`, `disabled_plugins`, and `marketplaces`. The fields `additional_mcp_servers`, `delegation`, and `session` do not exist in the team schema and should be configured at the organization level instead.
+</Aside>
 
 ## Top-Level Structure
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": 1,
   "enabled_plugins": [],
   "disabled_plugins": [],
-  "marketplaces": {},
-  "additional_mcp_servers": {},
-  "delegation": {},
-  "session": {}
+  "marketplaces": {}
 }
 ```
 
 ## schema_version
 
-Schema version for compatibility.
+Schema version for compatibility (integer).
 
 ```json
 {
-  "schema_version": "1.0.0"
+  "schema_version": 1
 }
 ```
 
@@ -83,103 +86,11 @@ Requirements:
 - Marketplace URL must match `trust.marketplace_source_patterns`
 - Name must not conflict with org marketplaces
 
-## additional_mcp_servers
-
-MCP servers for this team.
-
-```json
-{
-  "additional_mcp_servers": {
-    "metrics": {
-      "type": "http",
-      "url": "https://metrics.internal/mcp"
-    },
-    "context7": {
-      "type": "sse",
-      "url": "https://context7.com/api"
-    }
-  }
-}
-```
-
-### MCP Server Types
-
-| Type | Fields | Description |
-|------|--------|-------------|
-| `http` | `url` | HTTP-based MCP server |
-| `sse` | `url` | Server-Sent Events |
-| `stdio` | `command`, `args` | Local process (if allowed) |
-
-### HTTP/SSE Server
-
-```json
-{
-  "metrics": {
-    "type": "http",
-    "url": "https://api.example.com/mcp",
-    "auth": {
-      "type": "bearer",
-      "token": "env:MCP_TOKEN"
-    }
-  }
-}
-```
-
-### Stdio Server
-
-```json
-{
-  "local-tool": {
-    "type": "stdio",
-    "command": "/usr/local/bin/mcp-tool",
-    "args": ["--config", "/etc/tool.conf"]
-  }
-}
-```
-
-Requires org to set `security.allow_stdio_mcp: true`.
-
-## delegation
-
-Control what projects can do.
-
-```json
-{
-  "delegation": {
-    "allow_project_overrides": true,
-    "allow_additional_plugins": ["project-*", "team-*"]
-  }
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `allow_project_overrides` | boolean | Can projects use `.scc.yaml` |
-| `allow_additional_plugins` | string[] | Plugin patterns projects can add |
-
-## session
-
-Session configuration.
-
-```json
-{
-  "session": {
-    "timeout_hours": 12,
-    "auto_resume": true
-  }
-}
-```
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `timeout_hours` | number | 12 | Session timeout |
-| `auto_resume` | boolean | true | Auto-resume on start |
-
 ## Complete Example
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": 1,
   "enabled_plugins": [
     "scc-safety-net@sandboxed-code-official",
     "platform-tools@team-internal",
@@ -194,20 +105,6 @@ Session configuration.
       "owner": "myorg",
       "repo": "platform-internal-plugins"
     }
-  },
-  "additional_mcp_servers": {
-    "metrics": {
-      "type": "http",
-      "url": "https://metrics.internal/mcp"
-    }
-  },
-  "delegation": {
-    "allow_project_overrides": true,
-    "allow_additional_plugins": ["project-*"]
-  },
-  "session": {
-    "timeout_hours": 12,
-    "auto_resume": true
   }
 }
 ```

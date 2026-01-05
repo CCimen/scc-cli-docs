@@ -70,9 +70,8 @@ Federated teams store their configuration in external repositories, enabling tea
   "config_source": {
     "source": "url",
     "url": "https://config.example.com/team.json",
-    "auth": {
-      "type": "bearer",
-      "token": "env:CONFIG_TOKEN"
+    "headers": {
+      "Authorization": "Bearer ${CONFIG_TOKEN}"
     }
   }
   ```
@@ -129,10 +128,13 @@ The team's config repository contains:
 
 ```json title="team-config.json"
 {
-  "schema_version": "1.0.0",
+  "schema_version": 1,
   "enabled_plugins": [
     "platform-tools@team-internal",
     "monitoring@shared"
+  ],
+  "disabled_plugins": [
+    "legacy-tool"
   ],
   "marketplaces": {
     "team-internal": {
@@ -140,25 +142,12 @@ The team's config repository contains:
       "owner": "myorg",
       "repo": "platform-internal-plugins"
     }
-  },
-  "additional_mcp_servers": {
-    "metrics": {
-      "type": "http",
-      "url": "https://metrics.internal/mcp"
-    }
-  },
-  "delegation": {
-    "allow_project_overrides": true,
-    "allow_additional_plugins": ["project-*"]
-  },
-  "session": {
-    "timeout_hours": 12
   }
 }
 ```
 
 <Aside type="note">
-  Federated teams skip `defaults.allowed_plugins` filtering. They are trusted via trust grants instead.
+  Team config files support: `schema_version` (integer), `enabled_plugins`, `disabled_plugins`, and `marketplaces`. Federated teams skip `defaults.allowed_plugins` filtering and are trusted via trust grants instead.
 </Aside>
 
 ## Marketplace Name Collisions
@@ -222,10 +211,13 @@ SCC validates this and rejects configurations where:
 
 ```json
 {
-  "schema_version": "1.0.0",
+  "schema_version": 1,
   "enabled_plugins": [
     "platform-tools@team-internal",
     "monitoring@shared"
+  ],
+  "disabled_plugins": [
+    "legacy-tool"
   ],
   "marketplaces": {
     "team-internal": {
@@ -233,10 +225,6 @@ SCC validates this and rejects configurations where:
       "owner": "myorg",
       "repo": "platform-internal-plugins"
     }
-  },
-  "disabled_plugins": ["legacy-tool"],
-  "delegation": {
-    "allow_project_overrides": true
   }
 }
 ```

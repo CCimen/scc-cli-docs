@@ -20,6 +20,8 @@ The `scc-safety-net` plugin is the most important plugin for organizations. It b
 | `git clean -fd` | Deletes untracked files |
 | `git checkout <file>` | Can overwrite local changes |
 | `git restore <file>` | Can overwrite local changes |
+| `git stash drop` | Permanently deletes stashed changes |
+| `git stash clear` | Deletes all stashes permanently |
 
 <Aside type="danger">
   These commands can cause irreversible data loss. The safety net prevents Claude from accidentally running them.
@@ -82,6 +84,8 @@ Use 'git push' without --force instead.
 | `git reset --hard` | `git stash` (preserves changes) |
 | `git branch -D` | `git branch -d` (only deletes merged branches) |
 | `git clean -fd` | `git clean -fdn` (dry run first) |
+| `git stash drop` | Review stash contents first with `git stash show` |
+| `git stash clear` | Backup important stashes before clearing |
 
 ## Policy Modes
 
@@ -89,8 +93,10 @@ Organizations can configure the safety net behavior:
 
 ```json
 {
-  "defaults": {
-    "safety_net_policy": "block"
+  "security": {
+    "safety_net": {
+      "action": "block"
+    }
   }
 }
 ```
@@ -103,6 +109,43 @@ Organizations can configure the safety net behavior:
 
 <Aside type="caution">
   Only use `warn` or `allow` for teams that genuinely need these commands, such as release automation.
+</Aside>
+
+## Granular Control
+
+For fine-grained control, configure individual command permissions:
+
+```json
+{
+  "security": {
+    "safety_net": {
+      "action": "block",
+      "block_force_push": true,
+      "block_reset_hard": true,
+      "block_branch_delete": true,
+      "block_clean": true,
+      "block_stash_drop": true,
+      "block_stash_clear": true,
+      "block_checkout_file": false,
+      "block_restore_file": false
+    }
+  }
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `block_force_push` | `true` | Block `git push --force` and `-f` |
+| `block_reset_hard` | `true` | Block `git reset --hard` |
+| `block_branch_delete` | `true` | Block `git branch -D` |
+| `block_clean` | `true` | Block `git clean -fd` |
+| `block_stash_drop` | `true` | Block `git stash drop` |
+| `block_stash_clear` | `true` | Block `git stash clear` |
+| `block_checkout_file` | `true` | Block `git checkout <file>` |
+| `block_restore_file` | `true` | Block `git restore <file>` |
+
+<Aside type="tip">
+  Use granular controls when you need to allow specific destructive commands while blocking others. For example, allow file restoration but block force push.
 </Aside>
 
 ## Exceptions for Specific Projects
@@ -144,7 +187,7 @@ If commands are unexpectedly blocked:
 scc config explain --field plugins
 
 # Check policy mode
-scc config explain --field safety_net_policy
+scc config explain --field security.safety_net.action
 ```
 
 ## Best Practices

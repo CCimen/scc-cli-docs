@@ -9,6 +9,32 @@ import { Aside } from '@astrojs/starlight/components';
 
 Git worktrees allow parallel development on multiple branches simultaneously.
 
+## Worktree Location
+
+Worktrees are created in a standardized location relative to your main repository:
+
+```
+<repo-parent>/<repo-name>-worktrees/<feature>/
+```
+
+**Example:**
+
+If your main repository is at `/Users/you/projects/myapp`, worktrees will be created at:
+
+```
+/Users/you/projects/myapp-worktrees/feature-auth/
+/Users/you/projects/myapp-worktrees/bugfix-123/
+/Users/you/projects/myapp-worktrees/experiment/
+```
+
+This structure keeps worktrees organized and separate from your main repository while maintaining a predictable location.
+
+<Aside type="note">
+  The worktrees directory is automatically created when you create your first worktree.
+</Aside>
+
+---
+
 ## scc worktree create
 
 Create a new worktree for parallel development.
@@ -66,6 +92,7 @@ scc worktree list [WORKSPACE] [OPTIONS]
 | `-i`, `--interactive` | Select a worktree to work with |
 | `-v`, `--verbose` | Show git status |
 | `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON output |
 
 **Verbose status indicators:**
 
@@ -142,6 +169,12 @@ scc worktree switch [TARGET] [OPTIONS]
 | Argument | Description |
 |----------|-------------|
 | `TARGET` | Worktree name, `-` (previous), `^` (main), or fuzzy match |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-w`, `--workspace PATH` | Repository path (default: current) |
 
 **Shell wrapper (add to ~/.bashrc or ~/.zshrc):**
 
