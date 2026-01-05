@@ -20,14 +20,19 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
 1. **Install SCC CLI**
 
    <Tabs syncKey="pkg">
-     <TabItem label="pip">
+     <TabItem label="uv (recommended)">
      ```bash
-     pip install scc-cli
+     uv tool install scc-cli
      ```
      </TabItem>
      <TabItem label="pipx">
      ```bash
      pipx install scc-cli
+     ```
+     </TabItem>
+     <TabItem label="pip">
+     ```bash
+     pip install scc-cli
      ```
      </TabItem>
    </Tabs>

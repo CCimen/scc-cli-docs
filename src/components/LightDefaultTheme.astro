@@ -1,0 +1,10 @@
+---
+---
+<script is:inline>
+  // Set light mode as default if no preference is stored
+  const theme = localStorage.getItem('starlight-theme');
+  if (!theme) {
+    localStorage.setItem('starlight-theme', 'light');
+    document.documentElement.dataset.theme = 'light';
+  }
+</script>

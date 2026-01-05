@@ -14,30 +14,53 @@ Before installing SCC, ensure you have:
 | Requirement | Minimum Version | Check Command |
 |-------------|-----------------|---------------|
 | Python | 3.10+ | `python --version` |
+| uv (recommended) | Latest | `uv --version` |
 | Docker Desktop | 4.50+ | `docker --version` |
 | Git | 2.30+ | `git --version` |
 
 <Aside type="caution">
-  Docker Desktop 4.50+ is required because SCC uses the Docker sandbox feature for isolation. Earlier versions won't work.
+  **Docker Desktop 4.50+ is required** because SCC uses the Docker sandbox feature for isolation. Earlier versions won't work. **Docker Desktop must be running** (with Docker Engine active) before using SCC.
 </Aside>
+
+### Installing uv
+
+If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/):
+
+<Tabs syncKey="os">
+  <TabItem label="macOS/Linux">
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+  </TabItem>
+  <TabItem label="Windows">
+  ```powershell
+  powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+  ```
+  </TabItem>
+  <TabItem label="pip">
+  ```bash
+  pip install uv
+  ```
+  </TabItem>
+</Tabs>
 
 ## Install SCC CLI
 
 <Tabs syncKey="pkg">
-  <TabItem label="pip">
+  <TabItem label="uv (recommended)">
   ```bash
-  pip install scc-cli
+  uv tool install scc-cli
   ```
   </TabItem>
-  <TabItem label="pipx (recommended)">
+  <TabItem label="pipx">
   ```bash
   # pipx installs in isolated environment
   pipx install scc-cli
   ```
   </TabItem>
-  <TabItem label="uv">
+  <TabItem label="pip">
   ```bash
-  uv tool install scc-cli
+  pip install scc-cli
   ```
   </TabItem>
 </Tabs>
@@ -100,9 +123,9 @@ Before installing SCC, ensure you have:
 ## Updating SCC
 
 <Tabs syncKey="pkg">
-  <TabItem label="pip">
+  <TabItem label="uv">
   ```bash
-  pip install --upgrade scc-cli
+  uv tool upgrade scc-cli
   ```
   </TabItem>
   <TabItem label="pipx">
@@ -110,9 +133,9 @@ Before installing SCC, ensure you have:
   pipx upgrade scc-cli
   ```
   </TabItem>
-  <TabItem label="uv">
+  <TabItem label="pip">
   ```bash
-  uv tool upgrade scc-cli
+  pip install --upgrade scc-cli
   ```
   </TabItem>
 </Tabs>

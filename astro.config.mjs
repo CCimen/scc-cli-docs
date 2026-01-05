@@ -22,6 +22,9 @@ export default defineConfig({
 			editLink: {
 				baseUrl: 'https://github.com/CCimen/scc-docs/edit/main/',
 			},
+			components: {
+				ThemeProvider: './src/components/LightDefaultTheme.astro',
+			},
 			sidebar: [
 				{
 					label: 'Getting Started',
