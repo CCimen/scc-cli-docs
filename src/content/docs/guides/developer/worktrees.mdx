@@ -1,0 +1,285 @@
+---
+title: Git Worktrees
+description: Parallel development with isolated branches using SCC worktrees
+sidebar:
+  order: 4
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Git worktrees let you check out multiple branches simultaneously in different directories. SCC uses worktrees to isolate AI experiments and enable parallel development.
+
+## Why Use Worktrees?
+
+<Tabs>
+  <TabItem label="Without Worktrees">
+  ```bash
+  # Working on feature, need to fix urgent bug
+  git stash
+  git checkout main
+  git checkout -b bugfix-urgent
+  # Fix bug...
+  git checkout feature-branch
+  git stash pop
+  # Hope you didn't lose anything!
+  ```
+  </TabItem>
+  <TabItem label="With Worktrees">
+  ```bash
+  # Working on feature, need to fix urgent bug
+  scc worktree create ~/project bugfix-urgent
+  scc worktree enter bugfix-urgent
+  # Fix bug in separate directory
+  # Feature work untouched!
+  ```
+  </TabItem>
+</Tabs>
+
+## Creating Worktrees
+
+### Basic Creation
+
+```bash
+scc worktree create ~/project feature-auth
+```
+
+This creates:
+- **Directory:** `~/project/.worktrees/feature-auth`
+- **Branch:** `scc/feature-auth`
+
+### From Existing Branch
+
+```bash
+scc worktree create ~/project feature-auth --branch existing-branch
+```
+
+### With Immediate Launch
+
+```bash
+scc worktree create ~/project feature-auth --launch
+```
+
+Creates the worktree and immediately starts SCC in it.
+
+## Entering Worktrees
+
+### Primary Method (Subshell)
+
+```bash
+scc worktree enter feature-auth
+```
+
+This opens a subshell in the worktree directory. Type `exit` to return.
+
+<Aside type="tip">
+  The subshell approach requires no shell configuration and works everywhere.
+</Aside>
+
+### Power User Method (Shell Wrapper)
+
+Add this to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+wt() {
+  local p
+  p="$(scc worktree switch "$@")" || return $?
+  cd "$p" || return 1
+}
+```
+
+Then use:
+
+```bash
+wt feature-auth    # cd to worktree
+wt ^               # cd to main branch
+wt -               # cd to previous worktree
+```
+
+## Listing Worktrees
+
+### Basic List
+
+```bash
+scc worktree list
+```
+
+### With Git Status
+
+```bash
+scc worktree list -v
+```
+
+Output:
+```
+~/project/.worktrees/feature-auth [scc/feature-auth]
+  +2 !1 ?3
+
+~/project/.worktrees/bugfix-login [scc/bugfix-login]
+  .
+```
+
+### Status Indicators
+
+| Symbol | Meaning |
+|--------|---------|
+| `+N` | N staged files |
+| `!N` | N modified files |
+| `?N` | N untracked files |
+| `.` | Clean worktree |
+| `…` | Status timed out |
+
+## Switching Worktrees
+
+### Interactive Picker
+
+```bash
+scc worktree select
+```
+
+### Direct Switch
+
+```bash
+scc worktree switch feature-auth
+```
+
+### Quick Navigation
+
+```bash
+scc worktree enter ^    # Main branch
+scc worktree enter -    # Previous worktree
+```
+
+### Fuzzy Matching
+
+```bash
+scc worktree switch auth    # Matches feature-auth
+scc worktree switch scc/feature-x  # Match by full branch name
+```
+
+## Removing Worktrees
+
+### Remove Specific Worktree
+
+```bash
+scc worktree remove feature-auth
+```
+
+### Prune All Stale Worktrees
+
+```bash
+# Preview what would be removed
+scc worktree prune -n
+
+# Actually prune
+scc worktree prune
+```
+
+<Aside type="caution">
+  Removing a worktree deletes the directory but not the branch. You can recreate the worktree from the branch if needed.
+</Aside>
+
+## Worktree + SCC Workflow
+
+### Typical Feature Development
+
+<Steps>
+1. **Create worktree for the feature**
+
+   ```bash
+   scc worktree create ~/project feature-payments
+   ```
+
+2. **Enter the worktree**
+
+   ```bash
+   scc worktree enter feature-payments
+   ```
+
+3. **Start SCC session**
+
+   ```bash
+   scc
+   ```
+
+4. **Work with Claude Code**
+
+   Claude makes changes in the isolated branch. Main stays clean.
+
+5. **When done, exit and clean up**
+
+   ```bash
+   exit  # Leave worktree subshell
+
+   # If feature is complete and merged:
+   scc worktree remove feature-payments
+   ```
+</Steps>
+
+### Multiple Features in Parallel
+
+```bash
+# Terminal 1: Working on payments
+scc worktree enter feature-payments
+scc
+
+# Terminal 2: Working on auth
+scc worktree enter feature-auth
+scc
+
+# Terminal 3: Quick bugfix
+scc worktree enter bugfix-urgent
+scc
+```
+
+Each terminal has its own Claude session in its own isolated branch.
+
+## Branch Naming
+
+SCC prefixes worktree branches with `scc/`:
+
+| Worktree Name | Branch Created |
+|---------------|----------------|
+| `feature-auth` | `scc/feature-auth` |
+| `bugfix-login` | `scc/bugfix-login` |
+
+<Aside type="note">
+  Branch names with `/` are sanitized to `-` in directory names. `feature/auth` becomes `feature-auth`.
+</Aside>
+
+## Worktree Location
+
+By default, worktrees are created in `.worktrees/` inside your project:
+
+```
+~/project/
+├── .git/
+├── .worktrees/
+│   ├── feature-auth/      ← Worktree 1
+│   └── bugfix-login/      ← Worktree 2
+├── src/
+└── package.json
+```
+
+## Troubleshooting
+
+### "Worktree already exists"
+
+A worktree with that name exists. Either:
+- Use a different name
+- Remove the existing worktree: `scc worktree remove feature-auth`
+
+### "Cannot create worktree: no commits"
+
+The repository needs at least one commit:
+
+```bash
+git commit --allow-empty -m "Initial commit"
+```
+
+### Worktree shows in list but directory missing
+
+The worktree was deleted externally. Prune it:
+
+```bash
+scc worktree prune
+```

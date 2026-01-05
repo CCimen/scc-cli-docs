@@ -1,0 +1,63 @@
+---
+title: Getting Help
+description: Support resources and filing issues
+sidebar:
+  order: 5
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Create a Support Bundle
+
+Generate a bundle for troubleshooting:
+
+```bash
+scc support bundle
+```
+
+This creates a zip file with:
+- Configuration (secrets redacted)
+- Recent logs
+- System information
+- Docker status
+
+<Aside type="note">
+  Sensitive information like tokens and paths is automatically redacted.
+</Aside>
+
+## GitHub Issues
+
+Report bugs or request features:
+
+[github.com/CCimen/scc/issues](https://github.com/CCimen/scc/issues)
+
+Include:
+1. SCC version (`scc --version`)
+2. OS and Docker version
+3. What you tried
+4. What happened
+5. Support bundle (if applicable)
+
+## Self-Diagnosis
+
+Before opening an issue:
+
+```bash
+# Full diagnostic
+scc doctor
+
+# Check config sources
+scc config explain
+
+# Verify plugins
+scc audit plugins
+
+# Check team config
+scc team validate <team>
+```
+
+## Documentation
+
+- [CLI Reference](/reference/cli/overview/)
+- [Configuration](/reference/configuration/org-schema/)
+- [Governance](/guides/organization/overview/)

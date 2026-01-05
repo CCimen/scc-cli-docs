@@ -1,0 +1,57 @@
+---
+title: Common Issues
+description: Frequently encountered problems
+sidebar:
+  order: 2
+---
+
+## Configuration Not Loading
+
+**Symptoms:** Old settings, missing plugins
+
+**Fix:**
+```bash
+scc update --force
+scc config explain
+```
+
+## Plugin Blocked
+
+**Symptoms:** Plugin not appearing in `scc audit plugins`
+
+**Cause:** Matches `security.blocked_plugins` pattern
+
+**Fix:** Check with org admin or use exception:
+```bash
+scc config explain --field blocked_items
+```
+
+## Delegation Denied
+
+**Symptoms:** Cannot add plugins in project
+
+**Cause:** Team doesn't allow project overrides
+
+**Fix:**
+```bash
+scc config explain --field denied_additions
+```
+
+## Wrong Team
+
+**Symptoms:** Unexpected configuration
+
+**Fix:**
+```bash
+scc team current
+scc team switch <correct-team>
+```
+
+## Session Won't Resume
+
+**Fix:**
+```bash
+scc sessions  # List sessions
+scc stop --all  # Clean up
+scc start --fresh  # New session
+```

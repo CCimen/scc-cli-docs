@@ -1,0 +1,247 @@
+---
+title: Essential Commands
+description: Core workflow commands - setup, doctor, start, stop, status
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+## scc setup
+
+Configure SCC with your organization settings.
+
+```bash
+scc setup [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-q`, `--quick` | Quick setup with defaults |
+| `--reset` | Reset configuration to defaults |
+| `--org SOURCE` | Organization source (URL or `github:org/repo`) |
+| `-t`, `--team TEAM` | Team profile to select |
+| `--auth SPEC` | Auth specification (`env:VAR` or `command:CMD`) |
+| `--standalone` | Standalone mode without organization config |
+| `--non-interactive` | Fail fast instead of prompting |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Interactive">
+  ```bash
+  # Full interactive setup wizard
+  scc setup
+  ```
+  </TabItem>
+  <TabItem label="Quick Setup">
+  ```bash
+  # Quick setup with org URL
+  scc setup --org https://example.org/scc-config.json --team backend
+  ```
+  </TabItem>
+  <TabItem label="Standalone">
+  ```bash
+  # No organization config
+  scc setup --standalone
+  ```
+  </TabItem>
+</Tabs>
+
+---
+
+## scc doctor
+
+Run health checks to diagnose issues.
+
+```bash
+scc doctor [WORKSPACE] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `WORKSPACE` | Optional workspace path to check |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-q`, `--quick` | Quick status only |
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON output |
+
+**Examples:**
+
+```bash
+# Full health check
+scc doctor
+
+# Quick status
+scc doctor --quick
+
+# Check specific workspace
+scc doctor ~/projects/my-app
+
+# JSON output for CI
+scc doctor --json
+```
+
+<Aside type="tip">
+  Run `scc doctor` first when troubleshooting any issues. It checks Docker, Git, config, and more.
+</Aside>
+
+---
+
+## scc start
+
+Launch Claude Code in a sandboxed Docker container.
+
+```bash
+scc start [WORKSPACE] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `WORKSPACE` | Path to workspace (auto-detected if omitted) |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-t`, `--team TEAM` | Team profile for this session |
+| `--session NAME` | Session name for identification |
+| `-r`, `--resume` | Resume most recent session |
+| `-s`, `--select` | Interactive picker for sessions |
+| `--fresh` | Force new container |
+| `-w`, `--worktree NAME` | Create worktree before starting |
+| `--install-deps` | Install dependencies first |
+| `--offline` | Use cached config only |
+| `--standalone` | Run without organization config |
+| `--dry-run` | Preview configuration without launching |
+| `--json` | Output as JSON |
+| `--non-interactive` | Fail if input required |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Basic">
+  ```bash
+  # Smart start (auto-detect workspace)
+  scc
+
+  # Start in specific directory
+  scc start ~/projects/my-app
+  ```
+  </TabItem>
+  <TabItem label="Resume">
+  ```bash
+  # Resume most recent session
+  scc start --resume
+
+  # Select from recent sessions
+  scc start --select
+  ```
+  </TabItem>
+  <TabItem label="Team">
+  ```bash
+  # Use different team for this session
+  scc start --team security ~/project
+  ```
+  </TabItem>
+  <TabItem label="CI/CD">
+  ```bash
+  # Non-interactive for automation
+  scc start --non-interactive --team backend ~/project
+
+  # Preview configuration
+  scc start --dry-run --json
+  ```
+  </TabItem>
+</Tabs>
+
+**Keyboard shortcuts in interactive mode:**
+
+| Key | Action |
+|-----|--------|
+| `Enter` | Select/resume session |
+| `n` | Start new session |
+| `Esc` | Go back |
+| `q` | Quit |
+
+---
+
+## scc stop
+
+Stop running Claude Code sandbox(es).
+
+```bash
+scc stop [CONTAINER] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `CONTAINER` | Container name or ID (picker if omitted) |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-a`, `--all` | Stop all running sandboxes |
+| `-i`, `--interactive` | Multi-select picker |
+| `-y`, `--yes` | Skip confirmation |
+
+**Examples:**
+
+```bash
+# Interactive picker
+scc stop
+
+# Stop specific container
+scc stop claude-my-project-abc123
+
+# Stop all sandboxes
+scc stop --all
+
+# Stop all without confirmation
+scc stop --all --yes
+```
+
+---
+
+## scc status
+
+Show current SCC configuration status.
+
+```bash
+scc status [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-v`, `--verbose` | Show detailed information |
+| `--json` | Output as JSON envelope |
+| `--pretty` | Pretty-print JSON output |
+
+**Examples:**
+
+```bash
+# Quick status
+scc status
+
+# Detailed status
+scc status --verbose
+```
+
+<Aside type="note">
+  `scc status` shows your current team, org config, active sessions, and any issues detected.
+</Aside>

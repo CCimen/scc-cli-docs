@@ -1,0 +1,42 @@
+---
+title: Config Inheritance
+description: How configuration layers merge
+sidebar:
+  order: 2
+---
+
+## The Three Layers
+
+```
+Organization Config
+    ↓ security blocks + defaults
+Team Profile
+    ↓ additional plugins/servers
+Project (.scc.yaml)
+    ↓ project-specific additions
+```
+
+## Merge Behavior
+
+| Setting Type | Behavior |
+|--------------|----------|
+| Plugins | Accumulate (additive) |
+| MCP Servers | Accumulate, later overrides same name |
+| Security Blocks | Cannot be overridden |
+| Session Settings | Last wins |
+
+## Example
+
+Org defaults: `["safety-net"]`
+Team adds: `["java-tools"]`
+Project adds: `["linter"]`
+
+Effective: `["safety-net", "java-tools", "linter"]`
+
+## Tracking Sources
+
+```bash
+scc config explain
+```
+
+Shows where each setting comes from.

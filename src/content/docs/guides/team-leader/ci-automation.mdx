@@ -1,0 +1,234 @@
+---
+title: CI/CD Automation
+description: Running SCC in continuous integration pipelines
+sidebar:
+  order: 5
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+SCC supports non-interactive operation for CI/CD pipelines, automated testing, and scripted workflows.
+
+## Non-Interactive Mode
+
+For automation, use flags that prevent interactive prompts:
+
+```bash
+scc start --non-interactive --team backend ~/project
+```
+
+Key flags:
+
+| Flag | Description |
+|------|-------------|
+| `--non-interactive` | Fail fast instead of prompting |
+| `--team TEAM` | Specify team (required in non-interactive) |
+| `--dry-run` | Preview configuration without launching |
+| `--json` | Machine-readable output |
+
+## CI Pipeline Examples
+
+<Tabs>
+  <TabItem label="GitHub Actions">
+  ```yaml title=".github/workflows/scc.yml"
+  name: SCC Validation
+  on: [push, pull_request]
+
+  jobs:
+    validate:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.12'
+
+        - name: Install SCC
+          run: pip install scc-cli
+
+        - name: Validate configuration
+          run: scc start --dry-run --json --non-interactive --team ci .
+          env:
+            SCC_ORG_URL: ${{ secrets.SCC_ORG_URL }}
+  ```
+  </TabItem>
+  <TabItem label="GitLab CI">
+  ```yaml title=".gitlab-ci.yml"
+  scc-validate:
+    image: python:3.12
+    script:
+      - pip install scc-cli
+      - scc start --dry-run --json --non-interactive --team ci .
+    variables:
+      SCC_ORG_URL: $SCC_ORG_URL
+  ```
+  </TabItem>
+  <TabItem label="Jenkins">
+  ```groovy title="Jenkinsfile"
+  pipeline {
+    agent any
+    environment {
+      SCC_ORG_URL = credentials('scc-org-url')
+    }
+    stages {
+      stage('Validate') {
+        steps {
+          sh 'pip install scc-cli'
+          sh 'scc start --dry-run --json --non-interactive --team ci .'
+        }
+      }
+    }
+  }
+  ```
+  </TabItem>
+</Tabs>
+
+## Dry Run Mode
+
+Preview configuration without actually launching:
+
+```bash
+scc start --dry-run ~/project
+```
+
+With JSON output for parsing:
+
+```bash
+scc start --dry-run --json --non-interactive --team backend ~/project
+```
+
+Output:
+```json
+{
+  "status": "ok",
+  "data": {
+    "workspace": "/home/runner/project",
+    "entry_directory": "/home/runner/project",
+    "team": "backend",
+    "plugins": ["scc-safety-net", "java-analyzer"],
+    "network_policy": "corp-proxy-only"
+  },
+  "metadata": {
+    "cli_version": "1.5.0",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+## Exit Codes
+
+Use exit codes for pipeline logic:
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 2 | Usage error (bad arguments) |
+| 3 | Configuration error |
+| 4 | Tool error (Docker, git) |
+| 5 | Prerequisites not met |
+| 6 | Governance block |
+| 130 | Cancelled (SIGINT) |
+
+```bash
+scc start --dry-run --non-interactive --team ci .
+exit_code=$?
+
+if [ $exit_code -eq 6 ]; then
+  echo "Configuration blocked by governance policy"
+  exit 1
+fi
+```
+
+## Environment Variables
+
+Configure SCC via environment:
+
+| Variable | Description |
+|----------|-------------|
+| `SCC_ORG_URL` | Organization config URL |
+| `SCC_TEAM` | Default team profile |
+| `SCC_DEBUG` | Enable debug output |
+
+```bash
+export SCC_ORG_URL="https://example.com/org-config.json"
+export SCC_TEAM="ci"
+scc start --dry-run --non-interactive .
+```
+
+## CI-Specific Team Profile
+
+Create a minimal CI profile:
+
+```json
+{
+  "profiles": {
+    "ci": {
+      "description": "CI/CD pipeline profile",
+      "additional_plugins": [],
+      "session": {
+        "timeout_hours": 1,
+        "auto_resume": false
+      },
+      "network_policy": "isolated"
+    }
+  }
+}
+```
+
+<Aside type="tip">
+  CI profiles typically need minimal plugins and short timeouts since they're ephemeral.
+</Aside>
+
+## Validating Team Config
+
+In CI, validate your team config changes:
+
+```bash
+# Validate config syntax
+scc org validate team-config.json
+
+# Check if changes would break anything
+scc team validate
+```
+
+## Plugin Auditing in CI
+
+Audit plugins as part of your pipeline:
+
+```bash
+scc audit plugins --json
+```
+
+Check for unexpected plugins or changes.
+
+## Caching Considerations
+
+CI runners start fresh each time. Consider:
+
+- **Pre-warming:** Cache `~/.cache/scc/` between runs
+- **Offline mode:** Use `--offline` if config is embedded
+- **Config caching:** Cache org config to avoid network calls
+
+<Tabs>
+  <TabItem label="GitHub Actions">
+  ```yaml
+  - uses: actions/cache@v4
+    with:
+      path: ~/.cache/scc
+      key: scc-cache-${{ hashFiles('**/org-config.json') }}
+  ```
+  </TabItem>
+</Tabs>
+
+## Security Considerations
+
+<Aside type="danger">
+  Never expose `SCC_ORG_URL` or auth tokens in logs. Use secrets management.
+</Aside>
+
+- Store org URL in CI secrets
+- Use token auth for private config repos
+- Review what gets logged (use `--json` to control output)
+- Consider network isolation for CI containers

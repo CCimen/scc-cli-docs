@@ -1,0 +1,116 @@
+---
+title: CLI Overview
+description: Global options, exit codes, and JSON output format
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Complete command reference for SCC (Sandboxed Claude CLI).
+
+## Global Options
+
+These options are available on all commands:
+
+| Option | Description |
+|--------|-------------|
+| `--debug` | Show detailed error information |
+| `--version`, `-v` | Show version and exit |
+| `--help`, `-h` | Show help for any command |
+
+## Exit Codes
+
+All SCC commands use consistent exit codes:
+
+| Code | Constant | Meaning |
+|------|----------|---------|
+| 0 | `EXIT_SUCCESS` | Operation completed successfully |
+| 1 | `EXIT_ERROR` | General/unexpected error |
+| 2 | `EXIT_USAGE` | Invalid usage/arguments |
+| 3 | `EXIT_CONFIG` | Configuration or network error |
+| 4 | `EXIT_TOOL` | External tool failed (git, docker) |
+| 5 | `EXIT_PREREQ` | Prerequisites not met |
+| 6 | `EXIT_GOVERNANCE` | Blocked by governance policy |
+| 130 | `EXIT_CANCELLED` | User cancelled (Esc/Ctrl+C) |
+
+### Using Exit Codes in Scripts
+
+```bash
+scc start --dry-run --non-interactive --team ci .
+exit_code=$?
+
+case $exit_code in
+  0) echo "Config valid" ;;
+  3) echo "Config error" ;;
+  5) echo "Missing prerequisites" ;;
+  6) echo "Blocked by governance" ;;
+  *) echo "Other error: $exit_code" ;;
+esac
+```
+
+## JSON Output
+
+Commands with `--json` support output a standardized envelope:
+
+```json
+{
+  "apiVersion": "scc.cli/v1",
+  "kind": "CommandName",
+  "metadata": {
+    "generatedAt": "2025-12-23T10:00:00Z",
+    "cliVersion": "1.5.0"
+  },
+  "status": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "data": { }
+}
+```
+
+### Using JSON Output
+
+```bash
+# Pretty print
+scc status --json --pretty
+
+# Parse with jq
+scc start --dry-run --json | jq '.data.plugins'
+
+# Check status in scripts
+if scc org validate config.json --json | jq -e '.status.ok'; then
+  echo "Config is valid"
+fi
+```
+
+<Aside type="tip">
+  Use `--pretty` for human-readable formatting during development, omit it for machine parsing.
+</Aside>
+
+## Command Categories
+
+| Category | Commands | Purpose |
+|----------|----------|---------|
+| [Essential](/reference/cli/essential/) | `setup`, `doctor`, `start`, `stop`, `status` | Core workflow |
+| [Sessions](/reference/cli/sessions/) | `sessions`, `context` | Session management |
+| [Worktree](/reference/cli/worktree/) | `worktree *` | Parallel development |
+| [Team](/reference/cli/team/) | `team *` | Team profiles |
+| [Config](/reference/cli/config/) | `config`, `statusline`, `update` | Configuration |
+| [Governance](/reference/cli/governance/) | `exceptions`, `unblock`, `audit` | Security & policies |
+| [Organization](/reference/cli/organization/) | `org *` | Org admin commands |
+
+## Getting Help
+
+```bash
+# General help
+scc --help
+
+# Command-specific help
+scc start --help
+scc worktree create --help
+
+# Debug mode for troubleshooting
+scc --debug start ~/project
+```

@@ -1,0 +1,230 @@
+---
+title: Managing Plugins
+description: Selecting and configuring plugins for your team
+sidebar:
+  order: 4
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Plugins extend Claude Code with additional capabilities. As a team leader, you select which plugins your team uses.
+
+## Understanding Plugin Sources
+
+Plugins come from **marketplaces**—repositories of approved plugins.
+
+### Official Marketplace
+
+The official marketplace is maintained by SCC:
+
+```json
+{
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  }
+}
+```
+
+### Custom Marketplaces
+
+Your organization may have internal marketplaces:
+
+```json
+{
+  "marketplaces": {
+    "internal-tools": {
+      "source": "github",
+      "owner": "your-org",
+      "repo": "scc-plugins"
+    }
+  }
+}
+```
+
+## Adding Plugins to Your Team
+
+### Plugin Reference Format
+
+```
+plugin-name@marketplace-name
+```
+
+Examples:
+- `scc-safety-net@sandboxed-code-official`
+- `java-analyzer@internal-tools`
+- `react-devtools@frontend-marketplace`
+
+### In Your Team Config
+
+```json
+{
+  "additional_plugins": [
+    "scc-safety-net@sandboxed-code-official",
+    "java-analyzer@internal-tools",
+    "spring-boot-helper@internal-tools"
+  ]
+}
+```
+
+## Essential Plugins
+
+### scc-safety-net
+
+The most important plugin. Blocks destructive git commands:
+
+| Blocked Command | Why |
+|-----------------|-----|
+| `git push --force` | Overwrites remote history |
+| `git reset --hard` | Discards uncommitted changes |
+| `git branch -D` | Force-deletes branches |
+| `git clean -fd` | Deletes untracked files |
+| `git checkout/restore` | Can overwrite local changes |
+
+<Aside type="tip">
+  Always enable `scc-safety-net` for all teams unless you have a specific reason not to.
+</Aside>
+
+Enable in your config:
+
+```json
+"additional_plugins": [
+  "scc-safety-net@sandboxed-code-official"
+]
+```
+
+## Plugin Governance
+
+### What Gets Blocked
+
+Organization admins can block plugins by pattern:
+
+```json
+{
+  "security": {
+    "blocked_plugins": [
+      "*experimental*",
+      "*beta*",
+      "untrusted-*"
+    ]
+  }
+}
+```
+
+Even if you add these to your team config, they will be filtered out.
+
+### What You Can Add
+
+Your additions must:
+1. Come from an approved marketplace
+2. Not match any `blocked_plugins` pattern
+3. Match `allowed_plugins` pattern (if org specifies one)
+
+<Aside type="caution">
+  If you try to add a blocked plugin, it will be silently filtered. Use `scc config explain` to see what's actually enabled.
+</Aside>
+
+## Allowing Developer Additions
+
+You can let developers add project-specific plugins:
+
+```json
+{
+  "delegation": {
+    "allow_additional_plugins": ["team-*", "project-*"]
+  }
+}
+```
+
+This lets developers add plugins matching those patterns in their `.scc.yaml`.
+
+### Restrictive Approach
+
+```json
+{
+  "delegation": {
+    "allow_additional_plugins": []
+  }
+}
+```
+
+Developers cannot add any plugins beyond team defaults.
+
+### Permissive Approach
+
+```json
+{
+  "delegation": {
+    "allow_additional_plugins": ["*"]
+  }
+}
+```
+
+Developers can add any non-blocked plugin from approved marketplaces.
+
+## Auditing Plugins
+
+See what plugins are currently installed:
+
+```bash
+scc audit plugins
+```
+
+Output:
+```
+Team: backend
+Effective plugins:
+  ✓ scc-safety-net@sandboxed-code-official (from: team)
+  ✓ java-analyzer@internal (from: team)
+  ✓ project-linter@internal (from: project/.scc.yaml)
+
+Blocked plugins (attempted but filtered):
+  ✗ experimental-tool@internal (matches: *experimental*)
+```
+
+## Troubleshooting
+
+### Plugin not appearing
+
+<Steps>
+1. Check it's in an approved marketplace
+
+   ```bash
+   scc config explain --field marketplaces
+   ```
+
+2. Check it's not blocked
+
+   ```bash
+   scc config explain --field blocked_plugins
+   ```
+
+3. Check spelling of plugin and marketplace names
+
+4. Force refresh config
+
+   ```bash
+   scc update --force
+   ```
+</Steps>
+
+### Plugin blocked unexpectedly
+
+The plugin matches a `blocked_plugins` pattern. Contact your org admin if you believe this is incorrect.
+
+### Different plugins on different machines
+
+Ensure everyone has the latest config:
+
+```bash
+scc update
+```
+
+Check effective config:
+
+```bash
+scc config explain --field plugins
+```

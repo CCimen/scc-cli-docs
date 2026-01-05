@@ -1,0 +1,131 @@
+---
+title: Organization Admin Overview
+description: Managing security policies and governance for your organization
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+As an organization admin, you define the security boundaries and governance rules that all teams and developers must follow.
+
+## Your Responsibilities
+
+<CardGrid>
+  <Card title="Security Policies" icon="shield">
+    Define what plugins, MCP servers, and images are blocked globally.
+  </Card>
+  <Card title="Delegation" icon="setting">
+    Control which teams can add plugins, MCP servers, or custom configurations.
+  </Card>
+  <Card title="Marketplaces" icon="puzzle">
+    Approve plugin marketplaces that teams can use.
+  </Card>
+  <Card title="Team Profiles" icon="document">
+    Create and manage team profiles (inline or federated).
+  </Card>
+</CardGrid>
+
+## The Three-Layer Model
+
+SCC enforces a hierarchical configuration system:
+
+```
+Organization (org-config.json)
+    ↓ security blocks + defaults
+Team Profile (profiles section)
+    ↓ additional plugins/servers
+Project (.scc.yaml in repo root)
+    ↓ project-specific additions
+```
+
+Each layer can add to the previous, but **cannot remove security restrictions**.
+
+<Aside type="note">
+  Think of it as: You set the guardrails. Teams work within them. Projects customize further if teams allow it.
+</Aside>
+
+## What You Control (That Cannot Be Overridden)
+
+| Setting | Purpose |
+|---------|---------|
+| `security.blocked_plugins` | Plugin patterns nobody can use |
+| `security.blocked_mcp_servers` | MCP server patterns nobody can use |
+| `security.blocked_base_images` | Docker images nobody can use |
+| `security.allow_stdio_mcp` | Whether stdio MCP servers are permitted |
+| `defaults.allowed_plugins` | Governance whitelist for plugins |
+
+## What Teams Control (Within Your Boundaries)
+
+| Setting | Controlled By |
+|---------|---------------|
+| Additional plugins | Team leads (if delegated) |
+| Additional MCP servers | Team leads (if delegated) |
+| Session settings | Team leads |
+| Project override policy | Team leads |
+
+## Configuration Approaches
+
+### Inline Profiles
+
+Team configurations live directly in your org config file:
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "additional_plugins": ["java-tools@internal"]
+    }
+  }
+}
+```
+
+**Best for:** Small organizations, centralized control.
+
+### Federated Teams (GitOps)
+
+Teams manage their own config repositories:
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-config"
+      }
+    }
+  }
+}
+```
+
+**Best for:** Large organizations, team autonomy.
+
+## Quick Validation
+
+Always validate your configuration:
+
+```bash
+scc org validate org-config.json
+```
+
+Check effective configuration:
+
+```bash
+scc config explain
+```
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Config Setup" icon="document">
+    Create your org-config.json. [Set up →](/guides/organization/config-setup/)
+  </Card>
+  <Card title="Security Policies" icon="shield">
+    Define security blocks. [Learn more →](/guides/organization/security-policies/)
+  </Card>
+  <Card title="Delegation" icon="setting">
+    Control team permissions. [Learn more →](/guides/organization/delegation/)
+  </Card>
+</CardGrid>

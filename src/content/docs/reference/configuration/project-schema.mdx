@@ -1,0 +1,200 @@
+---
+title: Project Schema
+description: Complete reference for .scc.yaml
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Schema reference for project-level configuration (`.scc.yaml`).
+
+## Location
+
+Place `.scc.yaml` in your repository root:
+
+```
+my-project/
+├── .scc.yaml
+├── src/
+└── ...
+```
+
+## Requirements
+
+For `.scc.yaml` to take effect:
+1. Team must have `delegation.allow_project_overrides: true`
+2. Resources must not match security blocks
+3. Plugins must match team's `allow_additional_plugins` patterns (if specified)
+
+## Top-Level Structure
+
+```yaml
+schema_version: "1.0.0"
+additional_plugins: []
+additional_mcp_servers: {}
+session: {}
+```
+
+## schema_version
+
+Schema version for compatibility.
+
+```yaml
+schema_version: "1.0.0"
+```
+
+## additional_plugins
+
+Plugins to add for this project.
+
+```yaml
+additional_plugins:
+  - project-linter@internal
+  - react-tools@official
+```
+
+Requirements:
+- Team must allow project overrides
+- Plugin must match team's `allow_additional_plugins` patterns
+- Plugin must not match org's `blocked_plugins`
+
+<Aside type="note">
+  Projects can only add plugins, not remove team-level plugins.
+</Aside>
+
+## additional_mcp_servers
+
+MCP servers for this project.
+
+```yaml
+additional_mcp_servers:
+  project-api:
+    type: http
+    url: https://api.myproject.com/mcp
+```
+
+### HTTP/SSE Server
+
+```yaml
+additional_mcp_servers:
+  context7:
+    type: sse
+    url: https://context7.com/api
+    auth:
+      type: bearer
+      token: env:CONTEXT7_TOKEN
+```
+
+### Stdio Server
+
+```yaml
+additional_mcp_servers:
+  local-tool:
+    type: stdio
+    command: /usr/local/bin/tool
+    args:
+      - --config
+      - ./tool.conf
+```
+
+Requires:
+- Org to set `security.allow_stdio_mcp: true`
+- Command path to match `security.allowed_stdio_prefixes`
+
+## session
+
+Session settings for this project.
+
+```yaml
+session:
+  timeout_hours: 8
+  auto_resume: false
+```
+
+Project session settings override team settings.
+
+## Plugin Configuration
+
+Some plugins accept project-level configuration:
+
+```yaml
+plugins:
+  scc-safety-net:
+    allow_force_push: true
+```
+
+<Aside type="caution">
+  Plugin configuration options depend on the individual plugin. Check plugin documentation.
+</Aside>
+
+## Complete Example
+
+```yaml
+schema_version: "1.0.0"
+
+additional_plugins:
+  - project-linter@internal
+  - react-devtools@official
+  - team-formatter@internal
+
+additional_mcp_servers:
+  project-api:
+    type: http
+    url: https://api.myproject.com/mcp
+  local-analyzer:
+    type: stdio
+    command: /opt/tools/analyzer
+    args:
+      - --project
+      - .
+
+session:
+  timeout_hours: 8
+  auto_resume: true
+
+plugins:
+  scc-safety-net:
+    allow_force_push: false
+```
+
+## Validation
+
+Validate your project config:
+
+```bash
+# In the project directory
+scc config explain
+
+# Check for denied additions
+scc config explain --field denied_additions
+```
+
+## Common Issues
+
+### "Team disallows project overrides"
+
+```
+denied_additions:
+  - my-plugin (reason: team disallows project overrides)
+```
+
+Team has `delegation.allow_project_overrides: false`.
+
+### "Plugin doesn't match allowed patterns"
+
+```
+denied_additions:
+  - custom-tool (reason: doesn't match allow_additional_plugins)
+```
+
+Plugin name doesn't match team's `delegation.allow_additional_plugins` patterns.
+
+### "Blocked by security policy"
+
+```
+blocked_items:
+  - experimental-tool (blocked_by: *experimental*, source: org.security)
+```
+
+Plugin matches org's `security.blocked_plugins` pattern.

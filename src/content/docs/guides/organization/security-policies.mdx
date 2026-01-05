@@ -1,0 +1,256 @@
+---
+title: Security Policies
+description: Defining security blocks and restrictions
+sidebar:
+  order: 3
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Security policies define absolute boundaries that no team or project can override.
+
+## Security Section Overview
+
+```json
+{
+  "security": {
+    "blocked_plugins": [],
+    "blocked_mcp_servers": [],
+    "blocked_base_images": [],
+    "allow_stdio_mcp": false,
+    "allowed_stdio_prefixes": []
+  }
+}
+```
+
+## Blocking Plugins
+
+Block plugins by name pattern:
+
+```json
+{
+  "security": {
+    "blocked_plugins": [
+      "malicious-*",
+      "*experimental*",
+      "*beta*",
+      "untrusted-tool"
+    ]
+  }
+}
+```
+
+Patterns use glob syntax (fnmatch) with case-insensitive matching.
+
+| Pattern | Matches |
+|---------|---------|
+| `malicious-*` | `malicious-tool`, `malicious-plugin` |
+| `*experimental*` | `experimental-v1`, `my-experimental-tool` |
+| `*beta*` | `feature-beta`, `beta-release` |
+| `untrusted-tool` | Exact match only |
+
+<Aside type="danger">
+  If a plugin matches a blocked pattern, no team or project can use it. This is absolute.
+</Aside>
+
+## Blocking MCP Servers
+
+Block MCP servers by name or URL pattern:
+
+```json
+{
+  "security": {
+    "blocked_mcp_servers": [
+      "*.untrusted.com",
+      "insecure-api",
+      "*localhost*"
+    ]
+  }
+}
+```
+
+Both server names and URL domains are matched against these patterns.
+
+## Blocking Docker Images
+
+Block Docker base images:
+
+```json
+{
+  "security": {
+    "blocked_base_images": [
+      "*:latest",
+      "docker.io/*",
+      "untrusted-registry.com/*"
+    ]
+  }
+}
+```
+
+<Aside type="tip">
+  Always block `*:latest` to ensure reproducible builds. Untagged images are normalized to `:latest` before matching.
+</Aside>
+
+## Plugin Allowlist
+
+The `defaults.allowed_plugins` field controls which plugins can be enabled (governance whitelist):
+
+<Tabs>
+  <TabItem label="Unrestricted">
+  ```json
+  {
+    "defaults": {}
+  }
+  ```
+  Missing or undefined = all plugins allowed.
+  </TabItem>
+  <TabItem label="Explicit Unrestricted">
+  ```json
+  {
+    "defaults": {
+      "allowed_plugins": ["*"]
+    }
+  }
+  ```
+  Explicit wildcard = all plugins allowed.
+  </TabItem>
+  <TabItem label="Deny All">
+  ```json
+  {
+    "defaults": {
+      "allowed_plugins": []
+    }
+  }
+  ```
+  Empty array = no plugins allowed (lockdown mode).
+  </TabItem>
+  <TabItem label="Specific Whitelist">
+  ```json
+  {
+    "defaults": {
+      "allowed_plugins": [
+        "*@internal",
+        "code-review@*",
+        "approved-tool@official"
+      ]
+    }
+  }
+  ```
+  Only matching plugins are allowed.
+  </TabItem>
+</Tabs>
+
+### Invariant Rules
+
+SCC enforces two invariants at config validation:
+
+1. **`enabled ⊆ allowed`**: Enabled plugins must be in the allowed list
+2. **`enabled ∩ blocked = ∅`**: Enabled plugins must not be blocked by security
+
+If these invariants are violated, config validation fails.
+
+## Stdio MCP Policy
+
+Stdio MCP servers run local processes with elevated privileges. They're disabled by default:
+
+```json
+{
+  "security": {
+    "allow_stdio_mcp": false
+  }
+}
+```
+
+To enable with restrictions:
+
+```json
+{
+  "security": {
+    "allow_stdio_mcp": true,
+    "allowed_stdio_prefixes": [
+      "/usr/local/bin/",
+      "/opt/approved-tools/"
+    ]
+  }
+}
+```
+
+| Setting | Effect |
+|---------|--------|
+| `allow_stdio_mcp: false` | All stdio servers blocked |
+| `allow_stdio_mcp: true` + no prefixes | Any absolute path allowed |
+| `allow_stdio_mcp: true` + prefixes | Only matching paths allowed |
+
+<Aside type="caution">
+  Stdio MCP servers can access the mounted workspace, network, and environment variables. Enable with care.
+</Aside>
+
+## Two Trust Sources
+
+Understanding the trust model is critical:
+
+### SCC-Managed MCP Servers
+
+Servers declared in org/team/project config:
+- `blocked_mcp_servers` patterns apply
+- `allow_stdio_mcp` gate applies
+- `allowed_stdio_prefixes` validation applies
+- Delegation controls who can add them
+
+### Plugin-Bundled MCP Servers
+
+Servers inside plugin `.mcp.json` files:
+- **Not** governed by `blocked_mcp_servers`
+- To restrict, block the entire plugin
+- Plugins are atomic trust units
+
+<Aside type="note">
+  If you allow a plugin, you implicitly allow its bundled MCP servers. To prevent this, block the plugin itself.
+</Aside>
+
+## Example: Strict Security Config
+
+```json
+{
+  "security": {
+    "blocked_plugins": [
+      "*experimental*",
+      "*beta*",
+      "*untrusted*",
+      "*malicious*"
+    ],
+    "blocked_mcp_servers": [
+      "*.untrusted.com",
+      "*localhost*",
+      "*127.0.0.1*"
+    ],
+    "blocked_base_images": [
+      "*:latest",
+      "docker.io/*"
+    ],
+    "allow_stdio_mcp": false
+  },
+  "defaults": {
+    "allowed_plugins": [
+      "*@sandboxed-code-official",
+      "*@internal"
+    ]
+  }
+}
+```
+
+## Debugging Security Blocks
+
+See what's blocked:
+
+```bash
+scc config explain --field blocked_items
+```
+
+Output shows which patterns blocked which resources:
+
+```
+blocked_items:
+  - experimental-tool  (blocked_by: *experimental*, source: org.security)
+  - beta-plugin        (blocked_by: *beta*, source: org.security)
+```

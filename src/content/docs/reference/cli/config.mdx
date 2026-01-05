@@ -1,0 +1,130 @@
+---
+title: Config Commands
+description: Configuration management
+sidebar:
+  order: 6
+---
+
+## scc config
+
+Manage SCC configuration.
+
+```bash
+scc config [ACTION] [KEY] [VALUE] [OPTIONS]
+```
+
+**Actions:**
+
+| Action | Description |
+|--------|-------------|
+| `set KEY VALUE` | Set a configuration value |
+| `get KEY` | Get a specific value |
+| `show` | Show all configuration |
+| `edit` | Open config in editor |
+| `explain` | Explain effective configuration with sources |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--show` | Show current config |
+| `--edit` | Open config in editor |
+| `--field FIELD` | Filter explain output |
+| `--workspace PATH` | Workspace path for project context |
+
+**Examples:**
+
+```bash
+# Show current configuration
+scc config show
+
+# Explain where settings come from
+scc config explain
+
+# Explain specific field
+scc config explain --field plugins
+
+# Edit configuration
+scc config edit
+```
+
+### scc config explain
+
+Shows the effective configuration with source tracking:
+
+```
+plugins:
+  - github-copilot    (source: org.defaults)
+  - gis-tools         (source: team.urban-planning)
+  - project-linter    (source: project)
+
+blocked_items:
+  - malicious-plugin  (blocked_by: malicious-*, source: org.security)
+
+denied_additions:
+  - some-server       (requested_by: project, reason: team not delegated)
+```
+
+---
+
+## scc statusline
+
+Configure Claude Code status line integration.
+
+```bash
+scc statusline [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-i`, `--install` | Install the SCC status line script |
+| `--uninstall` | Remove the status line configuration |
+| `-s`, `--show` | Show current status line config |
+
+**Examples:**
+
+```bash
+# Install status line
+scc statusline --install
+
+# Check current config
+scc statusline --show
+
+# Remove status line
+scc statusline --uninstall
+```
+
+---
+
+## scc update
+
+Check for CLI updates and refresh cached configurations.
+
+```bash
+scc update [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-f`, `--force` | Force check even if recently checked |
+
+**Examples:**
+
+```bash
+# Check for updates
+scc update
+
+# Force refresh
+scc update --force
+```
+
+**What gets updated:**
+
+- CLI version check
+- Organization config cache
+- Team config caches (for federated teams)
+- Plugin marketplace indexes

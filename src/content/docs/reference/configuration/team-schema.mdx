@@ -1,0 +1,213 @@
+---
+title: Team Schema
+description: Complete reference for federated team config
+sidebar:
+  order: 2
+---
+
+Schema reference for federated team configuration files (external team configs).
+
+## Top-Level Structure
+
+```json
+{
+  "schema_version": "1.0.0",
+  "enabled_plugins": [],
+  "disabled_plugins": [],
+  "marketplaces": {},
+  "additional_mcp_servers": {},
+  "delegation": {},
+  "session": {}
+}
+```
+
+## schema_version
+
+Schema version for compatibility.
+
+```json
+{
+  "schema_version": "1.0.0"
+}
+```
+
+## enabled_plugins
+
+Plugins to enable for this team.
+
+```json
+{
+  "enabled_plugins": [
+    "platform-tools@team-internal",
+    "monitoring@shared",
+    "scc-safety-net@sandboxed-code-official"
+  ]
+}
+```
+
+Plugin format: `plugin-name@marketplace-name`
+
+## disabled_plugins
+
+Plugins to disable from org defaults.
+
+```json
+{
+  "disabled_plugins": [
+    "legacy-tool",
+    "deprecated-analyzer"
+  ]
+}
+```
+
+This allows teams to opt out of org-default plugins.
+
+## marketplaces
+
+Team-specific plugin marketplaces (requires trust grant).
+
+```json
+{
+  "marketplaces": {
+    "team-internal": {
+      "source": "github",
+      "owner": "myorg",
+      "repo": "platform-internal-plugins"
+    }
+  }
+}
+```
+
+Requirements:
+- Org must set `trust.allow_additional_marketplaces: true`
+- Marketplace URL must match `trust.marketplace_source_patterns`
+- Name must not conflict with org marketplaces
+
+## additional_mcp_servers
+
+MCP servers for this team.
+
+```json
+{
+  "additional_mcp_servers": {
+    "metrics": {
+      "type": "http",
+      "url": "https://metrics.internal/mcp"
+    },
+    "context7": {
+      "type": "sse",
+      "url": "https://context7.com/api"
+    }
+  }
+}
+```
+
+### MCP Server Types
+
+| Type | Fields | Description |
+|------|--------|-------------|
+| `http` | `url` | HTTP-based MCP server |
+| `sse` | `url` | Server-Sent Events |
+| `stdio` | `command`, `args` | Local process (if allowed) |
+
+### HTTP/SSE Server
+
+```json
+{
+  "metrics": {
+    "type": "http",
+    "url": "https://api.example.com/mcp",
+    "auth": {
+      "type": "bearer",
+      "token": "env:MCP_TOKEN"
+    }
+  }
+}
+```
+
+### Stdio Server
+
+```json
+{
+  "local-tool": {
+    "type": "stdio",
+    "command": "/usr/local/bin/mcp-tool",
+    "args": ["--config", "/etc/tool.conf"]
+  }
+}
+```
+
+Requires org to set `security.allow_stdio_mcp: true`.
+
+## delegation
+
+Control what projects can do.
+
+```json
+{
+  "delegation": {
+    "allow_project_overrides": true,
+    "allow_additional_plugins": ["project-*", "team-*"]
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `allow_project_overrides` | boolean | Can projects use `.scc.yaml` |
+| `allow_additional_plugins` | string[] | Plugin patterns projects can add |
+
+## session
+
+Session configuration.
+
+```json
+{
+  "session": {
+    "timeout_hours": 12,
+    "auto_resume": true
+  }
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `timeout_hours` | number | 12 | Session timeout |
+| `auto_resume` | boolean | true | Auto-resume on start |
+
+## Complete Example
+
+```json
+{
+  "schema_version": "1.0.0",
+  "enabled_plugins": [
+    "scc-safety-net@sandboxed-code-official",
+    "platform-tools@team-internal",
+    "monitoring@shared"
+  ],
+  "disabled_plugins": [
+    "legacy-tool"
+  ],
+  "marketplaces": {
+    "team-internal": {
+      "source": "github",
+      "owner": "myorg",
+      "repo": "platform-internal-plugins"
+    }
+  },
+  "additional_mcp_servers": {
+    "metrics": {
+      "type": "http",
+      "url": "https://metrics.internal/mcp"
+    }
+  },
+  "delegation": {
+    "allow_project_overrides": true,
+    "allow_additional_plugins": ["project-*"]
+  },
+  "session": {
+    "timeout_hours": 12,
+    "auto_resume": true
+  }
+}
+```

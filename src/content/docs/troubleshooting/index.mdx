@@ -1,0 +1,53 @@
+---
+title: Troubleshooting
+description: Diagnosing and fixing common issues
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+## First Steps
+
+Run the diagnostic command:
+
+```bash
+scc doctor
+```
+
+This checks:
+- Docker connectivity
+- Git availability
+- Configuration validity
+- Network access
+- Plugin status
+
+<Aside type="tip">
+  `scc doctor` should be your first step when troubleshooting any issue.
+</Aside>
+
+## Common Problems
+
+<CardGrid>
+  <Card title="Configuration Issues" icon="warning">
+    Config not loading, stale settings. [Fix →](/troubleshooting/common-issues/)
+  </Card>
+  <Card title="Docker Problems" icon="error">
+    Container won't start, connection errors. [Fix →](/troubleshooting/docker/)
+  </Card>
+  <Card title="Federation Issues" icon="document">
+    Team config not updating. [Fix →](/troubleshooting/federation/)
+  </Card>
+  <Card title="Need Help?" icon="information">
+    Create a support bundle. [Guide →](/troubleshooting/getting-help/)
+  </Card>
+</CardGrid>
+
+## Quick Fixes
+
+| Problem | Quick Fix |
+|---------|-----------|
+| Stale config | `scc update --force` |
+| Container stuck | `scc stop --all` |
+| Plugin issues | `scc audit plugins` |
+| Unknown state | `scc doctor` |

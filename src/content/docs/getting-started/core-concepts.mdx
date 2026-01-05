@@ -1,0 +1,177 @@
+---
+title: Core Concepts
+description: Understand sessions, sandboxes, profiles, and worktrees in SCC
+sidebar:
+  order: 4
+---
+
+import { Aside, Card, CardGrid } from '@astrojs/starlight/components';
+
+Before diving deeper into SCC, it's helpful to understand the key concepts that make it work.
+
+## Sessions
+
+A **session** is a running Claude Code environment inside a Docker container. Each session:
+
+- Is tied to a specific workspace (git repository)
+- Uses a specific team profile
+- Can be named for easy identification
+- Can be resumed after stopping
+
+```bash
+# Start a new session
+scc start ~/project
+
+# Resume the most recent session
+scc start --resume
+
+# Pick from recent sessions interactively
+scc start --select
+```
+
+### Session Lifecycle
+
+```
+┌─────────┐     ┌─────────┐     ┌─────────┐
+│  Start  │ ──► │ Running │ ──► │ Stopped │
+└─────────┘     └─────────┘     └─────────┘
+                    │               │
+                    │               │ scc start --resume
+                    │               ▼
+                    └───────────────┘
+```
+
+## Sandboxes
+
+A **sandbox** is the Docker container that isolates Claude Code from your host system. The sandbox:
+
+- Has access only to mounted directories (your project)
+- Cannot access sensitive files like `~/.ssh` or `~/.aws`
+- Has network access controlled by your org's policy
+- Uses a specific base Docker image
+
+<Aside type="note">
+  The term "sandbox" and "container" are often used interchangeably in SCC documentation. Technically, a sandbox is a container with specific security configurations.
+</Aside>
+
+## Team Profiles
+
+A **team profile** defines the configuration for a group of users. Each profile includes:
+
+| Setting | Description |
+|---------|-------------|
+| `plugins` | Claude Code plugins enabled for this team |
+| `mcp_servers` | MCP servers available to Claude |
+| `network_policy` | Network access rules (unrestricted, corp-proxy, isolated) |
+| `session` | Timeout and auto-resume settings |
+
+Profiles are defined in your organization's config and can be:
+- **Inline**: Defined directly in the org config file
+- **Federated**: Defined in a separate team-managed repository
+
+```bash
+# List available teams/profiles
+scc team list
+
+# Switch to a different team
+scc team switch
+
+# See current team's configuration
+scc team info
+```
+
+## Worktrees
+
+A **worktree** is a git feature that lets you check out multiple branches simultaneously in different directories. SCC uses worktrees to:
+
+- Isolate AI experiments from your main branch
+- Allow parallel development on multiple features
+- Keep your main branch clean
+
+```bash
+# Create a worktree for a new feature
+scc worktree create ~/project feature-auth
+# Creates: ~/project/.worktrees/feature-auth
+# On branch: scc/feature-auth
+
+# List all worktrees
+scc worktree list
+
+# Enter a worktree (starts a subshell)
+scc worktree enter feature-auth
+
+# Switch between worktrees
+scc worktree switch feature-auth
+```
+
+<Aside type="tip">
+  Branch names with `/` are sanitized to `-` in worktree directory names. For example, `feature/auth` becomes `feature-auth`.
+</Aside>
+
+## Configuration Layers
+
+SCC uses a three-layer configuration system:
+
+```
+┌──────────────────────────────────────┐
+│         Organization Config          │  ← Security policies, blocked plugins
+│         (org-config.json)            │    Set by: Org Admin
+├──────────────────────────────────────┤
+│           Team Profile               │  ← Team plugins, MCP servers
+│      (inline or federated)           │    Set by: Team Lead
+├──────────────────────────────────────┤
+│         Project Config               │  ← Project-specific overrides
+│           (.scc.yaml)                │    Set by: Developer
+└──────────────────────────────────────┘
+```
+
+**Key rules:**
+- Security blocks from org level cannot be overridden
+- Teams can add plugins within allowed patterns
+- Projects can extend but not remove team settings
+
+## Plugins
+
+**Plugins** extend Claude Code with additional capabilities. SCC manages plugins through:
+
+- **Marketplaces**: Repositories of approved plugins
+- **Allowlists**: Patterns defining which plugins are permitted
+- **Blocklists**: Patterns defining which plugins are forbidden
+
+The most important official plugin is **scc-safety-net**, which blocks destructive git commands.
+
+## MCP Servers
+
+**MCP (Model Context Protocol) servers** provide Claude with access to external tools and data. Types include:
+
+| Type | Description | Example |
+|------|-------------|---------|
+| HTTP | Remote API endpoints | context7, shadcn |
+| SSE | Server-Sent Events streaming | Real-time data feeds |
+| Stdio | Local subprocess servers | Playwright, custom tools |
+
+<Aside type="caution">
+  Stdio MCP servers require explicit organization approval via `allow_stdio_mcp: true` because they run local processes.
+</Aside>
+
+## Glossary
+
+| Term | Definition |
+|------|------------|
+| **Session** | A running Claude Code environment in a container |
+| **Sandbox** | The Docker container providing isolation |
+| **Profile** | Team configuration (plugins, servers, policies) |
+| **Worktree** | Isolated git checkout for parallel development |
+| **Marketplace** | Repository of approved plugins |
+| **Safety Net** | Plugin that blocks destructive git commands |
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Developer Guide" icon="rocket">
+    Learn the day-to-day workflow. [Read guide →](/guides/developer/onboarding/)
+  </Card>
+  <Card title="Configuration Reference" icon="document">
+    Dive into config file details. [See reference →](/reference/configuration/org-schema/)
+  </Card>
+</CardGrid>

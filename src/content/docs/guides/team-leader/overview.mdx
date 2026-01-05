@@ -1,0 +1,138 @@
+---
+title: Team Leader Overview
+description: Managing your team's SCC configuration
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+As a team leader, you configure plugins, MCP servers, and settings for your team. This guide explains your responsibilities and options.
+
+## What You Control
+
+<CardGrid>
+  <Card title="Team Plugins" icon="puzzle">
+    Select which plugins your team uses from the organization's allowed list.
+  </Card>
+  <Card title="MCP Servers" icon="server">
+    Configure MCP servers (context7, custom tools) for your team.
+  </Card>
+  <Card title="Session Settings" icon="setting">
+    Set default timeouts and auto-resume behavior.
+  </Card>
+  <Card title="Project Overrides" icon="document">
+    Control whether developers can add project-specific settings.
+  </Card>
+</CardGrid>
+
+## What You Cannot Control
+
+These are set at the organization level and cannot be overridden:
+
+| Setting | Controlled By |
+|---------|---------------|
+| Security blocks (plugins, servers, images) | Org Admin |
+| Safety-net policy (block/warn/allow) | Org Admin |
+| Allowed marketplaces | Org Admin |
+| Network policy restrictions | Org Admin |
+
+<Aside type="note">
+  Think of it as: Org admins set the guardrails, you work within them to optimize for your team.
+</Aside>
+
+## Configuration Options
+
+You have two ways to manage your team's configuration:
+
+### Option A: Inline Configuration
+
+Your team profile lives directly in the org config file. Changes require org admin to update the file.
+
+**Best for:** Small teams, simple setups, teams that don't need frequent changes.
+
+[Learn more about inline configuration →](/guides/team-leader/inline-config/)
+
+### Option B: GitOps (Federated Teams)
+
+Your team maintains its own config repository. You can update plugins via PRs without involving org admin.
+
+**Best for:** Autonomous teams, frequent updates, teams with specific tooling needs.
+
+[Learn more about GitOps configuration →](/guides/team-leader/gitops-config/)
+
+## Your Team Profile
+
+A typical team profile includes:
+
+```json
+{
+  "backend": {
+    "description": "Backend development team",
+    "additional_plugins": [
+      "scc-safety-net@sandboxed-code-official",
+      "java-tools@internal"
+    ],
+    "additional_mcp_servers": {
+      "context7": {
+        "type": "http",
+        "url": "https://context7.example.com"
+      }
+    },
+    "delegation": {
+      "allow_project_overrides": true,
+      "allow_additional_plugins": ["team-*"]
+    },
+    "session": {
+      "timeout_hours": 12
+    }
+  }
+}
+```
+
+## Key Decisions
+
+### Which plugins should we enable?
+
+- Start with `scc-safety-net` for git protection
+- Add language/framework specific tools your team needs
+- Avoid enabling plugins "just in case" — keep it focused
+
+### Should we allow project overrides?
+
+- **Yes:** Gives flexibility, good for diverse projects
+- **No:** Ensures consistency, good for security-sensitive teams
+
+### What session timeout?
+
+- **8 hours:** Security-focused, forces daily re-auth
+- **12 hours:** Standard workday
+- **24 hours:** Long-running tasks, data processing
+
+## Validating Your Config
+
+Always validate before deploying:
+
+```bash
+scc team validate
+```
+
+Or validate a specific config file:
+
+```bash
+scc org validate team-config.json
+```
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Inline Configuration" icon="document">
+    Simple setup, org-managed. [Set up →](/guides/team-leader/inline-config/)
+  </Card>
+  <Card title="GitOps Configuration" icon="github">
+    Team-managed, more autonomy. [Set up →](/guides/team-leader/gitops-config/)
+  </Card>
+  <Card title="Managing Plugins" icon="puzzle">
+    Choose and configure plugins. [Learn more →](/guides/team-leader/managing-plugins/)
+  </Card>
+</CardGrid>

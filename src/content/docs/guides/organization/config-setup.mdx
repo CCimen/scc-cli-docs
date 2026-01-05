@@ -1,0 +1,264 @@
+---
+title: Config Setup
+description: Creating and hosting your organization configuration
+sidebar:
+  order: 2
+---
+
+import { Steps, Tabs, TabItem, Aside, FileTree } from '@astrojs/starlight/components';
+
+This guide walks through creating your organization's SCC configuration file.
+
+## Configuration File Structure
+
+The org config is a JSON file with these main sections:
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "Acme Corp",
+    "id": "acme"
+  },
+  "marketplaces": { },
+  "security": { },
+  "defaults": { },
+  "delegation": { },
+  "profiles": { }
+}
+```
+
+## Creating Your Config
+
+<Steps>
+1. **Start with the basics**
+
+   ```json title="org-config.json"
+   {
+     "schema_version": "1.0.0",
+     "organization": {
+       "name": "Your Company",
+       "id": "your-company"
+     }
+   }
+   ```
+
+2. **Add plugin marketplaces**
+
+   ```json
+   {
+     "marketplaces": {
+       "sandboxed-code-official": {
+         "source": "github",
+         "owner": "CCimen",
+         "repo": "sandboxed-code-plugins"
+       },
+       "internal": {
+         "source": "github",
+         "owner": "your-org",
+         "repo": "scc-plugins"
+       }
+     }
+   }
+   ```
+
+3. **Define security policies**
+
+   ```json
+   {
+     "security": {
+       "blocked_plugins": ["*experimental*", "*beta*"],
+       "blocked_base_images": ["*:latest"],
+       "allow_stdio_mcp": false
+     }
+   }
+   ```
+
+4. **Set organization defaults**
+
+   ```json
+   {
+     "defaults": {
+       "enabled_plugins": [
+         "scc-safety-net@sandboxed-code-official"
+       ],
+       "session": {
+         "timeout_hours": 12,
+         "auto_resume": true
+       }
+     }
+   }
+   ```
+
+5. **Create team profiles**
+
+   ```json
+   {
+     "profiles": {
+       "backend": {
+         "description": "Backend development team",
+         "additional_plugins": [
+           "java-analyzer@internal"
+         ]
+       },
+       "frontend": {
+         "description": "Frontend development team",
+         "additional_plugins": [
+           "react-tools@internal"
+         ]
+       }
+     }
+   }
+   ```
+
+6. **Validate**
+
+   ```bash
+   scc org validate org-config.json
+   ```
+</Steps>
+
+## Complete Example
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "Acme Corp",
+    "id": "acme"
+  },
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    },
+    "internal": {
+      "source": "github",
+      "owner": "acme",
+      "repo": "scc-plugins"
+    }
+  },
+  "security": {
+    "blocked_plugins": ["*experimental*"],
+    "blocked_mcp_servers": ["*.untrusted.com"],
+    "blocked_base_images": ["*:latest"],
+    "allow_stdio_mcp": false
+  },
+  "defaults": {
+    "enabled_plugins": [
+      "scc-safety-net@sandboxed-code-official"
+    ],
+    "session": {
+      "timeout_hours": 12,
+      "auto_resume": true
+    }
+  },
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["platform", "data"]
+    }
+  },
+  "profiles": {
+    "backend": {
+      "description": "Backend development",
+      "additional_plugins": ["java-analyzer@internal"],
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    },
+    "frontend": {
+      "description": "Frontend development",
+      "additional_plugins": ["react-tools@internal"],
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    },
+    "platform": {
+      "description": "Platform engineering",
+      "additional_plugins": ["k8s-tools@internal"],
+      "additional_mcp_servers": {
+        "monitoring": {
+          "type": "http",
+          "url": "https://monitoring.internal/mcp"
+        }
+      }
+    }
+  }
+}
+```
+
+## Hosting Your Config
+
+<Tabs>
+  <TabItem label="GitHub (Public)">
+  Host in a public GitHub repository:
+
+  ```
+  https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
+  ```
+
+  Developers configure with:
+  ```bash
+  scc setup --org-url https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
+  ```
+  </TabItem>
+  <TabItem label="GitHub (Private)">
+  Host in a private repository with token auth:
+
+  ```bash
+  export SCC_ORG_TOKEN="ghp_xxxxx"
+  scc setup --org-url https://api.github.com/repos/your-org/scc-config/contents/org-config.json
+  ```
+  </TabItem>
+  <TabItem label="HTTPS Endpoint">
+  Host on any HTTPS server:
+
+  ```
+  https://config.your-company.com/scc/org-config.json
+  ```
+
+  Developers configure with:
+  ```bash
+  scc setup --org-url https://config.your-company.com/scc/org-config.json
+  ```
+  </TabItem>
+</Tabs>
+
+## Environment Variable
+
+Developers can set the org URL as an environment variable:
+
+```bash
+export SCC_ORG_URL="https://config.your-company.com/scc/org-config.json"
+```
+
+This avoids needing to specify `--org-url` on every command.
+
+## Config Caching
+
+SCC caches the org config locally:
+
+| Setting | Value |
+|---------|-------|
+| Cache location | `~/.cache/scc/org-config/` |
+| Cache TTL | 24 hours |
+| Force refresh | `scc update --force` |
+
+<Aside type="tip">
+  After updating the org config, have developers run `scc update` to get the latest version.
+</Aside>
+
+## Validation Commands
+
+```bash
+# Validate config syntax
+scc org validate org-config.json
+
+# Check org status and cache
+scc org status
+
+# Force refresh from remote
+scc org update --force
+```

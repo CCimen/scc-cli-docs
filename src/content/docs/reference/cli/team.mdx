@@ -1,0 +1,164 @@
+---
+title: Team Commands
+description: Managing team profiles
+sidebar:
+  order: 5
+---
+
+## scc team list
+
+List available team profiles.
+
+```bash
+scc team list [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-v`, `--verbose` | Show full descriptions |
+| `-s`, `--sync` | Sync team configs from organization |
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+**Examples:**
+
+```bash
+# List teams
+scc team list
+
+# List with descriptions
+scc team list --verbose
+
+# Sync and list
+scc team list --sync
+```
+
+---
+
+## scc team current
+
+Show the currently selected team.
+
+```bash
+scc team current [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+---
+
+## scc team switch
+
+Switch to a different team profile.
+
+```bash
+scc team switch [TEAM_NAME] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `TEAM_NAME` | Team name (interactive picker if omitted) |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--non-interactive` | Fail if team name not provided |
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+**Examples:**
+
+```bash
+# Interactive picker
+scc team switch
+
+# Switch directly
+scc team switch backend
+
+# Automation mode
+scc team switch frontend --non-interactive
+```
+
+---
+
+## scc team info
+
+Show detailed information about a team.
+
+```bash
+scc team info <TEAM_NAME> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `TEAM_NAME` | Team name to show details for |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+**Output includes:**
+
+- Description
+- Enabled plugins
+- MCP servers
+- Delegation settings
+- Session configuration
+- Config source (for federated teams)
+
+---
+
+## scc team validate
+
+Validate team configuration against organization policies.
+
+```bash
+scc team validate <TEAM_NAME> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `TEAM_NAME` | Team name to validate |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-v`, `--verbose` | Show detailed validation output |
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+**Examples:**
+
+```bash
+# Validate team config
+scc team validate backend
+
+# Detailed validation output
+scc team validate backend --verbose
+```
+
+**Validates:**
+
+- Plugin references exist in approved marketplaces
+- No blocked plugins are enabled
+- MCP server URLs don't match blocked patterns
+- Trust grants are valid (for federated teams)
+- Delegation settings are consistent

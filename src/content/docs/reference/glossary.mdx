@@ -1,0 +1,99 @@
+---
+title: Glossary
+description: Key terms and concepts in SCC
+sidebar:
+  order: 10
+---
+
+## Core Concepts
+
+### Session
+A Claude Code work session running inside a Docker container. Sessions persist across restarts and can be resumed with `scc start --resume`.
+
+### Sandbox
+The Docker container that isolates Claude Code from the host system. Sandboxes provide security through containerization while allowing workspace access.
+
+### Profile (Team Profile)
+A configuration set for a specific team. Profiles define plugins, MCP servers, session settings, and delegation rules.
+
+### Worktree
+A git worktree created for parallel development. Each worktree has its own working directory and can run independent Claude sessions.
+
+### Workspace
+The directory mounted into the sandbox. Typically a git repository root where Claude Code operates.
+
+## Configuration
+
+### Organization Config (org-config.json)
+The top-level configuration file hosted by an organization. Defines security policies, marketplaces, defaults, and team profiles.
+
+### Team Config
+Configuration specific to a team. Can be inline (in org config) or federated (external repository).
+
+### Project Config (.scc.yaml)
+Optional per-repository configuration. Allows projects to add plugins and MCP servers within team-allowed boundaries.
+
+### Federation (Federated Teams)
+Teams that store their configuration in external repositories, enabling independent management while respecting organization security policies.
+
+### Config Source
+The location of a federated team's configuration (GitHub, GitLab, HTTPS URL).
+
+## Security & Governance
+
+### Security Block
+Glob patterns that absolutely prevent usage of certain plugins, MCP servers, or Docker images. Cannot be overridden.
+
+### Delegation
+The system controlling which teams can add resources and whether projects can extend team configurations.
+
+### Exception
+A time-bounded override for governance controls. Local overrides bypass delegation; policy exceptions bypass security blocks.
+
+### Trust Grant
+Permissions given to federated teams, controlling marketplace inheritance and additional marketplace definitions.
+
+### Safety Net
+The `scc-safety-net` plugin that blocks destructive git commands like `push --force` and `reset --hard`.
+
+## Plugins & Tools
+
+### Plugin
+An extension that adds capabilities to Claude Code. Installed from marketplaces.
+
+### Marketplace
+A repository containing plugins. Can be official, organization-internal, or team-specific.
+
+### MCP Server (Model Context Protocol)
+External services that provide context or tools to Claude. Types: HTTP, SSE (Server-Sent Events), or stdio (local process).
+
+### Stdio MCP
+An MCP server running as a local process. Disabled by default due to elevated privileges.
+
+## Operations
+
+### Dry Run
+Preview mode that shows what would happen without actually executing. Used with `scc start --dry-run`.
+
+### Config Explain
+Command that shows effective configuration with source tracking. Run with `scc config explain`.
+
+### Audit
+Inspection of installed plugins and their status. Run with `scc audit plugins`.
+
+### Prune
+Cleanup of stopped containers or stale worktree entries.
+
+## Technical Terms
+
+### TTL (Time To Live)
+Duration before an exception expires. Specified as `8h`, `30m`, `1d`, etc.
+
+### Glob Pattern
+Wildcard pattern using `*` for matching. For example, `*experimental*` matches any string containing "experimental".
+
+### Cache TTL
+How long SCC caches remote configurations before re-fetching. Default: 24 hours.
+
+### Exit Code
+Numeric code returned by commands indicating success or failure type. See [CLI Overview](/reference/cli/overview/).

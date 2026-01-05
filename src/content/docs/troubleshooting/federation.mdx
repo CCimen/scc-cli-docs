@@ -1,0 +1,62 @@
+---
+title: Federation Issues
+description: Federated team configuration problems
+sidebar:
+  order: 4
+---
+
+## Config Not Updating
+
+**Symptoms:** Changes to team config not reflected
+
+**Fix:**
+```bash
+scc org update --team <team-name>
+# or
+scc org update --all-teams
+```
+
+## Trust Validation Failed
+
+**Symptoms:** "Trust validation error"
+
+**Causes:**
+- Team added unauthorized marketplace
+- Marketplace URL doesn't match patterns
+
+**Fix:**
+```bash
+scc team validate <team-name>
+```
+
+Check `marketplace_source_patterns` in org config.
+
+## Config Fetch Failed
+
+**Symptoms:** "Failed to fetch team config"
+
+**Causes:**
+- Repository URL incorrect
+- Auth token expired
+- Branch doesn't exist
+
+**Fix:**
+1. Check repository accessibility
+2. Verify token in org config
+3. Check branch name
+
+## Marketplace Collision
+
+**Symptoms:** "Marketplace name collision"
+
+**Cause:** Team marketplace name conflicts with org
+
+**Fix:** Use unique name in team config.
+
+## Cache Issues
+
+Clear cached team config:
+```bash
+rm -rf ~/.cache/scc/team-config/
+scc update
+```

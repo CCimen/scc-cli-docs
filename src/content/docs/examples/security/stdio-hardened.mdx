@@ -1,0 +1,24 @@
+---
+title: Stdio Hardened
+description: Controlled stdio MCP with path restrictions
+sidebar:
+  order: 2
+---
+
+Enable stdio MCP servers with strict path controls.
+
+## Configuration
+
+```json title="org-config.json"
+{
+  "security": {
+    "allow_stdio_mcp": true,
+    "allowed_stdio_prefixes": [
+      "/usr/local/bin/",
+      "/opt/approved-tools/"
+    ]
+  }
+}
+```
+
+Only commands in approved paths can run as stdio MCP servers.

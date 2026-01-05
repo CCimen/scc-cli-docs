@@ -1,0 +1,233 @@
+---
+title: Organization Schema
+description: Complete reference for org-config.json
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Complete schema reference for organization configuration files.
+
+## Top-Level Structure
+
+```json
+{
+  "schema_version": "1.0.0",
+  "organization": { },
+  "marketplaces": { },
+  "security": { },
+  "defaults": { },
+  "delegation": { },
+  "profiles": { }
+}
+```
+
+## organization
+
+Organization identification.
+
+```json
+{
+  "organization": {
+    "name": "Acme Corp",
+    "id": "acme"
+  }
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Human-readable organization name |
+| `id` | string | Yes | Unique identifier (lowercase, no spaces) |
+
+## marketplaces
+
+Plugin marketplace sources.
+
+```json
+{
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    },
+    "internal": {
+      "source": "github",
+      "owner": "your-org",
+      "repo": "scc-plugins"
+    }
+  }
+}
+```
+
+### Marketplace Entry
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `source` | string | Yes | `github`, `git`, or `url` |
+| `owner` | string | For GitHub | Repository owner/organization |
+| `repo` | string | For GitHub | Repository name |
+| `branch` | string | No | Branch name (default: `main`) |
+| `url` | string | For git/url | Full URL to marketplace |
+
+## security
+
+Security policies that cannot be overridden.
+
+```json
+{
+  "security": {
+    "blocked_plugins": ["*experimental*", "*beta*"],
+    "blocked_mcp_servers": ["*.untrusted.com"],
+    "blocked_base_images": ["*:latest"],
+    "allow_stdio_mcp": false,
+    "allowed_stdio_prefixes": ["/usr/local/bin/"]
+  }
+}
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `blocked_plugins` | string[] | `[]` | Glob patterns for blocked plugins |
+| `blocked_mcp_servers` | string[] | `[]` | Glob patterns for blocked servers |
+| `blocked_base_images` | string[] | `[]` | Glob patterns for blocked images |
+| `allow_stdio_mcp` | boolean | `false` | Allow stdio MCP servers |
+| `allowed_stdio_prefixes` | string[] | `[]` | Allowed paths for stdio commands |
+
+<Aside type="note">
+  Patterns use glob syntax (fnmatch) with case-insensitive matching.
+</Aside>
+
+## defaults
+
+Organization-wide defaults applied to all teams.
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"],
+    "allowed_plugins": ["*@internal", "*@sandboxed-code-official"],
+    "session": {
+      "timeout_hours": 12,
+      "auto_resume": true
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `enabled_plugins` | string[] | Plugins enabled for all teams |
+| `allowed_plugins` | string[] | Governance whitelist for plugins |
+| `session` | object | Default session settings |
+| `session.timeout_hours` | number | Session timeout in hours |
+| `session.auto_resume` | boolean | Auto-resume sessions |
+
+### allowed_plugins Semantics
+
+| Value | Meaning |
+|-------|---------|
+| Missing/undefined | Unrestricted (all allowed) |
+| `[]` (empty) | Deny all (lockdown mode) |
+| `["*"]` | Explicit unrestricted |
+| Patterns | Only matching plugins allowed |
+
+## delegation
+
+Controls what teams can add.
+
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["platform", "data"]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `teams.allow_additional_plugins` | string[] | Teams that can add plugins |
+| `teams.allow_additional_mcp_servers` | string[] | Teams that can add MCP servers |
+
+Values:
+- `["*"]` - All teams
+- `["team1", "team2"]` - Only listed teams
+- `[]` or missing - No teams
+
+## profiles
+
+Team profile definitions.
+
+### Inline Profile
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "description": "Backend development team",
+      "additional_plugins": ["java-analyzer@internal"],
+      "additional_mcp_servers": {
+        "context7": {
+          "type": "http",
+          "url": "https://context7.example.com"
+        }
+      },
+      "delegation": {
+        "allow_project_overrides": true,
+        "allow_additional_plugins": ["project-*"]
+      },
+      "session": {
+        "timeout_hours": 12
+      }
+    }
+  }
+}
+```
+
+### Federated Profile
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "description": "Platform team - externally managed",
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-config",
+        "branch": "main"
+      },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": ["github.com/myorg/**"]
+      }
+    }
+  }
+}
+```
+
+### Profile Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `description` | string | Human-readable description |
+| `additional_plugins` | string[] | Plugins for this team |
+| `additional_mcp_servers` | object | MCP servers for this team |
+| `delegation` | object | Project override settings |
+| `session` | object | Session settings |
+| `config_source` | object | External config (federated) |
+| `trust` | object | Trust grants (federated) |
+
+### Trust Grants
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `inherit_org_marketplaces` | boolean | `true` | Use org marketplaces |
+| `allow_additional_marketplaces` | boolean | `false` | Team can add marketplaces |
+| `marketplace_source_patterns` | string[] | `[]` | Allowed marketplace URLs |

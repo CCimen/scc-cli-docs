@@ -1,0 +1,82 @@
+---
+title: Session Commands
+description: Managing work sessions and contexts
+sidebar:
+  order: 3
+---
+
+## scc sessions
+
+List recent sessions.
+
+```bash
+scc sessions [OPTIONS]
+```
+
+**Aliases:** `scc session list`
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-n`, `--limit N` | Number of sessions to show (default: 10) |
+| `-s`, `--select` | Interactive picker to select a session |
+
+**Examples:**
+
+```bash
+# List recent sessions
+scc sessions
+
+# Show more sessions
+scc sessions --limit 20
+
+# Interactive session picker
+scc sessions --select
+```
+
+**Output includes:**
+
+- Session name
+- Workspace path
+- Team profile
+- Last active time
+- Container status (running/stopped)
+
+---
+
+## scc context
+
+Manage work contexts (team + workspace associations).
+
+Work contexts track which team profile you used with which workspace, enabling quick resume without re-selecting.
+
+### scc context clear
+
+Clear stored work contexts.
+
+```bash
+scc context clear [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-y`, `--yes` | Skip confirmation prompt |
+
+**Examples:**
+
+```bash
+# Clear with confirmation
+scc context clear
+
+# Clear without confirmation
+scc context clear --yes
+```
+
+**When to clear contexts:**
+
+- After switching teams
+- When context associations are incorrect
+- Before starting fresh with new setup

@@ -1,0 +1,73 @@
+---
+title: Plugin Marketplace
+description: The SCC plugin ecosystem
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Plugins extend Claude Code with additional capabilities within the SCC sandbox.
+
+## Official Marketplace
+
+The official SCC plugin marketplace:
+
+```json
+{
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  }
+}
+```
+
+## Plugin Reference Format
+
+```
+plugin-name@marketplace-name
+```
+
+Examples:
+- `scc-safety-net@sandboxed-code-official`
+- `java-analyzer@internal`
+
+## Available Plugins
+
+### scc-safety-net
+
+Blocks destructive git commands. **Recommended for all organizations.**
+
+### Language Analyzers
+
+- `java-analyzer` - Java/Spring Boot support
+- `python-tools` - Python development tools
+- `react-devtools` - React development support
+
+<Aside type="tip">
+  Check with your organization for internal plugins specific to your tech stack.
+</Aside>
+
+## Installing Plugins
+
+Plugins are installed via organization or team configuration:
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": [
+      "scc-safety-net@sandboxed-code-official"
+    ]
+  }
+}
+```
+
+## Plugin Security
+
+Plugins are atomic trust units:
+- If allowed, all bundled MCP servers are also allowed
+- Security blocks apply to plugin names, not internals
+- Use `blocked_plugins` patterns to restrict

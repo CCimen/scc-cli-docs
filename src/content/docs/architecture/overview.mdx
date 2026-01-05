@@ -1,0 +1,47 @@
+---
+title: Architecture Overview
+description: System design and components
+sidebar:
+  order: 1
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+SCC provides a secure, sandboxed environment for running Claude Code with organization-managed configurations.
+
+## System Components
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Developer Machine                    │
+├─────────────────────────────────────────────────────────┤
+│  SCC CLI                                                 │
+│  ├── Config Resolution                                   │
+│  ├── Session Management                                  │
+│  └── Docker Orchestration                                │
+├─────────────────────────────────────────────────────────┤
+│  Docker Container (Sandbox)                              │
+│  ├── Claude Code                                         │
+│  ├── Plugins (hooks)                                     │
+│  ├── MCP Servers                                         │
+│  └── Mounted Workspace                                   │
+└─────────────────────────────────────────────────────────┘
+            │
+            ▼
+┌─────────────────────────────────────────────────────────┐
+│               Remote Configuration                       │
+│  ├── Organization Config (hosted)                       │
+│  └── Federated Team Configs (optional)                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Key Design Principles
+
+1. **Security by Default**: Sandboxed execution, blocked dangerous patterns
+2. **Hierarchical Config**: Org → Team → Project inheritance
+3. **Governance**: Centralized policy with delegated customization
+4. **Offline Capable**: Cached configs for disconnected operation
+
+<Aside type="note">
+  Configuration is fetched once and cached. Daily work doesn't require network access.
+</Aside>

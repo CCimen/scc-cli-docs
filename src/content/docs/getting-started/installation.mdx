@@ -1,0 +1,128 @@
+---
+title: Installation
+description: Install SCC CLI and its prerequisites
+sidebar:
+  order: 2
+---
+
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+## Prerequisites
+
+Before installing SCC, ensure you have:
+
+| Requirement | Minimum Version | Check Command |
+|-------------|-----------------|---------------|
+| Python | 3.10+ | `python --version` |
+| Docker Desktop | 4.50+ | `docker --version` |
+| Git | 2.30+ | `git --version` |
+
+<Aside type="caution">
+  Docker Desktop 4.50+ is required because SCC uses the Docker sandbox feature for isolation. Earlier versions won't work.
+</Aside>
+
+## Install SCC CLI
+
+<Tabs syncKey="pkg">
+  <TabItem label="pip">
+  ```bash
+  pip install scc-cli
+  ```
+  </TabItem>
+  <TabItem label="pipx (recommended)">
+  ```bash
+  # pipx installs in isolated environment
+  pipx install scc-cli
+  ```
+  </TabItem>
+  <TabItem label="uv">
+  ```bash
+  uv tool install scc-cli
+  ```
+  </TabItem>
+</Tabs>
+
+## Verify Installation
+
+<Steps>
+1. **Check SCC is installed**
+
+   ```bash
+   scc --version
+   ```
+
+   You should see output like `scc-cli 1.5.0`
+
+2. **Run diagnostics**
+
+   ```bash
+   scc doctor
+   ```
+
+   This checks:
+   - Docker is running and accessible
+   - Docker version meets requirements
+   - Git is configured
+   - Config directories exist
+
+3. **Review any warnings**
+
+   If `scc doctor` shows issues, address them before proceeding.
+</Steps>
+
+## Platform-Specific Notes
+
+<Tabs syncKey="os">
+  <TabItem label="macOS">
+  - Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)
+  - Ensure Docker Desktop is running (check menu bar icon)
+  - No additional configuration needed
+  </TabItem>
+  <TabItem label="Linux">
+  - Docker Desktop or Docker Engine works
+  - Ensure your user is in the `docker` group:
+    ```bash
+    sudo usermod -aG docker $USER
+    # Log out and back in for changes to take effect
+    ```
+  </TabItem>
+  <TabItem label="Windows (WSL2)">
+  - Install Docker Desktop with WSL2 backend
+  - Run SCC from within WSL2, not PowerShell
+  - File operations may be slower due to WSL filesystem translation
+
+  <Aside type="tip">
+    For best performance on Windows, keep your projects inside the WSL filesystem (`~/projects`) rather than `/mnt/c/`.
+  </Aside>
+  </TabItem>
+</Tabs>
+
+## Updating SCC
+
+<Tabs syncKey="pkg">
+  <TabItem label="pip">
+  ```bash
+  pip install --upgrade scc-cli
+  ```
+  </TabItem>
+  <TabItem label="pipx">
+  ```bash
+  pipx upgrade scc-cli
+  ```
+  </TabItem>
+  <TabItem label="uv">
+  ```bash
+  uv tool upgrade scc-cli
+  ```
+  </TabItem>
+</Tabs>
+
+Or use the built-in update command:
+
+```bash
+scc update
+```
+
+## Next Steps
+
+Now that SCC is installed, [configure it and run your first session →](/getting-started/quick-start/)

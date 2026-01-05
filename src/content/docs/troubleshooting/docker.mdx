@@ -1,0 +1,64 @@
+---
+title: Docker Issues
+description: Container and Docker problems
+sidebar:
+  order: 3
+---
+
+## Docker Not Running
+
+**Symptoms:** "Cannot connect to Docker daemon"
+
+**Fix:**
+```bash
+# macOS
+open -a Docker
+
+# Linux
+sudo systemctl start docker
+```
+
+## Container Won't Start
+
+**Symptoms:** Stuck at "Starting container..."
+
+**Fix:**
+```bash
+scc stop --all
+docker system prune -f
+scc start --fresh
+```
+
+## Image Pull Failed
+
+**Symptoms:** "Failed to pull image"
+
+**Causes:**
+- Network issues
+- Image blocked by policy
+- Registry unavailable
+
+**Fix:**
+```bash
+scc config explain --field blocked_base_images
+docker pull <image> # Test manually
+```
+
+## Container Cleanup
+
+Remove old containers:
+```bash
+scc prune
+# or
+docker container prune
+```
+
+## Permission Denied
+
+**Symptoms:** Docker permission errors
+
+**Fix (Linux):**
+```bash
+sudo usermod -aG docker $USER
+# Log out and back in
+```

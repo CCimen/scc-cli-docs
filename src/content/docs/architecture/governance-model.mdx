@@ -1,0 +1,56 @@
+---
+title: Governance Model
+description: Delegation and policy enforcement
+sidebar:
+  order: 4
+---
+
+## Delegation Hierarchy
+
+```
+Organization Admin
+    │
+    ├── Sets security blocks
+    ├── Defines marketplaces
+    ├── Creates team profiles
+    └── Delegates to teams
+            │
+            ├── Team adds plugins (if delegated)
+            ├── Team adds MCP servers (if delegated)
+            └── Delegates to projects
+                    │
+                    └── Project adds plugins (if allowed)
+```
+
+## Delegation Controls
+
+Organization → Teams:
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["platform"]
+    }
+  }
+}
+```
+
+Teams → Projects:
+```json
+{
+  "delegation": {
+    "allow_project_overrides": true,
+    "allow_additional_plugins": ["project-*"]
+  }
+}
+```
+
+## Federated Teams
+
+Teams can manage their own configs externally:
+- Org sets trust grants
+- Team manages within trust bounds
+- Security blocks still apply
+
+See [Federation](/guides/organization/federation/).

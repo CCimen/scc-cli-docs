@@ -1,0 +1,23 @@
+---
+title: Safety Net Enabled
+description: Git protection for all users
+sidebar:
+  order: 3
+---
+
+Enable scc-safety-net for all teams.
+
+```json
+{
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  },
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
+  }
+}
+```

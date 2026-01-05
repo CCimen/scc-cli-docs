@@ -1,0 +1,95 @@
+---
+title: Configuration Examples
+description: Example configurations for different use cases
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Choose an example that matches your use case, then customize it for your organization.
+
+## Find Your Starting Point
+
+<CardGrid>
+  <LinkCard
+    title="Just Getting Started?"
+    href="/examples/basics/minimal/"
+    description="Minimal config to get up and running quickly"
+  />
+  <LinkCard
+    title="Single Team Setup"
+    href="/examples/basics/single-team/"
+    description="Simple organization with one team profile"
+  />
+  <LinkCard
+    title="Multiple Teams"
+    href="/examples/team-setups/multi-team/"
+    description="Teams with delegation and different permissions"
+  />
+  <LinkCard
+    title="Security Focus"
+    href="/examples/security/strict/"
+    description="Locked-down configuration for security-conscious orgs"
+  />
+</CardGrid>
+
+## By Category
+
+### Basics
+
+Start here if you're new to SCC:
+
+- [Minimal Config](/examples/basics/minimal/) - Bare minimum to get started
+- [Single Team](/examples/basics/single-team/) - One team, simple setup
+
+### Team Setups
+
+Multiple teams with different needs:
+
+- [Multi-Team](/examples/team-setups/multi-team/) - Teams with delegation
+- [Inline Profiles](/examples/team-setups/inline-profiles/) - All teams in one config
+
+### Security
+
+Locked-down configurations:
+
+- [Strict Security](/examples/security/strict/) - Maximum restrictions
+- [Stdio Hardened](/examples/security/stdio-hardened/) - Controlled stdio MCP
+- [Safety Net](/examples/security/safety-net/) - Git protection enabled
+
+### Federation
+
+Teams managing their own configs:
+
+- [GitHub Federation](/examples/federation/github/) - Teams on GitHub
+- [Hybrid Setup](/examples/federation/hybrid/) - Mix of GitHub and GitLab
+- [Full Federation](/examples/federation/full/) - Complete federated example
+
+### Real-World
+
+Production-ready examples:
+
+- [Example Org](/examples/real-world/example-org/) - Complete organization
+- [Sundsvall](/examples/real-world/sundsvall/) - Municipality setup
+
+## Using These Examples
+
+1. **Choose** an example that matches your needs
+2. **Copy** the configuration
+3. **Update** organization name and ID
+4. **Customize** security, teams, and plugins
+5. **Validate** with `scc org validate config.json`
+6. **Host** on GitHub, GitLab, or any HTTPS endpoint
+7. **Distribute** the URL to your developers
+
+## Example Structure
+
+Each example includes:
+
+- **Purpose**: What scenario it addresses
+- **When to Use**: Ideal use cases
+- **When NOT to Use**: Better alternatives
+- **Configuration**: The complete JSON
+- **How to Use**: Step-by-step setup
+- **Verification**: Commands to test it works

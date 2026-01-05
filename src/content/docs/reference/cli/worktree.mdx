@@ -1,0 +1,233 @@
+---
+title: Worktree Commands
+description: Git worktree management for parallel development
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Git worktrees allow parallel development on multiple branches simultaneously.
+
+## scc worktree create
+
+Create a new worktree for parallel development.
+
+```bash
+scc worktree create <WORKSPACE> <NAME> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `WORKSPACE` | Path to the main repository |
+| `NAME` | Name for the worktree/feature |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-b`, `--base BRANCH` | Base branch (default: current) |
+| `--start` / `--no-start` | Start Claude after creating (default: `--start`) |
+| `--install-deps` | Install dependencies after creating |
+
+**Examples:**
+
+```bash
+# Create worktree and start session
+scc worktree create ~/project feature-auth
+
+# Create from specific branch
+scc worktree create ~/project bugfix-123 --base main
+
+# Create without starting Claude
+scc worktree create ~/project experiment --no-start
+```
+
+<Aside type="note">
+  Branch names with `/` are sanitized to `-` (e.g., `feature/auth` → `feature-auth`).
+</Aside>
+
+---
+
+## scc worktree list
+
+List all worktrees for a repository.
+
+```bash
+scc worktree list [WORKSPACE] [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-i`, `--interactive` | Select a worktree to work with |
+| `-v`, `--verbose` | Show git status |
+| `--json` | Output as JSON |
+
+**Verbose status indicators:**
+
+| Symbol | Meaning |
+|--------|---------|
+| `+N` | N staged files |
+| `!N` | N modified files |
+| `?N` | N untracked files |
+| `.` | Clean worktree |
+| `…` | Status timed out |
+
+**Examples:**
+
+```bash
+# List worktrees
+scc worktree list
+
+# List with git status
+scc worktree list -v
+
+# Interactive picker
+scc worktree list -i
+```
+
+---
+
+## scc worktree enter
+
+Enter a worktree in a new subshell.
+
+```bash
+scc worktree enter [TARGET] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `TARGET` | Worktree name, `-` (previous), `^` (main), or fuzzy match |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-w`, `--workspace PATH` | Repository path (default: current) |
+
+**Examples:**
+
+```bash
+# Enter by name
+scc worktree enter feature-auth
+
+# Enter main branch worktree
+scc worktree enter ^
+
+# Enter previous worktree
+scc worktree enter -
+
+# Type 'exit' to return
+```
+
+---
+
+## scc worktree switch
+
+Switch to a worktree (outputs path for shell wrapper).
+
+```bash
+scc worktree switch [TARGET] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `TARGET` | Worktree name, `-` (previous), `^` (main), or fuzzy match |
+
+**Shell wrapper (add to ~/.bashrc or ~/.zshrc):**
+
+```bash
+wt() {
+  local p
+  p="$(scc worktree switch "$@")" || return $?
+  cd "$p" || return 1
+}
+```
+
+Then use:
+
+```bash
+wt feature-auth  # Switch to feature-auth
+wt -             # Switch to previous
+wt ^             # Switch to main
+```
+
+---
+
+## scc worktree select
+
+Interactive worktree picker.
+
+```bash
+scc worktree select [WORKSPACE] [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-b`, `--branches` | Include branches without worktrees |
+
+---
+
+## scc worktree remove
+
+Remove a worktree.
+
+```bash
+scc worktree remove <WORKSPACE> <NAME> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `WORKSPACE` | Path to the main repository |
+| `NAME` | Name of the worktree to remove |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-f`, `--force` | Force removal with uncommitted changes |
+| `-y`, `--yes` | Skip confirmation |
+| `--dry-run` | Preview what would be removed |
+
+---
+
+## scc worktree prune
+
+Clean stale worktree entries from git.
+
+```bash
+scc worktree prune [WORKSPACE] [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-n`, `--dry-run` | Preview what would be pruned |
+
+**Examples:**
+
+```bash
+# Preview what would be pruned
+scc worktree prune -n
+
+# Actually prune stale entries
+scc worktree prune
+```
+
+<Aside type="tip">
+  Run `scc worktree prune` periodically to clean up entries for worktrees that were deleted manually.
+</Aside>

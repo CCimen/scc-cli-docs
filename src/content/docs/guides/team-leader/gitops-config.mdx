@@ -1,0 +1,292 @@
+---
+title: GitOps Configuration
+description: Managing team config through your own repository
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside, FileTree } from '@astrojs/starlight/components';
+
+GitOps (federated) configuration lets your team maintain its own config repository. This provides more autonomy while still respecting organization security boundaries.
+
+## When to Use GitOps
+
+- Medium to large teams
+- Frequent configuration changes
+- Teams want PR-based review process
+- Need version history for compliance
+- Different teams need different update cycles
+
+## How It Works
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Organization Config                        │
+│  Points to team's external config repository                 │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Team Config Repo                          │
+│  github.com/acme/backend-team-scc-config                     │
+│  ├── team-config.json                                        │
+│  └── README.md                                               │
+└──────────────────────────────────────────────────────────────┘
+```
+
+## Setting Up
+
+<Steps>
+1. **Create your team's config repository**
+
+   Create a new repository (public or private) to hold your team's config.
+
+   <FileTree>
+   - backend-team-scc-config/
+     - team-config.json
+     - README.md
+   </FileTree>
+
+2. **Create team-config.json**
+
+   ```json title="team-config.json"
+   {
+     "schema_version": "1.0.0",
+     "additional_plugins": [
+       "scc-safety-net@sandboxed-code-official",
+       "java-analyzer@internal-marketplace"
+     ],
+     "additional_mcp_servers": {
+       "context7": {
+         "type": "http",
+         "url": "https://context7.com/api"
+       }
+     },
+     "session": {
+       "timeout_hours": 12
+     }
+   }
+   ```
+
+3. **Ask org admin to configure federation**
+
+   The org config needs to point to your repository:
+
+   ```json title="org-config.json (org admin adds this)"
+   {
+     "profiles": {
+       "backend": {
+         "config_source": {
+           "source": "github",
+           "owner": "acme",
+           "repo": "backend-team-scc-config"
+         },
+         "trust": {
+           "inherit_org_marketplaces": true,
+           "allow_additional_marketplaces": false
+         }
+       }
+     }
+   }
+   ```
+
+4. **Validate your config**
+
+   ```bash
+   scc org validate team-config.json
+   ```
+</Steps>
+
+## Source Types
+
+### GitHub
+
+```json
+"config_source": {
+  "source": "github",
+  "owner": "org-name",
+  "repo": "team-config-repo",
+  "branch": "main",
+  "path": "team-config.json"
+}
+```
+
+For private repos, org admin configures token auth.
+
+### GitLab
+
+```json
+"config_source": {
+  "source": "git",
+  "url": "git@gitlab.example.com:team/config.git",
+  "branch": "main"
+}
+```
+
+### HTTPS Endpoint
+
+```json
+"config_source": {
+  "source": "url",
+  "url": "https://config.example.com/team/backend.json",
+  "auth": {
+    "type": "bearer",
+    "token": "env:CONFIG_TOKEN"
+  }
+}
+```
+
+## Trust Settings
+
+Org admin controls what your federated config can do:
+
+### inherit_org_marketplaces
+
+```json
+"trust": {
+  "inherit_org_marketplaces": true
+}
+```
+
+- **true:** Your team can use all org-approved marketplaces
+- **false:** Your team only uses marketplaces you define
+
+### allow_additional_marketplaces
+
+```json
+"trust": {
+  "allow_additional_marketplaces": true,
+  "marketplace_source_patterns": [
+    "github.com/acme/**"
+  ]
+}
+```
+
+- **true:** Your team can add custom marketplaces (within patterns)
+- **false:** Your team can only use org-defined marketplaces
+
+<Aside type="note">
+  Even with `allow_additional_marketplaces: true`, plugins from those marketplaces still cannot match organization `blocked_plugins` patterns.
+</Aside>
+
+## Config File Structure
+
+```json title="team-config.json"
+{
+  "schema_version": "1.0.0",
+
+  "additional_plugins": [
+    "plugin-name@marketplace"
+  ],
+
+  "additional_mcp_servers": {
+    "server-name": {
+      "type": "http",
+      "url": "https://..."
+    }
+  },
+
+  "marketplaces": {
+    "team-marketplace": {
+      "source": "github",
+      "owner": "acme",
+      "repo": "team-plugins"
+    }
+  },
+
+  "delegation": {
+    "allow_project_overrides": true,
+    "allow_additional_plugins": ["team-*"]
+  },
+
+  "session": {
+    "timeout_hours": 12,
+    "auto_resume": true
+  }
+}
+```
+
+## Workflow: Making Changes
+
+<Steps>
+1. **Create a branch**
+
+   ```bash
+   git checkout -b add-new-plugin
+   ```
+
+2. **Edit team-config.json**
+
+   ```json
+   "additional_plugins": [
+     "scc-safety-net@official",
+     "new-tool@marketplace"  // ← Added
+   ]
+   ```
+
+3. **Validate locally**
+
+   ```bash
+   scc org validate team-config.json
+   ```
+
+4. **Create PR and get review**
+
+5. **Merge to main**
+
+6. **Developers get update**
+
+   ```bash
+   scc update
+   # or automatic on next session start
+   ```
+</Steps>
+
+## Caching and Updates
+
+Team configs are cached locally:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| Cache TTL | 24 hours | How long before re-fetching |
+| Force refresh | `scc update` | Immediately fetch latest |
+| Offline mode | Uses cache | Works without network |
+
+<Aside type="tip">
+  If developers report stale config, have them run `scc update` to force refresh.
+</Aside>
+
+## Troubleshooting
+
+### "Trust validation failed"
+
+Your config tries to use something the org doesn't permit:
+
+```bash
+scc team validate
+```
+
+Common causes:
+- Adding a marketplace when `allow_additional_marketplaces: false`
+- Plugin matches org's `blocked_plugins` pattern
+
+### "Config fetch failed"
+
+- Check repository URL is correct
+- Verify authentication token is valid (for private repos)
+- Ensure branch exists
+
+### "Stale config"
+
+Force refresh:
+
+```bash
+scc update --force
+```
+
+Or clear cache:
+
+```bash
+rm -rf ~/.cache/scc/team-config/
+scc update
+```

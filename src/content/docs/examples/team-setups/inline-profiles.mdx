@@ -1,0 +1,31 @@
+---
+title: Inline Profiles
+description: All team profiles defined in org config
+sidebar:
+  order: 2
+---
+
+Teams defined directly in the organization config file.
+
+## Configuration
+
+```json title="org-config.json"
+{
+  "profiles": {
+    "backend": {
+      "description": "Backend team",
+      "additional_plugins": ["java-tools@internal"]
+    },
+    "frontend": {
+      "description": "Frontend team",
+      "additional_plugins": ["react-tools@internal"]
+    },
+    "data": {
+      "description": "Data engineering",
+      "additional_plugins": ["python-tools@internal"]
+    }
+  }
+}
+```
+
+Best for small organizations where centralized management is acceptable.

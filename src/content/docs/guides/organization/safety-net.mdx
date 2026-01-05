@@ -1,0 +1,171 @@
+---
+title: Safety Net Plugin
+description: Protecting against destructive git commands
+sidebar:
+  order: 6
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The `scc-safety-net` plugin is the most important plugin for organizations. It blocks destructive git commands that could cause data loss.
+
+## What It Blocks
+
+| Command | Why It's Dangerous |
+|---------|-------------------|
+| `git push --force` | Overwrites remote history |
+| `git push -f` | Same as above (shorthand) |
+| `git reset --hard` | Discards uncommitted changes |
+| `git branch -D` | Force-deletes branches |
+| `git clean -fd` | Deletes untracked files |
+| `git checkout <file>` | Can overwrite local changes |
+| `git restore <file>` | Can overwrite local changes |
+
+<Aside type="danger">
+  These commands can cause irreversible data loss. The safety net prevents Claude from accidentally running them.
+</Aside>
+
+## Enabling Safety Net
+
+Add to your organization defaults:
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": [
+      "scc-safety-net@sandboxed-code-official"
+    ]
+  }
+}
+```
+
+Or at the team level:
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "additional_plugins": [
+        "scc-safety-net@sandboxed-code-official"
+      ]
+    }
+  }
+}
+```
+
+<Aside type="tip">
+  Always enable `scc-safety-net` for all teams unless you have a specific reason not to.
+</Aside>
+
+## How It Works
+
+The safety net plugin uses Claude Code hooks to intercept bash commands before execution:
+
+1. Claude attempts to run a git command
+2. The hook inspects the command
+3. If it matches a dangerous pattern, the command is blocked
+4. Claude receives an error explaining why
+
+Example output when blocked:
+
+```
+Blocked by scc-safety-net: git push --force
+This command can overwrite remote history and cause data loss.
+Use 'git push' without --force instead.
+```
+
+## Safe Alternatives
+
+| Blocked Command | Safe Alternative |
+|----------------|------------------|
+| `git push --force` | `git push --force-with-lease` (still checks remote) |
+| `git reset --hard` | `git stash` (preserves changes) |
+| `git branch -D` | `git branch -d` (only deletes merged branches) |
+| `git clean -fd` | `git clean -fdn` (dry run first) |
+
+## Policy Modes
+
+Organizations can configure the safety net behavior:
+
+```json
+{
+  "defaults": {
+    "safety_net_policy": "block"
+  }
+}
+```
+
+| Mode | Behavior |
+|------|----------|
+| `block` | Commands are blocked (default) |
+| `warn` | Commands are allowed with warning |
+| `allow` | Safety net disabled |
+
+<Aside type="caution">
+  Only use `warn` or `allow` for teams that genuinely need these commands, such as release automation.
+</Aside>
+
+## Exceptions for Specific Projects
+
+Some projects may legitimately need force-push (e.g., release branches). Configure at the project level:
+
+```yaml title=".scc.yaml"
+plugins:
+  scc-safety-net:
+    allow_force_push: true
+```
+
+This requires:
+1. Team has `allow_project_overrides: true`
+2. The project explicitly opts in
+3. Org admin has not blocked this via policy
+
+## Auditing
+
+Check if safety net is active:
+
+```bash
+scc audit plugins
+```
+
+Output:
+```
+Team: backend
+Effective plugins:
+  ✓ scc-safety-net@sandboxed-code-official (from: org.defaults)
+```
+
+## Debugging
+
+If commands are unexpectedly blocked:
+
+```bash
+# Check what plugins are active
+scc config explain --field plugins
+
+# Check policy mode
+scc config explain --field safety_net_policy
+```
+
+## Best Practices
+
+1. **Enable globally**: Add to `defaults.enabled_plugins` for all users
+2. **Block at org level**: Never allow `allow` mode in security-sensitive orgs
+3. **Audit regularly**: Run `scc audit plugins` to ensure coverage
+4. **Educate developers**: Explain why these protections exist
+
+## Plugin Source
+
+The safety net plugin is maintained in the official SCC plugin marketplace:
+
+```json
+{
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  }
+}
+```

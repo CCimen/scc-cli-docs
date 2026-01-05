@@ -1,0 +1,135 @@
+---
+title: Minimal Configuration
+description: Bare minimum config to get started
+sidebar:
+  order: 1
+  badge:
+    text: Start Here
+    variant: success
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+<Aside>
+**Purpose:** Get SCC running with minimal setup.
+
+**When to use:** Personal projects, trying out SCC, small teams without complex needs.
+
+**When NOT to use:** Organizations needing security controls, multiple teams, or governance.
+</Aside>
+
+## The Configuration
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "My Organization",
+    "id": "my-org"
+  },
+  "security": {
+    "blocked_plugins": [],
+    "blocked_mcp_servers": [],
+    "blocked_base_images": ["*:latest"],
+    "allow_stdio_mcp": false
+  },
+  "defaults": {
+    "allowed_plugins": ["*"],
+    "network_policy": "unrestricted"
+  },
+  "profiles": {
+    "default": {
+      "description": "Default team profile"
+    }
+  }
+}
+```
+
+## Key Features
+
+| Feature | Setting | Effect |
+|---------|---------|--------|
+| Plugins | `allowed_plugins: ["*"]` | All plugins allowed |
+| Security | Minimal blocks | Only blocks `:latest` images |
+| Teams | Single `default` profile | Simple, one-size-fits-all |
+| Network | `unrestricted` | No proxy requirements |
+
+## How to Use
+
+<Steps>
+1. **Create the config file**
+
+   Save the JSON above as `org-config.json`
+
+2. **Update organization info**
+
+   Change `name` and `id` to match your organization
+
+3. **Validate**
+
+   ```bash
+   scc org validate org-config.json
+   ```
+
+4. **Host the file**
+
+   Upload to GitHub, GitLab, or any HTTPS server
+
+5. **Configure SCC**
+
+   ```bash
+   scc setup --org https://your-url/org-config.json
+   ```
+</Steps>
+
+## Verification
+
+```bash
+# Check config is loaded
+scc status
+
+# See effective configuration
+scc config explain
+
+# Start a session
+scc start ~/project
+```
+
+## Customizations
+
+### Add Safety Net
+
+Enable git protection:
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
+  },
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  }
+}
+```
+
+### Add Security Blocks
+
+Block experimental plugins:
+
+```json
+{
+  "security": {
+    "blocked_plugins": ["*experimental*", "*beta*"]
+  }
+}
+```
+
+## Next Steps
+
+- [Single Team Setup](/examples/basics/single-team/) - Add more structure
+- [Strict Security](/examples/security/strict/) - Add security controls
+- [Getting Started Guide](/getting-started/quick-start/) - Full onboarding

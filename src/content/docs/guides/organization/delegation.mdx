@@ -1,0 +1,204 @@
+---
+title: Delegation
+description: Controlling what teams and projects can add
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Delegation controls which teams can add resources and whether projects can extend team configurations.
+
+## Organization to Team Delegation
+
+Define which teams can add plugins and MCP servers:
+
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["platform", "data"]
+    }
+  }
+}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `["*"]` | All teams can add this resource type |
+| `["team1", "team2"]` | Only listed teams can add |
+| `[]` or missing | No team can add this resource type |
+
+### Example: Restrictive Delegation
+
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["platform"],
+      "allow_additional_mcp_servers": []
+    }
+  }
+}
+```
+
+Only the `platform` team can add plugins. No team can add MCP servers.
+
+### Example: Permissive Delegation
+
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["*"]
+    }
+  }
+}
+```
+
+All teams can add both plugins and MCP servers.
+
+## Team to Project Delegation
+
+Each team profile controls whether projects can add resources:
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "delegation": {
+        "allow_project_overrides": true,
+        "allow_additional_plugins": ["project-*", "team-*"]
+      }
+    },
+    "security": {
+      "delegation": {
+        "allow_project_overrides": false
+      }
+    }
+  }
+}
+```
+
+### allow_project_overrides
+
+| Value | Effect |
+|-------|--------|
+| `true` | Projects can use `.scc.yaml` to add resources |
+| `false` | Projects cannot add anything beyond team config |
+
+### allow_additional_plugins (Team Level)
+
+Patterns for what plugins projects can add:
+
+```json
+{
+  "delegation": {
+    "allow_additional_plugins": ["project-*", "linter-*"]
+  }
+}
+```
+
+Projects can only add plugins matching these patterns.
+
+## Delegation Chain
+
+A project can only add a resource if:
+
+1. The **organization** has delegated that resource type to the team
+2. The **team** has `allow_project_overrides: true`
+3. The resource matches the team's `allow_additional_plugins` patterns (if specified)
+4. The resource doesn't match any security block
+
+```
+Organization delegates "plugins" to team "backend"
+    ↓
+Team "backend" has allow_project_overrides: true
+    ↓
+Team "backend" has allow_additional_plugins: ["project-*"]
+    ↓
+Project adds "project-linter" in .scc.yaml
+    ↓
+"project-linter" matches "project-*" pattern
+    ↓
+"project-linter" is not in blocked_plugins
+    ↓
+✓ Addition allowed
+```
+
+## Denied Additions
+
+When a resource is denied, SCC tracks the reason:
+
+```bash
+scc config explain
+```
+
+Output:
+
+```
+denied_additions:
+  - some-mcp-server  (requested_by: project, reason: team not delegated for MCP)
+  - custom-plugin    (requested_by: project, reason: team disallows project overrides)
+```
+
+## Example: Complete Delegation Setup
+
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["platform", "data"]
+    }
+  },
+  "profiles": {
+    "backend": {
+      "description": "Backend team - flexible",
+      "delegation": {
+        "allow_project_overrides": true,
+        "allow_additional_plugins": ["*"]
+      }
+    },
+    "frontend": {
+      "description": "Frontend team - moderate",
+      "delegation": {
+        "allow_project_overrides": true,
+        "allow_additional_plugins": ["react-*", "vue-*", "angular-*"]
+      }
+    },
+    "security": {
+      "description": "Security team - locked down",
+      "delegation": {
+        "allow_project_overrides": false
+      }
+    },
+    "platform": {
+      "description": "Platform team - can add MCP servers",
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    }
+  }
+}
+```
+
+<Aside type="tip">
+  Start restrictive and grant delegation as needed. It's easier to expand than restrict.
+</Aside>
+
+## Bypassing Delegation
+
+For urgent needs, developers can use local overrides:
+
+```bash
+scc unblock some-plugin --ttl 8h --reason "Testing integration"
+```
+
+This creates a time-limited exception. See [Exceptions](/guides/organization/exceptions/) for details.
+
+<Aside type="note">
+  Local overrides cannot bypass security blocks (the `blocked_*` patterns). They only work for delegation denials.
+</Aside>

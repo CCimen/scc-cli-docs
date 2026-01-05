@@ -1,0 +1,110 @@
+---
+title: What is SCC?
+description: Introduction to SCC CLI - Sandboxed Claude CLI for running Claude Code in Docker containers
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+**SCC (Sandboxed Claude CLI)** runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic's AI coding CLI) inside Docker containers with organization-managed team profiles and git worktree support.
+
+<Aside type="tip">
+  SCC isolates AI execution in containers, enforces branch safety, and prevents destructive git commands. Organizations distribute plugins through a central config—developers get standardized setups without manual configuration.
+</Aside>
+
+## The Problem SCC Solves
+
+When teams use AI coding assistants, several challenges emerge:
+
+<CardGrid>
+  <Card title="Security Risk" icon="warning">
+    AI can execute arbitrary commands on your host machine, including destructive ones like `rm -rf` or `git push --force`.
+  </Card>
+  <Card title="Configuration Drift" icon="setting">
+    Each developer sets up their environment differently, leading to inconsistent behavior and hard-to-reproduce issues.
+  </Card>
+  <Card title="Plugin Chaos" icon="puzzle">
+    Without governance, developers install random plugins that may conflict or introduce security vulnerabilities.
+  </Card>
+  <Card title="Branch Pollution" icon="github">
+    AI experiments can pollute your main branch with commits that break the build or introduce bugs.
+  </Card>
+</CardGrid>
+
+## How SCC Helps
+
+### Docker Isolation
+
+Every Claude Code session runs inside a Docker container. The AI can only access files you explicitly mount, and it cannot affect your host system directly.
+
+```
+┌─────────────────────────────────────────┐
+│             Your Host Machine            │
+│  ┌───────────────────────────────────┐  │
+│  │         Docker Container          │  │
+│  │  ┌─────────────────────────────┐  │  │
+│  │  │       Claude Code           │  │  │
+│  │  │   (AI writes code here)     │  │  │
+│  │  └─────────────────────────────┘  │  │
+│  │         Mounted: ~/project        │  │
+│  └───────────────────────────────────┘  │
+│                                         │
+│  Safe: ~/.ssh, ~/.aws, other dirs       │
+└─────────────────────────────────────────┘
+```
+
+### Centralized Configuration
+
+Organization admins define a single JSON config that specifies:
+- Which plugins are allowed/blocked
+- Which MCP servers teams can use
+- Security policies (network access, base images)
+- Team-specific profiles
+
+Developers just run `scc setup` once and they're ready.
+
+### Git Worktree Integration
+
+SCC uses git worktrees to create isolated branches for each task:
+
+```bash
+scc worktree create ~/project feature-auth
+# Creates isolated branch scc/feature-auth
+# Claude experiments here without touching main
+```
+
+### Safety Net Plugin
+
+The official `scc-safety-net` plugin blocks dangerous git commands:
+
+- `git push --force`
+- `git reset --hard`
+- `git branch -D` (force delete)
+- `git clean -fd`
+- `git checkout/restore` (potential data loss)
+
+## Who Uses SCC?
+
+| Role | What SCC Provides |
+|------|-------------------|
+| **Developers** | Instant setup, protected main branch, isolated experiments |
+| **Team Leaders** | Approved plugin sets, consistent configs across the team |
+| **Org Admins** | Security policies, blocked plugins, audit trails |
+
+## Requirements
+
+- **Python 3.10+**
+- **Docker Desktop 4.50+** (requires sandbox support)
+- **Git 2.30+**
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Quick Start" icon="rocket">
+    Ready to try it? [Install and run in 30 seconds →](/getting-started/quick-start/)
+  </Card>
+  <Card title="Core Concepts" icon="open-book">
+    Want to understand more? [Learn the key concepts →](/getting-started/core-concepts/)
+  </Card>
+</CardGrid>

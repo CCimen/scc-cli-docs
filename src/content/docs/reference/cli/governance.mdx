@@ -1,0 +1,189 @@
+---
+title: Governance Commands
+description: Security policies and exceptions
+sidebar:
+  order: 7
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## scc exceptions list
+
+View active and expired exceptions.
+
+```bash
+scc exceptions list [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--active` | Show only active exceptions |
+| `--expired` | Show only expired exceptions |
+| `--all` | Show all exceptions |
+| `--json` | Output as JSON |
+
+---
+
+## scc exceptions create
+
+Create a new exception to unblock a resource.
+
+```bash
+scc exceptions create [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--policy` | Generate YAML for policy PR |
+| `--id ID` | Exception ID (required for `--policy`) |
+| `--ttl TTL` | Time-to-live (e.g., `8h`, `30m`, `1d`) |
+| `--expires-at TIME` | Expiration time (RFC3339) |
+| `--until TIME` | Expire at time today (HH:MM) |
+| `--reason TEXT` | Reason for exception (required) |
+| `--allow-mcp SERVER` | Allow MCP server (repeatable) |
+| `--allow-plugin PLUGIN` | Allow plugin (repeatable) |
+| `--allow-image IMAGE` | Allow base image (repeatable) |
+| `--shared` | Save to repo store |
+
+**Examples:**
+
+```bash
+# Create 8-hour exception for MCP server
+scc exceptions create --allow-mcp jira-api --ttl 8h --reason "Sprint demo"
+
+# Until end of day
+scc exceptions create --allow-plugin debug-tool --until 18:00 --reason "Debugging"
+
+# Policy exception for PR
+scc exceptions create --policy --id INC-2024-001 --allow-plugin scanner
+```
+
+---
+
+## scc exceptions delete
+
+Remove an exception by ID.
+
+```bash
+scc exceptions delete <EXCEPTION_ID> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `EXCEPTION_ID` | Exception ID or prefix |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-y`, `--yes` | Skip confirmation |
+
+---
+
+## scc exceptions cleanup
+
+Prune expired exceptions.
+
+```bash
+scc exceptions cleanup
+```
+
+---
+
+## scc exceptions reset
+
+Clear all exception stores.
+
+```bash
+scc exceptions reset [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-y`, `--yes` | Skip confirmation |
+| `--user` | Reset only user store |
+| `--repo` | Reset only repo store |
+
+---
+
+## scc unblock
+
+Quick shortcut to create an exception.
+
+```bash
+scc unblock <TARGET> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `TARGET` | Plugin, MCP server, or image to unblock |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--ttl TTL` | Time-to-live |
+| `--reason TEXT` | Reason for unblocking |
+| `--shared` | Save to repo store |
+
+**Examples:**
+
+```bash
+# Quick unblock for 8 hours
+scc unblock my-plugin --ttl 8h --reason "Testing"
+```
+
+<Aside type="note">
+  `scc unblock` can only bypass delegation denials, not security blocks.
+</Aside>
+
+---
+
+## scc audit plugins
+
+Audit installed Claude Code plugins.
+
+```bash
+scc audit plugins [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON for CI |
+
+**Exit codes:**
+
+| Code | Meaning |
+|------|---------|
+| 0 | All plugins parsed successfully |
+| 1 | One or more plugins have issues |
+
+**Examples:**
+
+```bash
+# Human-readable audit
+scc audit plugins
+
+# JSON for CI integration
+scc audit plugins --json
+```
+
+**Output shows:**
+
+- Plugin name and version
+- Source marketplace
+- Whether it's enabled
+- Any configuration issues
+- Blocked status

@@ -1,0 +1,139 @@
+---
+title: Environment Variables
+description: Environment variables for SCC configuration
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+SCC can be configured via environment variables.
+
+## Organization Configuration
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `SCC_ORG_URL` | Organization config URL | `https://example.com/org-config.json` |
+| `SCC_ORG_TOKEN` | Auth token for private configs | `ghp_xxxxx` |
+| `SCC_TEAM` | Default team profile | `backend` |
+
+```bash
+export SCC_ORG_URL="https://config.company.com/scc/org-config.json"
+export SCC_TEAM="backend"
+```
+
+<Aside type="tip">
+  Setting `SCC_ORG_URL` allows running `scc start` without `--org-url`.
+</Aside>
+
+## Debug and Logging
+
+| Variable | Description | Values |
+|----------|-------------|--------|
+| `SCC_DEBUG` | Enable debug output | `1`, `true` |
+| `SCC_LOG_LEVEL` | Log verbosity | `debug`, `info`, `warn`, `error` |
+
+```bash
+export SCC_DEBUG=1
+scc start ~/project
+```
+
+## Docker Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SCC_DOCKER_HOST` | Docker host URL | System default |
+| `SCC_CONTAINER_PREFIX` | Container name prefix | `claude-` |
+
+## Cache Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SCC_CACHE_DIR` | Cache directory | `~/.cache/scc/` |
+| `SCC_CACHE_TTL` | Cache time-to-live | `24h` |
+| `SCC_OFFLINE` | Force offline mode | `false` |
+
+```bash
+# Use custom cache directory
+export SCC_CACHE_DIR="/var/cache/scc"
+
+# Force offline mode
+export SCC_OFFLINE=1
+```
+
+## CI/CD Variables
+
+Recommended for automation:
+
+```bash
+# Required
+export SCC_ORG_URL="$SCC_ORG_URL"  # From CI secrets
+
+# Recommended
+export SCC_TEAM="ci"
+export SCC_DEBUG=1
+
+# Run validation
+scc start --dry-run --non-interactive --team ci .
+```
+
+## Token References
+
+MCP servers and auth can reference environment variables:
+
+```json
+{
+  "auth": {
+    "type": "bearer",
+    "token": "env:MCP_TOKEN"
+  }
+}
+```
+
+The `env:VAR_NAME` syntax reads from environment at runtime.
+
+## Command References
+
+For dynamic tokens:
+
+```json
+{
+  "auth": {
+    "type": "bearer",
+    "token": "command:vault read -field=token secret/mcp"
+  }
+}
+```
+
+The `command:CMD` syntax executes the command and uses stdout.
+
+<Aside type="caution">
+  Command references run on each config resolution. Keep them fast.
+</Aside>
+
+## Shell Configuration
+
+Add to your shell profile (`~/.bashrc`, `~/.zshrc`):
+
+```bash
+# SCC Configuration
+export SCC_ORG_URL="https://config.company.com/scc/org-config.json"
+export SCC_TEAM="backend"
+
+# Optional: Worktree helper
+wt() {
+  local p
+  p="$(scc worktree switch "$@")" || return $?
+  cd "$p" || return 1
+}
+```
+
+## Precedence
+
+Configuration precedence (highest to lowest):
+
+1. Command-line flags (`--team backend`)
+2. Environment variables (`SCC_TEAM=backend`)
+3. Project config (`.scc.yaml`)
+4. Team config
+5. Organization defaults

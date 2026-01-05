@@ -1,0 +1,183 @@
+---
+title: Developer Onboarding
+description: What you get automatically when joining a team using SCC
+sidebar:
+  order: 1
+---
+
+import { Aside, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+Welcome to your new team! This guide explains what SCC provides automatically and how to get started.
+
+## What You Get Automatically
+
+When you run `scc setup` and select your team profile, you automatically receive:
+
+<CardGrid>
+  <Card title="Approved Plugins" icon="puzzle">
+    Your team's approved Claude Code plugins, pre-configured and ready to use.
+  </Card>
+  <Card title="MCP Servers" icon="server">
+    Access to MCP servers like context7, shadcn, or team-specific tools.
+  </Card>
+  <Card title="Security Policies" icon="shield">
+    Organization security policies applied automatically—no action needed.
+  </Card>
+  <Card title="Command Guardrails" icon="warning">
+    Safety-net protection against destructive git commands (if enabled).
+  </Card>
+</CardGrid>
+
+## What You Never Need to Do
+
+- Edit config files manually
+- Download or configure plugins
+- Worry about security settings
+- Set up MCP server connections
+
+Your org admin and team lead handle all configuration. You just code.
+
+## Getting Started
+
+<Steps>
+1. **Install SCC CLI**
+
+   ```bash
+   pip install scc-cli
+   ```
+
+2. **Run setup and enter your org URL**
+
+   ```bash
+   scc setup
+   ```
+
+   Your team lead or org admin will provide the URL. It looks like:
+   - `https://github.com/my-org/scc-config/raw/main/org-config.json`
+   - `https://gitlab.example.com/devops/scc-config.json`
+
+3. **Select your team profile**
+
+   You'll see a list of available teams. Pick yours:
+   ```
+   Available teams:
+   1. backend
+   2. frontend
+   3. platform
+
+   Select team: 1
+   ```
+
+4. **Verify your setup**
+
+   ```bash
+   scc doctor
+   ```
+
+5. **Start coding!**
+
+   ```bash
+   cd ~/your-project
+   scc
+   ```
+</Steps>
+
+## Understanding Your Configuration
+
+To see what your team profile includes:
+
+```bash
+# Show current team and its settings
+scc team info
+
+# Show full effective configuration with sources
+scc config explain
+```
+
+<Aside type="tip">
+  The `scc config explain` command shows where each setting comes from (org, team, or project), which is helpful for understanding why something is configured a certain way.
+</Aside>
+
+## Switching Teams
+
+If you work on multiple teams:
+
+```bash
+# List available teams
+scc team list
+
+# Switch to a different team interactively
+scc team switch
+
+# Or switch directly
+scc team switch frontend
+```
+
+<Aside type="note">
+  Team switches only affect new sessions. Existing sessions keep their original team configuration.
+</Aside>
+
+## Project-Specific Configuration
+
+You can add a `.scc.yaml` file to your repository for project-specific settings:
+
+```yaml title=".scc.yaml"
+# Add plugins specific to this project
+additional_plugins:
+  - "project-linter@internal"
+
+# Override session settings
+session:
+  timeout_hours: 4
+```
+
+<Aside type="caution">
+  You can only **add** plugins within patterns your team allows. You cannot override organization security blocks or remove team defaults.
+</Aside>
+
+## Common First-Day Tasks
+
+### Clone and Start
+
+```bash
+git clone https://github.com/my-org/my-project.git
+cd my-project
+scc
+```
+
+### Resume Yesterday's Session
+
+```bash
+scc start --resume
+# or
+scc start --select  # Pick from recent sessions
+```
+
+### Create a Feature Branch Worktree
+
+```bash
+scc worktree create ~/my-project feature-auth
+scc worktree enter feature-auth
+```
+
+## Getting Help
+
+| Need | Command |
+|------|---------|
+| Check your setup | `scc doctor` |
+| See your team config | `scc team info` |
+| See effective config | `scc config explain` |
+| List recent sessions | `scc sessions` |
+
+If something is blocked or doesn't work as expected, talk to your team lead first—they can often resolve plugin or permission issues.
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Daily Workflow" icon="rocket">
+    Learn common SCC patterns. [Read more →](/guides/developer/daily-workflow/)
+  </Card>
+  <Card title="Working with Worktrees" icon="github">
+    Parallel development without branch conflicts. [Learn more →](/guides/developer/worktrees/)
+  </Card>
+</CardGrid>

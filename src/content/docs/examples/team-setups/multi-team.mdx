@@ -1,0 +1,98 @@
+---
+title: Multi-Team Setup
+description: Multiple teams with delegation and permissions
+sidebar:
+  order: 1
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+<Aside>
+**Purpose:** Multiple teams with different plugins and permissions.
+
+**When to use:** Medium-large organizations, teams with different tech stacks.
+
+**When NOT to use:** Single team setups, very small organizations.
+</Aside>
+
+## The Configuration
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "Acme Corp",
+    "id": "acme"
+  },
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    },
+    "internal": {
+      "source": "github",
+      "owner": "acme",
+      "repo": "scc-plugins"
+    }
+  },
+  "security": {
+    "blocked_plugins": ["*experimental*"],
+    "blocked_base_images": ["*:latest"],
+    "allow_stdio_mcp": false
+  },
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"],
+    "session": {
+      "timeout_hours": 12
+    }
+  },
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"],
+      "allow_additional_mcp_servers": ["platform"]
+    }
+  },
+  "profiles": {
+    "backend": {
+      "description": "Backend Java/Python team",
+      "additional_plugins": ["java-analyzer@internal"],
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    },
+    "frontend": {
+      "description": "Frontend React/Vue team",
+      "additional_plugins": ["react-tools@internal"],
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    },
+    "platform": {
+      "description": "Platform/DevOps team",
+      "additional_plugins": ["k8s-tools@internal"],
+      "additional_mcp_servers": {
+        "monitoring": {
+          "type": "http",
+          "url": "https://monitoring.internal/mcp"
+        }
+      }
+    }
+  }
+}
+```
+
+## Key Features
+
+| Team | Plugins | MCP Servers | Project Overrides |
+|------|---------|-------------|-------------------|
+| backend | java-analyzer | No | Yes |
+| frontend | react-tools | No | Yes |
+| platform | k8s-tools | monitoring | No (default) |
+
+## Verification
+
+```bash
+scc org validate org-config.json
+scc team list --verbose
+```

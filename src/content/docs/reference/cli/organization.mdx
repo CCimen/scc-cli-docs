@@ -1,0 +1,170 @@
+---
+title: Organization Commands
+description: Organization admin commands
+sidebar:
+  order: 8
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Commands for organization administrators.
+
+## scc org validate
+
+Validate organization configuration.
+
+```bash
+scc org validate [SOURCE] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `SOURCE` | Config source (URL, file path, or shorthand) |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+**Examples:**
+
+```bash
+# Validate local file
+scc org validate org-config.json
+
+# Validate remote config
+scc org validate https://example.com/org-config.json
+
+# Validate GitHub hosted config
+scc org validate github:myorg/scc-config
+```
+
+**Validates:**
+
+- JSON syntax
+- Schema compliance
+- Security pattern validity
+- Marketplace references
+- Team profile configurations
+- Delegation consistency
+
+---
+
+## scc org update
+
+Update organization configuration.
+
+```bash
+scc org update [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--team NAME` | Refresh specific team's config |
+| `--all-teams` | Refresh all federated team configs |
+| `-f`, `--force` | Force update even if cache is fresh |
+
+**Examples:**
+
+```bash
+# Update org config
+scc org update
+
+# Refresh specific team
+scc org update --team platform
+
+# Refresh all federated teams
+scc org update --all-teams
+
+# Force refresh
+scc org update --force
+```
+
+<Aside type="tip">
+  Run `scc org update` after changing org config to ensure all caches are fresh.
+</Aside>
+
+---
+
+## scc org status
+
+Show organization configuration status.
+
+```bash
+scc org status [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON |
+
+**Shows:**
+
+- Organization name and ID
+- Config source URL
+- Cache status and age
+- Number of team profiles
+- Last update time
+- Any validation issues
+
+---
+
+## scc org import
+
+Import organization configuration from a source.
+
+```bash
+scc org import <SOURCE> [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `SOURCE` | Config source (URL, file, or `github:org/repo`) |
+
+**Examples:**
+
+```bash
+# Import from URL
+scc org import https://example.com/org-config.json
+
+# Import from GitHub
+scc org import github:myorg/scc-config
+
+# Import from local file
+scc org import ./org-config.json
+```
+
+---
+
+## scc org templates
+
+List available organization configuration templates.
+
+```bash
+scc org templates [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+
+**Available templates:**
+
+- `minimal` - Bare minimum configuration
+- `single-team` - Simple single-team setup
+- `multi-team` - Multiple teams with delegation
+- `strict-security` - Security-focused configuration
+- `federated` - Teams with external config sources

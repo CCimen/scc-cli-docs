@@ -1,0 +1,12 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ai-flow-gradient" x1="160" y1="350" x2="360" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00bcd4"/>
+      <stop offset="100%" stop-color="#26c6da"/>
+    </linearGradient>
+  </defs>
+  <path d="M256 48L416 144V320L256 416L96 320V144L256 48Z" stroke="#1a3a3a" stroke-width="34" stroke-linejoin="round"/>
+  <path d="M170 330 C200 300 215 285 235 265 S280 225 340 190" stroke="url(#ai-flow-gradient)" stroke-width="26" stroke-linecap="round" fill="none"/>
+  <circle cx="170" cy="330" r="18" fill="#00bcd4"/>
+  <circle cx="340" cy="190" r="18" fill="#00bcd4"/>
+</svg>

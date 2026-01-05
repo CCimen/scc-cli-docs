@@ -1,0 +1,28 @@
+---
+title: GitHub Federation
+description: Teams managing config on GitHub
+sidebar:
+  order: 1
+---
+
+Federated teams with GitHub-hosted configurations.
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-config",
+        "branch": "main"
+      },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": ["github.com/myorg/**"]
+      }
+    }
+  }
+}
+```

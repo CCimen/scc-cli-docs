@@ -1,0 +1,28 @@
+---
+title: Hybrid Federation
+description: Mix of GitHub and GitLab teams
+sidebar:
+  order: 2
+---
+
+Teams on different Git platforms.
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-config"
+      }
+    },
+    "data": {
+      "config_source": {
+        "source": "git",
+        "url": "git@gitlab.internal:data-team/config.git"
+      }
+    }
+  }
+}
+```

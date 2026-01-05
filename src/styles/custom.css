@@ -1,0 +1,114 @@
+/* SCC CLI Documentation - Custom Galaxy Theme Overrides */
+@layer base, starlight, galaxy, scc-overrides;
+
+:root {
+  /* Accent colors - Cyan/teal to match logo */
+  --sl-color-accent-low: #083344;
+  --sl-color-accent: #00bcd4;
+  --sl-color-accent-high: #67e8f9;
+
+  /* Text accent */
+  --sl-color-text-accent: #22d3ee;
+
+  /* Content width */
+  --sl-content-width: 52rem;
+
+  /* Typography */
+  --sl-text-h1: 2.5rem;
+  --sl-text-h2: 1.875rem;
+}
+
+/* Dark mode - default for galaxy theme */
+:root[data-theme='dark'] {
+  --sl-color-bg: #0a0f14;
+  --sl-color-bg-sidebar: #070b0e;
+  --sl-color-bg-nav: rgba(7, 11, 14, 0.95);
+}
+
+/* Light mode overrides */
+:root[data-theme='light'] {
+  --sl-color-accent-low: #ecfeff;
+  --sl-color-accent: #0891b2;
+  --sl-color-accent-high: #083344;
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-sidebar: #f0fdfa;
+}
+
+/* Sidebar active item styling */
+.sidebar-content a[aria-current='page'] {
+  background: linear-gradient(90deg, var(--sl-color-accent-low), transparent);
+  border-left: 3px solid var(--sl-color-accent);
+}
+
+/* Code block enhancements */
+.expressive-code {
+  --ec-brdCol: var(--sl-color-accent-low);
+}
+
+/* Card styling for feature cards */
+.card {
+  border: 1px solid var(--sl-color-accent-low);
+  background: rgba(8, 51, 68, 0.3);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--sl-color-accent);
+  transform: translateY(-2px);
+}
+
+/* Hero section gradient for splash pages */
+[data-theme='dark'] .hero {
+  background: linear-gradient(135deg, #0a0f14 0%, #083344 50%, #070b0e 100%);
+}
+
+/* Badge colors */
+.sl-badge.success {
+  --sl-color-bg-badge: #10b981;
+}
+
+.sl-badge.tip {
+  --sl-color-bg-badge: #00bcd4;
+}
+
+/* Custom scrollbar for dark theme */
+:root[data-theme='dark'] {
+  scrollbar-color: var(--sl-color-accent-low) var(--sl-color-bg);
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar {
+  width: 8px;
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: var(--sl-color-bg);
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--sl-color-accent-low);
+  border-radius: 4px;
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-accent);
+}
+
+/* Link styling */
+.sl-markdown-content a {
+  text-decoration: underline;
+  text-decoration-color: var(--sl-color-accent);
+  text-underline-offset: 0.2em;
+}
+
+.sl-markdown-content a:hover {
+  color: var(--sl-color-accent-high);
+}
+
+/* Table styling */
+.sl-markdown-content table {
+  border: 1px solid var(--sl-color-accent-low);
+}
+
+.sl-markdown-content th {
+  background: var(--sl-color-accent-low);
+}

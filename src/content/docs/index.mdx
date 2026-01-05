@@ -1,0 +1,116 @@
+---
+title: SCC CLI
+description: Run Claude Code safely in Docker sandboxes with team-managed profiles and guardrails
+template: splash
+hero:
+  title: SCC CLI
+  tagline: Run Claude Code safely inside Docker, with team-managed profiles and guardrails
+  image:
+    file: ../../assets/scc-logo.svg
+  actions:
+    - text: Get Started
+      link: /getting-started/quick-start/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/CCimen/scc
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Find Your Path
+
+<CardGrid>
+  <LinkCard
+    title="I'm joining a team"
+    href="/guides/developer/onboarding/"
+    description="Get running in 30 seconds with your team's config"
+  />
+  <LinkCard
+    title="I manage a team"
+    href="/guides/team-leader/overview/"
+    description="Configure plugins and profiles for your developers"
+  />
+  <LinkCard
+    title="I'm an org admin"
+    href="/guides/organization/overview/"
+    description="Set up security policies and governance"
+  />
+  <LinkCard
+    title="I'm evaluating SCC"
+    href="/getting-started/introduction/"
+    description="Learn what SCC does and why"
+  />
+</CardGrid>
+
+## Why SCC?
+
+<CardGrid stagger>
+  <Card title="Isolated Execution" icon="shield">
+    Code runs in Docker sandboxes. Your host system stays protected from AI-generated commands.
+  </Card>
+  <Card title="Standardized Configs" icon="setting">
+    Organization-managed profiles distributed via a single URL. No manual setup for developers.
+  </Card>
+  <Card title="Git Guardrails" icon="warning">
+    Block destructive commands like `push --force` and `reset --hard` automatically with safety-net policies.
+  </Card>
+  <Card title="Parallel Development" icon="rocket">
+    Isolated git worktrees per feature branch. Multiple Claude sessions without conflicts.
+  </Card>
+</CardGrid>
+
+## Quick Start
+
+<Steps>
+1. **Install SCC CLI**
+
+   <Tabs syncKey="pkg">
+     <TabItem label="pip">
+     ```bash
+     pip install scc-cli
+     ```
+     </TabItem>
+     <TabItem label="pipx">
+     ```bash
+     pipx install scc-cli
+     ```
+     </TabItem>
+     <TabItem label="uv">
+     ```bash
+     uv tool install scc-cli
+     ```
+     </TabItem>
+   </Tabs>
+
+2. **Verify your environment**
+
+   ```bash
+   scc doctor
+   ```
+
+3. **Configure and launch**
+
+   ```bash
+   scc setup    # Paste your org config URL
+   scc start    # Launch in current directory
+   ```
+</Steps>
+
+## Who Controls What
+
+| Setting | Org Admin | Team Lead | Developer |
+|---------|:---------:|:---------:|:---------:|
+| Block dangerous plugins | ✅ Sets | ❌ Cannot override | ❌ Cannot override |
+| Default plugins for all teams | ✅ Sets | — | — |
+| Team-specific plugins | ✅ Approves | ✅ Chooses | — |
+| Project-local config (.scc.yaml) | ✅ Can restrict | ✅ Can restrict | ✅ Extends |
+| Safety-net policy | ✅ Sets | ❌ Cannot override | ❌ Cannot override |
+
+<LinkCard
+  title="Learn more about governance"
+  href="/guides/organization/delegation/"
+  description="Understand the full delegation and security model"
+/>

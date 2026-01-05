@@ -1,0 +1,38 @@
+---
+title: Safety Net Plugin
+description: Git protection for Claude Code
+sidebar:
+  order: 2
+---
+
+The `scc-safety-net` plugin is the most important plugin for organizations.
+
+## What It Blocks
+
+| Command | Why |
+|---------|-----|
+| `git push --force` | Overwrites remote history |
+| `git reset --hard` | Discards uncommitted changes |
+| `git branch -D` | Force-deletes branches |
+| `git clean -fd` | Deletes untracked files |
+
+## Installation
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": [
+      "scc-safety-net@sandboxed-code-official"
+    ]
+  }
+}
+```
+
+## Configuration
+
+Policy modes:
+- `block` - Commands blocked (default)
+- `warn` - Commands allowed with warning
+- `allow` - Protection disabled
+
+See [Safety Net Guide](/guides/organization/safety-net/) for details.

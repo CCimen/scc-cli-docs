@@ -1,0 +1,38 @@
+---
+title: Full Federation
+description: Complete federated organization
+sidebar:
+  order: 3
+---
+
+All teams federated with trust grants.
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-config"
+      },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": ["github.com/myorg/**"]
+      }
+    },
+    "backend": {
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "backend-config"
+      },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": false
+      }
+    }
+  }
+}
+```

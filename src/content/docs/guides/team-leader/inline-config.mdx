@@ -1,0 +1,160 @@
+---
+title: Inline Configuration
+description: Managing team profiles directly in the org config
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Inline configuration keeps your team profile in the organization's main config file. It's the simplest approach.
+
+## When to Use Inline
+
+- Small teams (< 10 developers)
+- Infrequent configuration changes
+- Centralized control is acceptable
+- Simple plugin requirements
+
+## Structure
+
+Your team profile lives in the `profiles` section of the org config:
+
+```json title="org-config.json" {5-20}
+{
+  "schema_version": "1.0.0",
+  "organization": { "name": "Acme Corp", "id": "acme" },
+  "profiles": {
+    "backend": {
+      "description": "Backend development team",
+      "additional_plugins": [
+        "scc-safety-net@sandboxed-code-official",
+        "java-analyzer@internal"
+      ],
+      "additional_mcp_servers": {
+        "context7": {
+          "type": "http",
+          "url": "https://context7.com/api"
+        }
+      },
+      "session": {
+        "timeout_hours": 12
+      }
+    },
+    "frontend": {
+      "description": "Frontend development team",
+      "additional_plugins": [
+        "scc-safety-net@sandboxed-code-official",
+        "react-tools@internal"
+      ]
+    }
+  }
+}
+```
+
+## Profile Options
+
+### Plugins
+
+```json
+"additional_plugins": [
+  "plugin-name@marketplace-name",
+  "another-plugin@marketplace-name"
+]
+```
+
+Plugins must:
+- Exist in an approved marketplace
+- Not match any `blocked_plugins` patterns
+- Match `allowed_plugins` patterns (if specified)
+
+### MCP Servers
+
+```json
+"additional_mcp_servers": {
+  "server-name": {
+    "type": "http",
+    "url": "https://api.example.com",
+    "auth": {
+      "type": "bearer",
+      "token": "env:MCP_TOKEN"
+    }
+  }
+}
+```
+
+Types: `http`, `sse`, `stdio` (if allowed)
+
+### Session Settings
+
+```json
+"session": {
+  "timeout_hours": 12,
+  "auto_resume": true
+}
+```
+
+### Delegation
+
+Control what developers can do:
+
+```json
+"delegation": {
+  "allow_project_overrides": true,
+  "allow_additional_plugins": ["team-*", "approved-*"]
+}
+```
+
+## Making Changes
+
+Since inline config is in the org config file, changes require:
+
+1. Request change from org admin (or make PR if you have access)
+2. Update the org config file
+3. Wait for developers to get the update (via `scc update`)
+
+<Aside type="tip">
+  For faster iteration, consider [GitOps configuration](/guides/team-leader/gitops-config/) where you manage your own config repo.
+</Aside>
+
+## Example: Multi-Stack Team
+
+```json
+{
+  "profiles": {
+    "backend-java": {
+      "description": "Java/Spring Boot developers",
+      "additional_plugins": [
+        "scc-safety-net@official",
+        "java-analyzer@internal",
+        "spring-boot-tools@internal"
+      ],
+      "session": { "timeout_hours": 12 }
+    },
+    "backend-python": {
+      "description": "Python/FastAPI developers",
+      "additional_plugins": [
+        "scc-safety-net@official",
+        "python-tools@internal",
+        "fastapi-helper@internal"
+      ],
+      "session": { "timeout_hours": 12 }
+    }
+  }
+}
+```
+
+## Validation
+
+Ask your org admin to validate, or if you have the config file:
+
+```bash
+scc org validate org-config.json
+```
+
+## Limitations
+
+- Changes require org admin involvement
+- No version history (unless org config is in git)
+- All teams share same update cycle
+- Less autonomy for teams

@@ -1,0 +1,242 @@
+---
+title: Session Management
+description: Managing Claude Code sessions in SCC
+sidebar:
+  order: 3
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Sessions are the core unit of work in SCC. Each session is a Claude Code environment running in a Docker container, tied to a specific workspace.
+
+## Session Lifecycle
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Session Lifecycle                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   scc start ──► [Running] ──► Ctrl+D/exit ──► [Stopped]     │
+│                    │                              │          │
+│                    │                              │          │
+│                    └──────────────────────────────┘          │
+│                         scc start --resume                   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Starting Sessions
+
+### Smart Start (Recommended)
+
+```bash
+cd ~/project
+scc
+```
+
+This auto-detects your workspace and shows Quick Resume if sessions exist.
+
+### Explicit Start
+
+```bash
+scc start ~/project
+```
+
+### Start Options
+
+| Option | Description |
+|--------|-------------|
+| `--resume` | Resume most recent session |
+| `--select` | Interactive session picker |
+| `--fresh` | Force new container |
+| `--team TEAM` | Use specific team profile (session-only) |
+| `--session NAME` | Name this session |
+| `--dry-run` | Preview config without launching |
+
+## Listing Sessions
+
+```bash
+scc sessions
+```
+
+Shows sessions grouped by workspace:
+
+```
+Workspace: /Users/dev/project-a
+  ● feature-auth (running) - started 2h ago
+  ○ bugfix-login (stopped) - 1d ago
+  ○ main (stopped) - 3d ago
+
+Workspace: /Users/dev/project-b
+  ○ main (stopped) - 5h ago
+```
+
+## Resuming Sessions
+
+### Resume Most Recent
+
+```bash
+scc start --resume
+```
+
+### Pick from List
+
+```bash
+scc start --select
+```
+
+### Resume Specific Session
+
+```bash
+scc start --session feature-auth
+```
+
+<Aside type="note">
+  Sessions can only be resumed if the Docker container still exists. Containers are preserved until explicitly stopped or pruned.
+</Aside>
+
+## Stopping Sessions
+
+### Stop All Running Containers
+
+```bash
+scc stop
+```
+
+### Stop Specific Session
+
+```bash
+scc stop --session feature-auth
+```
+
+### Stop by Workspace
+
+```bash
+scc stop --workspace ~/project
+```
+
+## Session Naming
+
+Name your sessions for easier identification:
+
+```bash
+scc start --session "feature-payments" ~/project
+```
+
+When you have multiple features in progress, named sessions help:
+
+```
+Recent sessions:
+  1. feature-payments (2h ago)
+  2. bugfix-auth (1d ago)
+  3. spike-new-api (3d ago)
+```
+
+## Quick Resume
+
+Quick Resume appears when you run `scc` in a directory with recent sessions:
+
+```
+Recent sessions for ~/project:
+
+  → 1. feature-auth (2 hours ago)
+    2. bugfix-login (yesterday)
+    3. main (3 days ago)
+
+[Enter] Resume  [n] New  [↑↓] Navigate  [q] Quit
+```
+
+<Aside type="tip">
+  Quick Resume only shows sessions for the exact workspace path. If you moved your project, sessions won't appear.
+</Aside>
+
+## Session Context
+
+SCC tracks context for each session, including:
+- Last working directory
+- Active files
+- Session duration
+
+View context:
+
+```bash
+scc context show
+```
+
+Clear stale context:
+
+```bash
+scc context clear
+```
+
+## Session Timeouts
+
+Sessions can be configured to timeout after inactivity:
+
+```yaml title="Team profile or .scc.yaml"
+session:
+  timeout_hours: 8
+  auto_resume: true
+```
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `timeout_hours` | 24 | Hours before session expires |
+| `auto_resume` | true | Automatically resume on `scc start` |
+
+## Container Cleanup
+
+### View Running Containers
+
+```bash
+scc list
+```
+
+### Prune Stopped Containers
+
+```bash
+scc prune
+```
+
+<Aside type="caution">
+  Pruned containers cannot be resumed. Only prune sessions you're done with.
+</Aside>
+
+### Prune with Dry Run
+
+```bash
+scc prune --dry-run
+```
+
+Shows what would be removed without actually removing.
+
+## Troubleshooting Sessions
+
+### Session Won't Resume
+
+**Cause:** Container was pruned or crashed.
+
+**Solution:** Start fresh:
+```bash
+scc start --fresh
+```
+
+### Quick Resume Not Showing
+
+**Cause:** Running from different path than original session.
+
+**Solution:** Navigate to exact workspace root:
+```bash
+cd ~/project  # Not ~/project/src
+scc
+```
+
+### Session Stuck
+
+**Cause:** Container in bad state.
+
+**Solution:** Force stop and restart:
+```bash
+scc stop --force
+scc start --fresh
+```

@@ -1,0 +1,121 @@
+---
+title: Single Team Setup
+description: Simple organization with one team profile
+sidebar:
+  order: 2
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+<Aside>
+**Purpose:** Single team with basic governance and safety net enabled.
+
+**When to use:** Small organizations, teams just starting with SCC, standardized tooling.
+
+**When NOT to use:** Multiple teams with different needs, complex delegation requirements.
+</Aside>
+
+## The Configuration
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "Acme Corp",
+    "id": "acme"
+  },
+  "marketplaces": {
+    "sandboxed-code-official": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  },
+  "security": {
+    "blocked_plugins": ["*experimental*", "*untrusted*"],
+    "blocked_base_images": ["*:latest"],
+    "allow_stdio_mcp": false
+  },
+  "defaults": {
+    "enabled_plugins": [
+      "scc-safety-net@sandboxed-code-official"
+    ],
+    "session": {
+      "timeout_hours": 12,
+      "auto_resume": true
+    }
+  },
+  "profiles": {
+    "engineering": {
+      "description": "Engineering team",
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    }
+  }
+}
+```
+
+## Key Features
+
+| Feature | Effect |
+|---------|--------|
+| Safety Net | Git protection enabled for all users |
+| Session Timeout | 12-hour sessions with auto-resume |
+| Project Overrides | Developers can add `.scc.yaml` |
+| Basic Security | Blocks experimental/untrusted plugins |
+
+## How to Use
+
+<Steps>
+1. **Copy and customize**
+
+   Update `organization.name` and `organization.id`
+
+2. **Validate**
+
+   ```bash
+   scc org validate org-config.json
+   ```
+
+3. **Host the file**
+
+   ```bash
+   # GitHub example
+   git add org-config.json
+   git commit -m "Add SCC config"
+   git push
+   ```
+
+4. **Get the raw URL**
+
+   ```
+   https://raw.githubusercontent.com/acme/scc-config/main/org-config.json
+   ```
+
+5. **Distribute to developers**
+
+   ```bash
+   scc setup --org https://raw.githubusercontent.com/acme/scc-config/main/org-config.json --team engineering
+   ```
+</Steps>
+
+## Verification
+
+```bash
+# Confirm safety net is active
+scc audit plugins
+# Should show: scc-safety-net@sandboxed-code-official
+
+# Check effective config
+scc config explain
+
+# Test session
+scc start ~/project
+```
+
+## Next Steps
+
+- [Multi-Team Setup](/examples/team-setups/multi-team/) - Add more teams
+- [Strict Security](/examples/security/strict/) - Tighter controls
+- [Safety Net Guide](/guides/organization/safety-net/) - Customize protection

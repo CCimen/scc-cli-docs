@@ -1,0 +1,314 @@
+---
+title: Federation
+description: Managing teams with external configuration sources
+sidebar:
+  order: 5
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Federated teams store their configuration in external repositories, enabling team autonomy while maintaining organization security.
+
+## When to Use Federation
+
+- Teams need to update plugins without org admin involvement
+- Large organizations with many teams
+- Teams want PR-based review for config changes
+- Different teams need different update cycles
+
+## Setting Up Federated Teams
+
+### Basic Configuration
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "description": "Platform team - externally managed",
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-team-config",
+        "branch": "main"
+      },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": false
+      }
+    }
+  }
+}
+```
+
+### Config Source Types
+
+<Tabs>
+  <TabItem label="GitHub">
+  ```json
+  "config_source": {
+    "source": "github",
+    "owner": "org-name",
+    "repo": "team-config",
+    "branch": "main",
+    "path": "team-config.json"
+  }
+  ```
+  For private repos, configure token auth at the organization level.
+  </TabItem>
+  <TabItem label="Git (Any Host)">
+  ```json
+  "config_source": {
+    "source": "git",
+    "url": "git@gitlab.example.com:team/config.git",
+    "branch": "main"
+  }
+  ```
+  Works with GitLab, Bitbucket, or any Git hosting.
+  </TabItem>
+  <TabItem label="HTTPS URL">
+  ```json
+  "config_source": {
+    "source": "url",
+    "url": "https://config.example.com/team.json",
+    "auth": {
+      "type": "bearer",
+      "token": "env:CONFIG_TOKEN"
+    }
+  }
+  ```
+  For config servers or internal endpoints.
+  </TabItem>
+</Tabs>
+
+## Trust Grants
+
+Control what federated teams can do:
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "config_source": { ... },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": [
+          "github.com/myorg/**"
+        ]
+      }
+    }
+  }
+}
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `inherit_org_marketplaces` | `true` | Team can use org-defined marketplaces |
+| `allow_additional_marketplaces` | `false` | Team can define their own marketplaces |
+| `marketplace_source_patterns` | `[]` | URL patterns for team marketplace sources |
+
+### Trust Validation
+
+Two-layer validation:
+1. **Permission Check**: Does `allow_additional_marketplaces` allow team to define marketplaces?
+2. **Source Validation**: Does each marketplace URL match `marketplace_source_patterns`?
+
+### URL Pattern Matching
+
+Patterns support glob syntax with `**` for path matching:
+
+| Pattern | Matches |
+|---------|---------|
+| `github.com/myorg/**` | Any repo under myorg organization |
+| `*.internal.com/**` | Any path on any internal subdomain |
+| `github.com/myorg/approved-*` | Only repos starting with "approved-" |
+
+## Federated Team Config File
+
+The team's config repository contains:
+
+```json title="team-config.json"
+{
+  "schema_version": "1.0.0",
+  "enabled_plugins": [
+    "platform-tools@team-internal",
+    "monitoring@shared"
+  ],
+  "marketplaces": {
+    "team-internal": {
+      "source": "github",
+      "owner": "myorg",
+      "repo": "platform-internal-plugins"
+    }
+  },
+  "additional_mcp_servers": {
+    "metrics": {
+      "type": "http",
+      "url": "https://metrics.internal/mcp"
+    }
+  },
+  "delegation": {
+    "allow_project_overrides": true,
+    "allow_additional_plugins": ["project-*"]
+  },
+  "session": {
+    "timeout_hours": 12
+  }
+}
+```
+
+<Aside type="note">
+  Federated teams skip `defaults.allowed_plugins` filtering. They are trusted via trust grants instead.
+</Aside>
+
+## Marketplace Name Collisions
+
+Team-defined marketplaces cannot conflict with:
+- **Org marketplaces**: Names in org config's `marketplaces` section
+- **Implicit marketplaces**: `claude-plugins-official`
+
+If a collision is detected, config is rejected with a clear error.
+
+## When inherit_org_marketplaces is false
+
+If team sets `inherit_org_marketplaces: false`:
+- Team won't have access to org-defined marketplaces
+- Org defaults referencing those marketplaces become invalid
+
+SCC validates this and rejects configurations where:
+- Team has `inherit_org_marketplaces: false`
+- Org defaults reference plugins from org marketplaces
+
+**Fix**: Set `inherit_org_marketplaces: true` or remove conflicting plugins from org defaults.
+
+## Example: Full Federation Setup
+
+### Organization Config
+
+```json
+{
+  "marketplaces": {
+    "shared": {
+      "source": "github",
+      "owner": "myorg",
+      "repo": "shared-plugins"
+    }
+  },
+  "security": {
+    "blocked_plugins": ["*malicious*"]
+  },
+  "profiles": {
+    "platform": {
+      "description": "Platform team - config managed externally",
+      "config_source": {
+        "source": "github",
+        "owner": "myorg",
+        "repo": "platform-config",
+        "branch": "main"
+      },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": [
+          "github.com/myorg/**"
+        ]
+      }
+    }
+  }
+}
+```
+
+### Team Config (platform-config repo)
+
+```json
+{
+  "schema_version": "1.0.0",
+  "enabled_plugins": [
+    "platform-tools@team-internal",
+    "monitoring@shared"
+  ],
+  "marketplaces": {
+    "team-internal": {
+      "source": "github",
+      "owner": "myorg",
+      "repo": "platform-internal-plugins"
+    }
+  },
+  "disabled_plugins": ["legacy-tool"],
+  "delegation": {
+    "allow_project_overrides": true
+  }
+}
+```
+
+### Result
+
+- Team can use `shared` marketplace (inherited from org)
+- Team can define `team-internal` marketplace (allowed by trust, matches pattern)
+- Team can reference plugins from both marketplaces
+- Team can disable plugins from org defaults
+- Org security rules still apply to all plugins
+
+## Trust Violation Example
+
+Organization config:
+```json
+{
+  "profiles": {
+    "contractor": {
+      "config_source": {
+        "source": "url",
+        "url": "https://contractor-configs.example.com/team.json"
+      },
+      "trust": {
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": [
+          "github.com/approved-vendors/**"
+        ]
+      }
+    }
+  }
+}
+```
+
+External team config tries unauthorized source:
+```json
+{
+  "marketplaces": {
+    "unauthorized": {
+      "source": "github",
+      "owner": "random-org",
+      "repo": "plugins"
+    }
+  }
+}
+```
+
+**Result**: Trust violation error. Source `github.com/random-org/plugins` doesn't match `github.com/approved-vendors/**`.
+
+## Refreshing Federated Configs
+
+```bash
+# Refresh all team configs
+scc org update
+
+# Refresh specific team
+scc org update --team platform
+
+# Check cache status
+scc org status
+```
+
+<Aside type="tip">
+  Configs older than 7 days require network access. Run `scc org update` regularly to keep caches fresh.
+</Aside>
+
+## Validating Federation
+
+```bash
+# Validate team config locally
+scc team validate
+
+# Test before deployment
+scc org validate org-config.json
+```

@@ -1,0 +1,37 @@
+---
+title: Creating Plugins
+description: How to create SCC plugins
+sidebar:
+  order: 3
+---
+
+Guide to creating custom plugins for SCC.
+
+## Plugin Structure
+
+```
+my-plugin/
+├── manifest.json
+├── hooks/
+│   └── bash_guard.py
+└── README.md
+```
+
+## Manifest
+
+```json
+{
+  "name": "my-plugin",
+  "version": "1.0.0",
+  "description": "My custom plugin",
+  "hooks": {
+    "bash": "hooks/bash_guard.py"
+  }
+}
+```
+
+## Publishing
+
+Host your plugin in a marketplace repository and reference it in your org config.
+
+See the [official plugins](https://github.com/CCimen/sandboxed-code-plugins) for examples.

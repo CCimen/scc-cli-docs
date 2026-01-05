@@ -1,0 +1,208 @@
+---
+title: Exceptions
+description: Time-bounded overrides for governance controls
+sidebar:
+  order: 7
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Sometimes you need to temporarily bypass governance controls. SCC provides a time-bounded exception system.
+
+## Exception Types
+
+### Local Overrides (Self-Serve)
+
+For delegation denials, developers can create local overrides:
+
+```bash
+scc unblock jira-api --ttl 8h --reason "Sprint demo integration"
+```
+
+Use cases:
+- Urgent integrations during active development
+- Testing before requesting permanent delegation
+- Personal tooling not worth formal approval
+
+<Aside type="note">
+  Local overrides **cannot** bypass security blocks (the `blocked_*` patterns). They only work for delegation denials.
+</Aside>
+
+### Policy Exceptions (PR-Approved)
+
+For security policy overrides, use policy exceptions:
+
+```bash
+scc exceptions create --policy --id INC-2025-00123 \
+  --allow-plugin vendor-tools --ttl 24h \
+  --reason "Emergency vendor integration per INC-2025-00123"
+```
+
+Policy exceptions:
+- Require PR review and approval (stored in config repo)
+- Can override any block (security + delegation)
+- Should reference an incident/ticket ID
+- Have organization-defined TTL limits
+
+## Exception Targets
+
+Both exception types can target:
+
+| Target | Flag | Example |
+|--------|------|---------|
+| Plugins | `--allow-plugin` | `--allow-plugin vendor-tool` |
+| MCP Servers | `--allow-mcp` | `--allow-mcp jira-api` |
+| Base Images | `--allow-image` | `--allow-image docker.io/custom:v1` |
+
+## Creating Local Overrides
+
+```bash
+# Basic override
+scc unblock my-plugin --ttl 8h --reason "Testing"
+
+# Override for MCP server
+scc unblock --mcp jira-api --ttl 4h --reason "Demo prep"
+
+# Share with team (repo store)
+scc unblock my-plugin --ttl 8h --reason "Team testing" --shared
+```
+
+## Creating Policy Exceptions
+
+Policy exceptions require more formality:
+
+```bash
+scc exceptions create --policy \
+  --id INC-2025-00123 \
+  --allow-plugin blocked-vendor-tool \
+  --ttl 24h \
+  --reason "Emergency integration approved by security team"
+```
+
+The exception is written to the config repo and requires PR approval.
+
+## TTL and Expiration
+
+All exceptions are time-bounded:
+
+| Setting | Value |
+|---------|-------|
+| Default TTL | 8 hours |
+| Maximum TTL | 24 hours (configurable by org) |
+
+### TTL Formats
+
+<Tabs>
+  <TabItem label="Duration">
+  ```bash
+  scc unblock plugin --ttl 8h
+  scc unblock plugin --ttl 30m
+  scc unblock plugin --ttl 1d
+  ```
+  </TabItem>
+  <TabItem label="Absolute Time">
+  ```bash
+  scc unblock plugin --expires-at 2025-12-21T17:00:00+01:00
+  ```
+  </TabItem>
+  <TabItem label="Time Today">
+  ```bash
+  scc unblock plugin --until 17:00
+  ```
+  </TabItem>
+</Tabs>
+
+Expired exceptions are automatically ignored.
+
+## Exception Stores
+
+| Store | Location | Purpose |
+|-------|----------|---------|
+| User | `~/.config/scc/exceptions.json` | Personal, machine-local |
+| Repo | `.scc/exceptions.json` | Shared with team (if committed) |
+| Policy | Config repo | Org-approved, PR-reviewed |
+
+Use `--shared` with `scc unblock` to write to repo store instead of user store.
+
+## Viewing Active Exceptions
+
+```bash
+# See in config explain output
+scc config explain
+
+# List all exceptions with expiry times
+scc exceptions list
+```
+
+Example output:
+```
+Active Exceptions:
+  plugin:vendor-tool
+    expires: 2025-01-15T18:00:00Z (in 6h)
+    reason: Emergency integration per INC-2025-00123
+    source: policy
+    id: INC-2025-00123
+
+  mcp:jira-api
+    expires: 2025-01-15T14:00:00Z (in 2h)
+    reason: Sprint demo prep
+    source: user
+```
+
+## Cleaning Up Exceptions
+
+Remove expired exceptions:
+
+```bash
+scc exceptions cleanup
+```
+
+Remove a specific exception:
+
+```bash
+scc exceptions remove plugin:vendor-tool
+```
+
+## Organization Configuration
+
+Control exception behavior:
+
+```json
+{
+  "exceptions": {
+    "max_ttl_hours": 24,
+    "require_reason": true,
+    "require_ticket_id_for_policy": true,
+    "allowed_override_types": ["plugin", "mcp"]
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `max_ttl_hours` | Maximum TTL for any exception |
+| `require_reason` | Reason is mandatory |
+| `require_ticket_id_for_policy` | Policy exceptions need `--id` |
+| `allowed_override_types` | What can be overridden |
+
+## Quick Reference
+
+| Scenario | Solution |
+|----------|----------|
+| Delegation denied, need it now | `scc unblock <target> --ttl 8h --reason "..."` |
+| Security blocked, have approval | `scc exceptions create --policy --id INC-... --allow-* ...` |
+| Check what's blocked/overridden | `scc config explain` |
+| List active exceptions | `scc exceptions list` |
+| Clean up old exceptions | `scc exceptions cleanup` |
+
+## Best Practices
+
+1. **Use short TTLs**: Request only the time you need
+2. **Always provide reasons**: Helps with auditing
+3. **Reference tickets**: For policy exceptions, always link to approval
+4. **Don't commit user exceptions**: Keep personal overrides local
+5. **Review regularly**: Run `scc exceptions list` to check active overrides
+
+<Aside type="caution">
+  Exceptions are meant for temporary needs. If you find yourself repeatedly creating the same exception, request a permanent delegation change instead.
+</Aside>

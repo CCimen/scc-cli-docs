@@ -1,0 +1,123 @@
+---
+title: Quick Start
+description: Get running with SCC CLI in 30 seconds
+sidebar:
+  order: 3
+  badge:
+    text: Start
+    variant: success
+---
+
+import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/components';
+
+<Aside>
+  **Prerequisites:** Python 3.10+, Docker Desktop 4.50+, Git 2.30+. See [Installation](/getting-started/installation/) for details.
+</Aside>
+
+## 30-Second Setup
+
+<Steps>
+1. **Install SCC CLI**
+
+   <Tabs syncKey="pkg">
+     <TabItem label="pip">
+     ```bash
+     pip install scc-cli
+     ```
+     </TabItem>
+     <TabItem label="pipx">
+     ```bash
+     pipx install scc-cli
+     ```
+     </TabItem>
+   </Tabs>
+
+2. **Configure your organization** (if you have an org config URL)
+
+   ```bash
+   scc setup
+   ```
+
+   When prompted, paste your organization's config URL. If you don't have one, use `--standalone` mode:
+
+   ```bash
+   scc setup --standalone
+   ```
+
+3. **Launch Claude Code in your project**
+
+   ```bash
+   cd ~/your-project
+   scc
+   ```
+
+   Or specify the path directly:
+
+   ```bash
+   scc start ~/your-project
+   ```
+</Steps>
+
+## What Happens When You Run `scc`
+
+1. **Auto-detects workspace** from git repository root or `.scc.yaml` location
+2. **Shows Quick Resume** if you have recent sessions for this workspace
+3. **Prints brief context** (workspace root, entry directory, team) before launching
+4. **Starts Docker container** with your team's configuration
+
+<Aside type="tip">
+  **Safety guard:** SCC won't auto-launch from suspicious directories (home, `/tmp`). If you try `scc start ~/`, it will prompt for confirmation.
+</Aside>
+
+## Keyboard Shortcuts
+
+When in interactive mode:
+
+| Key | Action |
+|-----|--------|
+| `Enter` | Select/resume session |
+| `n` | Start new session |
+| `Esc` | Go back |
+| `q` | Quit |
+
+## Verify Your Setup
+
+Run the diagnostic command to ensure everything is configured correctly:
+
+```bash
+scc doctor
+```
+
+Expected output:
+```
+✓ Docker: OK (version 27.0.0)
+✓ Git: OK (version 2.45.0)
+✓ Python: OK (version 3.12.0)
+✓ Config: OK
+✓ Organization: Connected to "My Org"
+✓ Team: backend
+```
+
+## Common First-Time Issues
+
+| Problem | Solution |
+|---------|----------|
+| "Cannot connect to Docker" | Start Docker Desktop and wait for it to initialize |
+| "Docker version too old" | Update to Docker Desktop 4.50+ |
+| "Organization config fetch failed" | Check your org URL is correct and accessible |
+
+See [Troubleshooting](/troubleshooting/) for more solutions.
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Core Concepts" icon="open-book">
+    Understand sessions, worktrees, and profiles. [Learn more →](/getting-started/core-concepts/)
+  </Card>
+  <Card title="Developer Onboarding" icon="rocket">
+    Joining a team? See what you get automatically. [Read guide →](/guides/developer/onboarding/)
+  </Card>
+  <Card title="Team Setup" icon="setting">
+    Managing a team? Configure plugins and profiles. [Set up →](/guides/team-leader/overview/)
+  </Card>
+</CardGrid>

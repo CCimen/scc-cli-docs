@@ -1,0 +1,35 @@
+---
+title: Strict Security
+description: Maximum restrictions for security-conscious organizations
+sidebar:
+  order: 1
+---
+
+Locked-down configuration with comprehensive security blocks.
+
+## Configuration
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": { "name": "Secure Corp", "id": "secure-corp" },
+  "security": {
+    "blocked_plugins": ["*experimental*", "*beta*", "untrusted-*"],
+    "blocked_mcp_servers": ["*-dev", "localhost:*"],
+    "blocked_base_images": ["*:latest", "*:dev", "docker.io/library/*"],
+    "allow_stdio_mcp": false
+  },
+  "defaults": {
+    "allowed_plugins": ["official-*", "approved-*"],
+    "session": { "timeout_hours": 8, "auto_resume": false }
+  },
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": [],
+      "allow_additional_mcp_servers": []
+    }
+  }
+}
+```
+
+No team can add plugins or MCP servers. All changes require org admin approval.

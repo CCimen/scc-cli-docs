@@ -1,0 +1,33 @@
+---
+title: Security Model
+description: Trust boundaries and isolation
+sidebar:
+  order: 3
+---
+
+## Isolation Layers
+
+1. **Docker Container**: Claude Code runs isolated from host
+2. **Network Policy**: Control container network access
+3. **Plugin Governance**: Only approved plugins execute
+4. **Git Protection**: Safety net blocks destructive commands
+
+## Trust Boundaries
+
+| Source | Trust Level | Can Override |
+|--------|-------------|--------------|
+| Organization | Absolute | Nothing |
+| Team | Delegated | Within org bounds |
+| Project | Restricted | Within team bounds |
+| User | None | Exceptions only |
+
+## Security Blocks
+
+Patterns in `security.blocked_*` are absolute:
+- Cannot be overridden by teams
+- Cannot be overridden by projects
+- Cannot be overridden by exceptions
+
+## Exceptions
+
+Time-bounded overrides for governance controls. See [Exceptions](/guides/organization/exceptions/).
