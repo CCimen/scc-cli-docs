@@ -113,7 +113,7 @@ Organizations can configure the safety net behavior:
 
 ## Granular Control
 
-For fine-grained control, configure individual command permissions:
+For fine-grained control, configure individual command categories:
 
 ```json
 {
@@ -122,12 +122,10 @@ For fine-grained control, configure individual command permissions:
       "action": "block",
       "block_force_push": true,
       "block_reset_hard": true,
-      "block_branch_delete": true,
+      "block_branch_force_delete": true,
+      "block_checkout_restore": true,
       "block_clean": true,
-      "block_stash_drop": true,
-      "block_stash_clear": true,
-      "block_checkout_file": false,
-      "block_restore_file": false
+      "block_stash_destructive": true
     }
   }
 }
@@ -135,17 +133,15 @@ For fine-grained control, configure individual command permissions:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `block_force_push` | `true` | Block `git push --force` and `-f` |
+| `block_force_push` | `true` | Block `git push --force`, `-f`, and `+refspec` |
 | `block_reset_hard` | `true` | Block `git reset --hard` |
-| `block_branch_delete` | `true` | Block `git branch -D` |
-| `block_clean` | `true` | Block `git clean -fd` |
-| `block_stash_drop` | `true` | Block `git stash drop` |
-| `block_stash_clear` | `true` | Block `git stash clear` |
-| `block_checkout_file` | `true` | Block `git checkout <file>` |
-| `block_restore_file` | `true` | Block `git restore <file>` |
+| `block_branch_force_delete` | `true` | Block `git branch -D` (force delete) |
+| `block_checkout_restore` | `true` | Block `git checkout -- <file>` and `git restore <file>` |
+| `block_clean` | `true` | Block `git clean -f` |
+| `block_stash_destructive` | `true` | Block `git stash drop` and `git stash clear` |
 
 <Aside type="tip">
-  Use granular controls when you need to allow specific destructive commands while blocking others. For example, allow file restoration but block force push.
+  Use granular controls when you need to allow specific destructive commands while blocking others. For example, set `block_checkout_restore: false` to allow file restoration but keep force push blocked.
 </Aside>
 
 ## Exceptions for Specific Projects

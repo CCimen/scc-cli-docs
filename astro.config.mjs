@@ -85,6 +85,7 @@ export default defineConfig({
 						{ slug: 'reference/cli/config' },
 						{ slug: 'reference/cli/governance' },
 						{ slug: 'reference/cli/organization' },
+						{ slug: 'reference/cli/admin' },
 					],
 				},
 				{
@@ -168,6 +169,8 @@ export default defineConfig({
 						{ slug: 'troubleshooting/common-issues' },
 						{ slug: 'troubleshooting/docker' },
 						{ slug: 'troubleshooting/federation' },
+						{ slug: 'troubleshooting/exceptions' },
+						{ slug: 'troubleshooting/plugins' },
 						{ slug: 'troubleshooting/getting-help' },
 					],
 				},

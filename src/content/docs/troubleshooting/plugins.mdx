@@ -1,0 +1,267 @@
+---
+title: Plugin Issues
+description: Troubleshooting plugin installation and audit failures
+sidebar:
+  order: 6
+---
+
+import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+
+## Quick Diagnosis
+
+```bash
+# Audit all installed plugins
+scc audit plugins
+
+# Check for blocked plugins
+scc config explain --field blocked_items
+
+# Check governance status
+scc config explain
+```
+
+---
+
+## Plugin Audit Failures
+
+The `scc audit plugins` command checks plugin manifests and reports issues.
+
+### Malformed Manifest
+
+**Symptom:** Audit shows "malformed" with line/column number.
+
+```
+⚠ my-plugin@marketplace
+  .mcp.json: malformed (line 15, col 8: Expected ',' but found '}')
+```
+
+**Cause:** Invalid JSON syntax in manifest file.
+
+**Fix:**
+
+<Steps>
+1. **Locate the plugin directory**
+   ```bash
+   # Plugins are installed at:
+   ls ~/.claude/plugins/
+   ```
+
+2. **Find and fix the syntax error**
+   ```bash
+   # Check the manifest file
+   cat ~/.claude/plugins/my-plugin/.mcp.json
+
+   # Use a JSON validator
+   cat ~/.claude/plugins/my-plugin/.mcp.json | python -m json.tool
+   ```
+
+3. **Common JSON errors:**
+   - Missing comma between properties
+   - Trailing comma after last property
+   - Missing quotes around strings
+   - Unescaped special characters
+</Steps>
+
+---
+
+### Unreadable Manifest
+
+**Symptom:** Audit shows "unreadable" with permission error.
+
+```
+⚠ my-plugin@marketplace
+  hooks/hooks.json: unreadable (Permission denied)
+```
+
+**Cause:** File permissions prevent reading the manifest.
+
+**Fix:**
+
+```bash
+# Check permissions
+ls -la ~/.claude/plugins/my-plugin/
+
+# Fix permissions
+chmod -R u+r ~/.claude/plugins/my-plugin/
+```
+
+---
+
+### No Plugins Found
+
+**Symptom:** `scc audit plugins` shows empty list.
+
+**Cause:** No plugins installed or registry file missing.
+
+**Check:**
+
+```bash
+# Check plugin registry
+cat ~/.claude/plugins/installed_plugins.json
+
+# Check if plugins directory exists
+ls -la ~/.claude/plugins/
+```
+
+**Fix:** Install plugins through your organization config or Claude Code.
+
+---
+
+### CI Pipeline Fails on Audit
+
+**Symptom:** `scc audit plugins` exits with code 1 in CI.
+
+**Cause:** One or more plugins have malformed or unreadable manifests.
+
+**Exit codes:**
+- `0` — All plugins OK (or no plugins installed)
+- `1` — One or more plugins have problems
+
+**Fix for CI:**
+
+```bash
+# Run audit with JSON output for parsing
+scc audit plugins --json
+
+# In CI script, check specific plugins:
+scc audit plugins --json | jq '.plugins[] | select(.status_summary == "malformed")'
+```
+
+<Aside type="tip">
+  Use `--json` output in CI pipelines for machine-readable results with schema versioning.
+</Aside>
+
+---
+
+## Plugin Manifest Files
+
+Each plugin can have two manifest files:
+
+| File | Purpose |
+|------|---------|
+| `.mcp.json` | MCP server declarations |
+| `hooks/hooks.json` | Hook definitions |
+
+### Valid .mcp.json Structure
+
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "command": "node",
+      "args": ["server.js"],
+      "description": "My MCP server"
+    }
+  }
+}
+```
+
+### Valid hooks/hooks.json Structure
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "./scripts/check.sh"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Plugin Blocked by Governance
+
+**Symptom:** Plugin doesn't appear in effective config despite being installed.
+
+**Diagnose:**
+
+```bash
+# Check blocked patterns
+scc config explain --field blocked_items
+
+# See which plugins are blocked
+scc config explain | grep -A5 "blocked_plugins"
+```
+
+**Common causes:**
+
+| Pattern | What it blocks |
+|---------|----------------|
+| `*experimental*` | Any plugin with "experimental" in name |
+| `*beta*` | Any plugin with "beta" in name |
+| `*@untrusted` | All plugins from "untrusted" marketplace |
+
+**Fix options:**
+
+1. **Use a different plugin** that's not blocked
+2. **Request policy exception** from org admin (for security blocks)
+3. **Create local exception** for delegation denials:
+   ```bash
+   scc unblock my-plugin@marketplace --reason "Approved use case"
+   ```
+
+---
+
+## Plugin Not Loading in Container
+
+**Symptom:** Plugin installed but not available in Claude Code session.
+
+**Check effective config:**
+
+```bash
+scc start --dry-run --json | jq '.plugins'
+```
+
+**Common causes:**
+
+<CardGrid>
+  <Card title="Not in enabled_plugins">
+    Plugin must be listed in org/team `enabled_plugins` or `additional_plugins`.
+  </Card>
+  <Card title="Blocked by pattern">
+    Plugin matches a `blocked_plugins` pattern in security config.
+  </Card>
+  <Card title="Delegation denied">
+    Team config doesn't allow project to add this plugin.
+  </Card>
+  <Card title="Wrong marketplace">
+    Plugin marketplace not defined in org config.
+  </Card>
+</CardGrid>
+
+**Debug with dry-run:**
+
+```bash
+# See full effective config
+scc start --dry-run --json --pretty
+
+# Check specific fields
+scc config explain --field plugins
+scc config explain --field denied_additions
+```
+
+---
+
+## Plugin Registry Location
+
+Claude Code stores plugin information at:
+
+```
+~/.claude/
+├── plugins/
+│   ├── installed_plugins.json    # Registry of installed plugins
+│   ├── my-plugin/                # Plugin directory
+│   │   ├── .mcp.json            # MCP server declarations
+│   │   └── hooks/
+│   │       └── hooks.json       # Hook definitions
+│   └── another-plugin/
+│       └── ...
+```
+
+<Aside type="note">
+  SCC doesn't download or cache plugins directly — Claude Code handles plugin installation. SCC only reads the registry to audit and validate against governance.
+</Aside>

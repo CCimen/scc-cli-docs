@@ -103,19 +103,19 @@ Security policies that cannot be overridden.
 
 ### safety_net
 
-Safety net configuration for the scc-safety-net plugin.
+Safety net configuration for the scc-safety-net plugin. Controls which destructive git commands are blocked.
 
 ```json
 {
   "security": {
     "safety_net": {
-      "allow_force_push": false,
-      "allow_push_to_main": false,
-      "allow_delete_remote_branch": false,
-      "protected_branches": ["main", "master", "production"],
-      "require_pull_request": true,
-      "require_code_review": true,
-      "block_sensitive_files": true
+      "action": "block",
+      "block_force_push": true,
+      "block_reset_hard": true,
+      "block_branch_force_delete": true,
+      "block_checkout_restore": true,
+      "block_clean": true,
+      "block_stash_destructive": true
     }
   }
 }
@@ -123,13 +123,20 @@ Safety net configuration for the scc-safety-net plugin.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `allow_force_push` | boolean | `false` | Allow force push operations |
-| `allow_push_to_main` | boolean | `false` | Allow direct push to main/master |
-| `allow_delete_remote_branch` | boolean | `false` | Allow deleting remote branches |
-| `protected_branches` | string[] | `["main", "master"]` | Protected branch patterns |
-| `require_pull_request` | boolean | `true` | Require PR for protected branches |
-| `require_code_review` | boolean | `true` | Require code review approval |
-| `block_sensitive_files` | boolean | `true` | Block commits with sensitive files |
+| `action` | string | `"block"` | Action mode: `block`, `warn`, or `allow` |
+| `block_force_push` | boolean | `true` | Block `git push --force` and `+refspec` force pushes |
+| `block_reset_hard` | boolean | `true` | Block `git reset --hard` (destroys uncommitted changes) |
+| `block_branch_force_delete` | boolean | `true` | Block `git branch -D` (force delete without merge check) |
+| `block_checkout_restore` | boolean | `true` | Block `git checkout -- <file>` and `git restore <file>` |
+| `block_clean` | boolean | `true` | Block `git clean -f` (deletes untracked files) |
+| `block_stash_destructive` | boolean | `true` | Block `git stash drop` and `git stash clear` |
+
+<Aside type="tip">
+  The `action` field controls the plugin behavior:
+  - `block` — Stop execution and show error (default, most secure)
+  - `warn` — Show warning but allow the command
+  - `allow` — No checks (disables safety net)
+</Aside>
 
 ## stats
 

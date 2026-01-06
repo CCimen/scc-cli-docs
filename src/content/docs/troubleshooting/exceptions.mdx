@@ -1,0 +1,298 @@
+---
+title: Security Exceptions
+description: Troubleshooting exception and unblock issues
+sidebar:
+  order: 5
+---
+
+import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+
+Exceptions let you temporarily bypass governance blocks for specific plugins, MCP servers, or base images.
+
+## Quick Commands
+
+```bash
+# List active exceptions
+scc exceptions list
+
+# Create a temporary exception
+scc unblock <target> --reason "Testing feature X" --ttl 8h
+
+# Clean up expired exceptions
+scc exceptions cleanup
+```
+
+---
+
+## Common Issues
+
+### Local Override Not Working
+
+**Symptom:** Created an exception but plugin/server still blocked.
+
+**Causes:**
+
+<CardGrid>
+  <Card title="Security Block vs Delegation Denial">
+    Local exceptions can only override **delegation denials**, not **security blocks**.
+  </Card>
+  <Card title="Wrong Target Name">
+    The target name must match exactly what's shown in `scc config explain`.
+  </Card>
+</CardGrid>
+
+**Diagnose:**
+
+```bash
+# Check what's blocked vs denied
+scc config explain --field blocked_items
+scc config explain --field denied_additions
+```
+
+**Understanding the difference:**
+
+| Type | Source | Can Override Locally? |
+|------|--------|----------------------|
+| **Security Block** | Org `blocked_plugins` pattern | No — requires policy PR |
+| **Delegation Denial** | Team doesn't allow additions | Yes — use `scc unblock` |
+
+**Fix for security blocks:**
+
+```bash
+# Generate YAML for policy PR (cannot override locally)
+scc exceptions create --policy --id my-exception \
+  --allow-plugin "blocked-plugin@marketplace" \
+  --reason "Approved by security team"
+```
+
+---
+
+### Exception Already Expired
+
+**Symptom:** `scc exceptions list` shows exception but it's not working.
+
+**Check expiration:**
+
+```bash
+scc exceptions list --all
+```
+
+Look for the "Expires In" column — if negative or says "expired", it's no longer active.
+
+**Fix:**
+
+```bash
+# Create a new exception with longer TTL
+scc unblock <target> --reason "Extended testing" --ttl 24h
+```
+
+---
+
+### Corrupt Exception File
+
+**Symptom:** Commands fail with JSON errors or exceptions behave strangely.
+
+**Location of exception files:**
+
+| Scope | File Path |
+|-------|-----------|
+| User (local) | `~/.config/scc/exceptions.json` |
+| Repo (shared) | `.scc/exceptions.json` |
+
+**Fix:**
+
+<Steps>
+1. **Backup the corrupt file**
+   ```bash
+   cp ~/.config/scc/exceptions.json ~/.config/scc/exceptions.json.bak
+   ```
+
+2. **Reset the exception store**
+   ```bash
+   # Reset user exceptions
+   scc exceptions reset --user --yes
+
+   # Reset repo exceptions
+   scc exceptions reset --repo --yes
+   ```
+
+3. **Recreate needed exceptions**
+   ```bash
+   scc unblock <target> --reason "Recreated after reset" --ttl 8h
+   ```
+</Steps>
+
+---
+
+### Shared Exception Not Visible
+
+**Symptom:** Team member created `--shared` exception but you can't see it.
+
+**Causes:**
+
+1. **File not committed** — `.scc/exceptions.json` needs to be in git
+2. **Git ignored** — Check if `.scc/` is in `.gitignore`
+3. **Not pulled** — Run `git pull` to get latest
+
+**Check:**
+
+```bash
+# See if shared exceptions exist
+cat .scc/exceptions.json
+
+# Check if git-ignored
+git check-ignore .scc/exceptions.json
+```
+
+**Fix for git-ignored:**
+
+```bash
+# Add exception to .gitignore exclusion
+echo "!.scc/exceptions.json" >> .gitignore
+git add .scc/exceptions.json
+git commit -m "Add shared SCC exceptions"
+```
+
+<Aside type="note">
+  When creating shared exceptions, SCC warns if the repo store path is git-ignored.
+</Aside>
+
+---
+
+## Exception Commands Reference
+
+### scc exceptions list
+
+```bash
+scc exceptions list [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--active` | Show only active (non-expired) exceptions |
+| `--expired` | Show only expired exceptions |
+| `--all` | Show all exceptions |
+| `--json` | Output as JSON |
+
+### scc exceptions create
+
+```bash
+scc exceptions create [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--allow-mcp NAME` | Allow MCP server (repeatable) |
+| `--allow-plugin NAME` | Allow plugin (repeatable) |
+| `--allow-image REF` | Allow base image (repeatable) |
+| `--reason TEXT` | Reason for exception (required) |
+| `--ttl DURATION` | Time-to-live (e.g., `8h`, `30m`, `1d`) |
+| `--expires-at RFC3339` | Exact expiration time |
+| `--until HH:MM` | Expire at time of day |
+| `--shared` | Save to repo store (`.scc/exceptions.json`) |
+| `--policy` | Generate YAML for policy PR |
+
+### scc exceptions delete
+
+```bash
+scc exceptions delete <EXCEPTION_ID> [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `-y`, `--yes` | Skip confirmation |
+
+<Aside type="tip">
+  You can use ID prefixes for deletion — e.g., `scc exceptions delete local-2025` if unambiguous.
+</Aside>
+
+### scc exceptions cleanup
+
+Remove all expired exceptions from both stores.
+
+```bash
+scc exceptions cleanup
+```
+
+### scc exceptions reset
+
+Remove all exceptions (destructive).
+
+```bash
+scc exceptions reset --user --yes   # Reset user store
+scc exceptions reset --repo --yes   # Reset repo store
+```
+
+<Aside type="caution">
+  Requires `--yes` flag — this is a destructive operation.
+</Aside>
+
+### scc unblock
+
+Quick way to create an exception for a denied target.
+
+```bash
+scc unblock <TARGET> [OPTIONS]
+```
+
+| Option | Description |
+|--------|-------------|
+| `--reason TEXT` | Reason (required with `--yes`) |
+| `--ticket ID` | Related ticket ID for audit trail |
+| `--ttl DURATION` | Time-to-live |
+| `--shared` | Save to repo store |
+| `-y`, `--yes` | Skip confirmation (requires `--reason`) |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Interactive">
+  ```bash
+  # Interactive - prompts for reason
+  scc unblock my-plugin@marketplace
+  ```
+  </TabItem>
+  <TabItem label="Scripted">
+  ```bash
+  # Non-interactive with ticket reference
+  scc unblock my-plugin@marketplace \
+    --reason "Testing JIRA-123" \
+    --ticket JIRA-123 \
+    --ttl 4h \
+    --yes
+  ```
+  </TabItem>
+  <TabItem label="Shared">
+  ```bash
+  # Create shared exception for team
+  scc unblock context7-server \
+    --reason "Team needs this MCP server" \
+    --ttl 7d \
+    --shared
+  ```
+  </TabItem>
+</Tabs>
+
+---
+
+## Exception File Schema
+
+```json
+{
+  "schema_version": 1,
+  "exceptions": [
+    {
+      "id": "local-20250106-a3f2",
+      "created_at": "2025-01-06T10:00:00Z",
+      "expires_at": "2025-01-06T18:00:00Z",
+      "reason": "Testing new feature",
+      "scope": "local",
+      "allow": {
+        "plugins": ["my-plugin@marketplace"],
+        "mcp_servers": [],
+        "base_images": []
+      }
+    }
+  ]
+}
+```

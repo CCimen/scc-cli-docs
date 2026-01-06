@@ -1,0 +1,190 @@
+---
+title: Administration
+description: System administration commands - stats, support, prune
+sidebar:
+  order: 9
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+
+## scc stats
+
+View and export usage statistics.
+
+```bash
+scc stats [OPTIONS]
+scc stats export [OPTIONS]
+scc stats aggregate [OPTIONS] FILES...
+```
+
+**Options (main command):**
+
+| Option | Description |
+|--------|-------------|
+| `-d`, `--days N` | Filter to last N days |
+
+**Subcommands:**
+
+### stats export
+
+Export statistics as JSON.
+
+| Option | Description |
+|--------|-------------|
+| `--json`, `-j` | Output as JSON |
+| `--raw`, `-r` | Export raw event data |
+| `-d`, `--days N` | Filter to last N days |
+| `-o`, `--output PATH` | Output file path |
+
+### stats aggregate
+
+Aggregate multiple stats files (for team leads).
+
+| Option | Description |
+|--------|-------------|
+| `-o`, `--output PATH` | Output file path |
+| `FILES...` | Stats files to aggregate |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="View Stats">
+  ```bash
+  # View all-time statistics
+  scc stats
+
+  # View last 7 days
+  scc stats --days 7
+  ```
+  </TabItem>
+  <TabItem label="Export">
+  ```bash
+  # Export as JSON
+  scc stats export --json
+
+  # Export last 30 days to file
+  scc stats export --days 30 --output stats.json
+
+  # Export raw events
+  scc stats export --raw --output events.json
+  ```
+  </TabItem>
+  <TabItem label="Aggregate">
+  ```bash
+  # Aggregate team stats
+  scc stats aggregate team1.json team2.json --output combined.json
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note">
+  Statistics include session counts, duration, and per-project breakdown. Data is stored locally at `~/.config/scc/stats/`.
+</Aside>
+
+---
+
+## scc support bundle
+
+Generate a diagnostic bundle for troubleshooting.
+
+```bash
+scc support bundle [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-o`, `--output PATH` | Output path for the bundle zip file |
+| `--json` | Output manifest as JSON instead of creating zip |
+| `--pretty` | Pretty-print JSON output (implies `--json`) |
+| `--no-redact-paths` | Don't redact home directory paths |
+
+**What's included:**
+
+- System information (platform, Python version)
+- CLI configuration (secrets automatically redacted)
+- Doctor output (health check results)
+- Diagnostic information
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Basic">
+  ```bash
+  # Generate support bundle
+  scc support bundle
+
+  # Save to specific location
+  scc support bundle --output ~/Desktop/scc-support.zip
+  ```
+  </TabItem>
+  <TabItem label="JSON Output">
+  ```bash
+  # Output manifest as JSON (no zip)
+  scc support bundle --json
+
+  # Pretty-print JSON
+  scc support bundle --pretty
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip">
+  The bundle is safe to share — all sensitive data (secrets, API keys, tokens, passwords) is automatically redacted.
+</Aside>
+
+---
+
+## scc prune
+
+Remove stopped SCC containers.
+
+```bash
+scc prune [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-y`, `--yes` | Skip confirmation prompt |
+| `--dry-run` | Preview what would be removed |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Interactive">
+  ```bash
+  # Show stopped containers and confirm removal
+  scc prune
+  ```
+  </TabItem>
+  <TabItem label="Scripted">
+  ```bash
+  # Preview what would be removed
+  scc prune --dry-run
+
+  # Remove without confirmation (CI/scripts)
+  scc prune --yes
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution">
+  Only removes **stopped** containers. Running containers are never affected. Use `scc stop` first if you want to stop running containers.
+</Aside>
+
+<Aside type="note">
+  There's also `scc worktree prune` for cleaning up stale git worktree entries — that's a different command.
+</Aside>
+
+---
+
+## File Locations
+
+| File | Purpose |
+|------|---------|
+| `~/.config/scc/stats/` | Usage statistics storage |
+| `~/.config/scc/config.json` | User configuration |
+| `~/.cache/scc/` | Cached data (safe to delete) |

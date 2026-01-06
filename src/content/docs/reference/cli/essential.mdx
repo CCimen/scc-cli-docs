@@ -1,6 +1,6 @@
 ---
 title: Essential Commands
-description: Core workflow commands - setup, doctor, start, stop, status
+description: Core workflow commands - setup, init, doctor, start, stop, status
 sidebar:
   order: 2
 ---
@@ -49,6 +49,58 @@ scc setup [OPTIONS]
   ```
   </TabItem>
 </Tabs>
+
+---
+
+## scc init
+
+Initialize a project with SCC configuration.
+
+```bash
+scc init [PATH] [OPTIONS]
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `PATH` | Target directory (default: current directory) |
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-f`, `--force` | Overwrite existing `.scc.yaml` without prompting |
+| `-y`, `--yes` | Skip confirmation prompts |
+| `--json` | Output result as JSON |
+| `--pretty` | Pretty-print JSON output |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Basic">
+  ```bash
+  # Initialize current directory
+  scc init
+
+  # Initialize specific project
+  scc init ~/projects/my-app
+  ```
+  </TabItem>
+  <TabItem label="Force Overwrite">
+  ```bash
+  # Overwrite existing config
+  scc init --force
+
+  # Non-interactive overwrite
+  scc init --force --yes
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note">
+  Creates a `.scc.yaml` file with sensible defaults including sections for `additional_plugins`, `session` settings, and optional `mcp_servers`.
+</Aside>
 
 ---
 
