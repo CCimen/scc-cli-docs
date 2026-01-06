@@ -48,21 +48,27 @@ scc start ~/project
 scc sessions
 ```
 
-Shows sessions grouped by workspace:
+By default, this shows sessions for your **active team**. Use `--all` to see
+sessions across teams, or `--team <name>` to filter explicitly.
 
 ```
-Workspace: /Users/dev/project-a
-  ● feature-auth (running) - started 2h ago
-  ○ bugfix-login (stopped) - 1d ago
-  ○ main (stopped) - 3d ago
+Session         Workspace                      Last Used    Team
+feature-auth    /Users/dev/project-a           2h ago       ai-teamet
+bugfix-login    /Users/dev/project-a           1d ago       ai-teamet
+main            /Users/dev/project-b           5h ago       ai-teamet
+```
 
-Workspace: /Users/dev/project-b
-  ○ main (stopped) - 5h ago
+```bash
+# Show sessions for all teams
+scc sessions --all
+
+# Show sessions for a specific team
+scc sessions --team draken
 ```
 
 ## Resuming Sessions
 
-### Resume Most Recent
+### Resume Most Recent (Team-Scoped)
 
 ```bash
 scc start --resume
@@ -125,20 +131,21 @@ Recent sessions:
 
 ## Quick Resume
 
-Quick Resume appears when you run `scc` in a directory with recent sessions:
+Quick Resume appears when you run `scc` and always includes **New session** as the
+default selection:
 
 ```
-Recent sessions for ~/project:
+Quick Resume — Team: ai-teamet
 
-  → 1. feature-auth (2 hours ago)
-    2. bugfix-login (yesterday)
-    3. main (3 days ago)
+  ➕ New session (ai-teamet)
+  👥 Switch team
+  ⚫ ai-teamet · project-a · main  2h ago
 
-[Enter] Resume  [n] New  [↑↓] Navigate  [q] Quit
+[Enter] Select  [n] New session  [a] All teams  [t] Teams  [q] Quit
 ```
 
 <Aside type="tip">
-  Quick Resume only shows sessions for the exact workspace path. If you moved your project, sessions won't appear.
+  Press **a** to show all teams. Resuming a session uses that team’s plugins.
 </Aside>
 
 ## Session Context
@@ -179,6 +186,9 @@ session:
 
 ```bash
 scc list
+
+# or
+scc container
 ```
 
 ### Prune Stopped Containers
@@ -212,12 +222,16 @@ scc start --fresh
 
 ### Quick Resume Not Showing
 
-**Cause:** Running from different path than original session.
+**Cause:** Running from a different path than the original session, or viewing a different team.
 
-**Solution:** Navigate to exact workspace root:
+**Solution:** Navigate to the exact workspace root and (if needed) show all teams:
 ```bash
 cd ~/project  # Not ~/project/src
 scc
+
+# In Quick Resume, press 'a' to show all teams
+# Or list sessions across teams
+scc sessions --all
 ```
 
 ### Session Stuck
@@ -228,6 +242,9 @@ scc
 ```bash
 # Find the container name
 scc list
+
+# or
+scc container
 
 # Stop the specific container
 scc stop <container-name>

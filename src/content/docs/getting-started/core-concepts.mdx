@@ -64,13 +64,16 @@ Profiles are defined in your organization's config and can be:
 
 ```bash
 # List available teams/profiles
-scc team list
+scc team
 
 # Switch to a different team
 scc team switch
 
-# See current team's configuration
-scc team info
+# See current team
+scc team current
+
+# See team configuration
+scc team info <team-name>
 ```
 
 ## Worktrees
@@ -88,7 +91,7 @@ scc worktree create ~/project feature-auth
 # On branch: scc/feature-auth
 
 # List all worktrees
-scc worktree list
+scc worktree
 
 # Enter a worktree (starts a subshell)
 scc worktree enter feature-auth

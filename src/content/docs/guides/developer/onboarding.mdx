@@ -87,8 +87,11 @@ Your org admin and team lead handle all configuration. You just code.
 To see what your team profile includes:
 
 ```bash
-# Show current team and its settings
-scc team info
+# List teams
+scc team
+
+# Show current team settings
+scc team info <team-name>
 
 # Show full effective configuration with sources
 scc config explain
@@ -104,7 +107,7 @@ If you work on multiple teams:
 
 ```bash
 # List available teams
-scc team list
+scc team
 
 # Switch to a different team interactively
 scc team switch

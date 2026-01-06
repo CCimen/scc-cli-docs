@@ -7,32 +7,40 @@ sidebar:
 
 ## scc sessions
 
-List recent sessions.
+List recent sessions (team-scoped by default).
 
 ```bash
 scc sessions [OPTIONS]
 ```
 
-**Aliases:** `scc session list`
+**Aliases:** `scc session`, `scc session list`
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
 | `-n`, `--limit N` | Number of sessions to show (default: 10) |
+| `-t`, `--team TEAM` | Filter by team |
+| `--all` | Show sessions for all teams (ignore active team) |
 | `-s`, `--select` | Interactive picker to select a session |
 
 **Examples:**
 
 ```bash
-# List recent sessions
+# List recent sessions for the active team
 scc sessions
 
 # Show more sessions
 scc sessions --limit 20
 
-# Interactive session picker
+# Interactive session picker (team-scoped)
 scc sessions --select
+
+# Show all teams
+scc sessions --all
+
+# Filter by a specific team
+scc sessions --team backend
 ```
 
 **Output includes:**
@@ -41,6 +49,26 @@ scc sessions --select
 - Workspace path
 - Last used time
 - Team profile
+
+---
+
+## scc container
+
+List SCC-managed Docker containers (alias of `scc list`).
+
+```bash
+scc container [--interactive]
+```
+
+**Examples:**
+
+```bash
+# List containers
+scc container
+
+# Interactive container picker
+scc container --interactive
+```
 
 ---
 

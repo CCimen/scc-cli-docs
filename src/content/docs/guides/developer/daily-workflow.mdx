@@ -20,14 +20,16 @@ cd ~/project
 scc
 ```
 
-SCC will show the Quick Resume picker if sessions exist:
+SCC shows Quick Resume and defaults to **New session**:
 
 ```
-Recent sessions for ~/project:
-  1. feature-auth (2 hours ago)
-  2. bugfix-login (yesterday)
+Quick Resume — Team: ai-teamet
 
-[Enter] Resume selected  [n] New session  [q] Quit
+  ➕ New session (ai-teamet)
+  👥 Switch team
+  ⚫ ai-teamet · project · main  2h ago
+
+[Enter] Select  [n] New session  [a] All teams  [t] Teams  [q] Quit
 ```
 
 ### Force a New Session
@@ -77,14 +79,17 @@ scc
 scc sessions
 ```
 
-Output:
+Output (team-scoped by default):
 ```
-Workspace: ~/project-a
-  - feature-auth (running) - started 2h ago
-  - bugfix-login (stopped) - 1d ago
+Session         Workspace              Last Used   Team
+feature-auth    ~/project-a            2h ago      ai-teamet
+bugfix-login    ~/project-a            1d ago      ai-teamet
+main            ~/project-b            3h ago      ai-teamet
+```
 
-Workspace: ~/project-b
-  - main (stopped) - 3h ago
+```bash
+# Show all teams
+scc sessions --all
 ```
 
 ### Stop All Running Containers
@@ -249,7 +254,7 @@ scc start --dry-run --json --non-interactive ~/project
 | Problem | Solution |
 |---------|----------|
 | "Session won't resume" | Container may have been pruned; start fresh |
-| "Quick Resume not showing" | Sessions only show for exact workspace path |
+| "Quick Resume not showing" | Check workspace path and team filter; press `a` for all teams |
 | "Team switch not taking effect" | Switches only affect new sessions |
 
 See [Troubleshooting](/troubleshooting/) for more solutions.

@@ -65,10 +65,12 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
 
 ## What Happens When You Run `scc`
 
-1. **Auto-detects workspace** from git repository root or `.scc.yaml` location
-2. **Shows Quick Resume** if you have recent sessions for this workspace
-3. **Prints brief context** (workspace root, entry directory, team) before launching
-4. **Starts Docker container** with your team's configuration
+1. **If no org config exists**, SCC asks whether to run setup or standalone mode
+2. **Auto-detects workspace** from git repository root or `.scc.yaml` location
+3. **If no workspace is detected**, SCC opens the Dashboard so you can start a session
+4. **Shows Quick Resume** (always includes “New session” as the default)
+5. **Prints brief context** (workspace root, entry directory, team) before launching
+6. **Starts Docker container** with your team's configuration
 
 <Aside type="tip">
   **Safety guard:** SCC won't auto-launch from suspicious directories (home, `/tmp`). If you try `scc start ~/`, it will prompt for confirmation.
@@ -80,8 +82,10 @@ When in interactive mode:
 
 | Key | Action |
 |-----|--------|
-| `Enter` | Select/resume session |
+| `Enter` | Select / resume / start |
 | `n` | Start new session |
+| `a` | Show all teams (toggle) |
+| `t` | Switch team |
 | `Esc` | Go back |
 | `q` | Quit |
 
