@@ -71,6 +71,22 @@ scc
   Each project has its own session history. SCC tracks sessions by workspace root.
 </Aside>
 
+## Personal Profiles (Optional)
+
+If you customize plugins or MCP servers for a project, save them as a personal profile:
+
+```bash
+scc profile save
+```
+
+When plugins are installed inside the container and only exist in sandbox settings, SCC detects them and offers to import them into `.claude/settings.local.json` before saving.
+
+Check status and drift anytime:
+
+```bash
+scc profile status
+```
+
 ## Managing Sessions
 
 ### List Recent Sessions
