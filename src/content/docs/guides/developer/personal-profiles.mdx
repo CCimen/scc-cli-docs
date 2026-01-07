@@ -60,6 +60,14 @@ If SCC detects local drift, it will prompt before applying (or require `--force`
 scc profile diff
 ```
 
+## Status and Drift
+
+```bash
+scc profile status
+```
+
+This shows whether a profile exists, when it was last applied, and if local drift is detected.
+
 ## List Profiles
 
 ```bash
@@ -76,6 +84,12 @@ scc profile export --repo ~/dotfiles/scc-profiles
 
 # Import profiles from a repo path
 scc profile import --repo ~/dotfiles/scc-profiles
+```
+
+Preview import without writing:
+
+```bash
+scc profile import --repo ~/dotfiles/scc-profiles --preview
 ```
 
 Optional commit/push:

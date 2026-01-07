@@ -15,6 +15,12 @@ List saved personal profiles.
 scc profile list
 ```
 
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--workspace PATH` | Show the profile for a specific workspace |
+
 ---
 
 ## scc profile save
@@ -55,6 +61,16 @@ scc profile diff [--workspace PATH]
 
 ---
 
+## scc profile status
+
+Show whether a profile exists, when it was last applied, and if drift is detected.
+
+```bash
+scc profile status [--workspace PATH]
+```
+
+---
+
 ## scc profile export
 
 Export profiles to a local repo path (any git host).
@@ -70,7 +86,7 @@ scc profile export --repo PATH [--workspace PATH] [--commit] [--push] [--force]
 Import profiles from a local repo path.
 
 ```bash
-scc profile import --repo PATH [--force]
+scc profile import --repo PATH [--force] [--preview] [--dry-run]
 ```
 
 ---
