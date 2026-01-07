@@ -47,6 +47,7 @@ export default defineConfig({
 						{ slug: 'guides/developer/sessions' },
 						{ slug: 'guides/developer/worktrees' },
 						{ slug: 'guides/developer/project-config' },
+						{ slug: 'guides/developer/personal-profiles' },
 					],
 				},
 				{
