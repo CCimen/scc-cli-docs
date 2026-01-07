@@ -31,6 +31,8 @@ Save the current workspace settings as a personal profile.
 scc profile save [--workspace PATH]
 ```
 
+If SCC detects plugins that only exist in sandbox settings, it offers to import them into `.claude/settings.local.json` before saving.
+
 ---
 
 ## scc profile apply
@@ -68,6 +70,8 @@ Show whether a profile exists, when it was last applied, and if drift is detecte
 ```bash
 scc profile status [--workspace PATH]
 ```
+
+When sandbox-only plugin changes are found, status can offer to import and save them.
 
 ---
 
