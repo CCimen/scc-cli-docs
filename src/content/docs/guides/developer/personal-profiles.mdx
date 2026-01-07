@@ -5,17 +5,22 @@ sidebar:
   order: 6
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, Steps } from '@astrojs/starlight/components';
 
-Personal profiles let you keep **your own** Claude Code preferences per project, on top of your team configuration. They are stored outside the repository and automatically applied when you start a session.
+Personal profiles let you keep **your own** Claude Code preferences per project, on top of your organization and team configuration. They are stored outside the repository and automatically applied when you start a session.
 
 ## What This Solves
 
 - You want extra plugins or MCP servers for your workflow
 - You tweak settings locally and want them to persist across sessions
 - You work on multiple machines and want to sync your personal setup
+- You switch teams often but still want your **personal taste** per project
 
 Personal profiles are **optional** and never override org security rules.
+
+<Aside type="tip">
+  Think of this as your per‑project “personal taste” layer. You still benefit from org + team defaults, while keeping your own tweaks portable.
+</Aside>
 
 ## Configuration Layers
 
@@ -110,6 +115,36 @@ scc profile sync --repo ~/dotfiles/scc-profiles --pull --commit --push
 <Aside type="tip">
   SCC will never create remote repos or choose hosting providers for you. You control where the repo lives.
 </Aside>
+
+## Recommended Workflow
+
+Use this flow if you move between computers or just want a reliable “personal taste” layer per project.
+
+<Steps>
+1. **Make your changes**
+
+   Install plugins or edit settings inside the container.
+
+2. **Save your profile**
+
+   ```bash
+   scc profile save
+   ```
+
+3. **Export to your sync repo**
+
+   ```bash
+   scc profile export --repo ~/dotfiles/scc-profiles --commit --push
+   ```
+
+4. **On a new machine**
+
+   ```bash
+   scc profile import --repo ~/dotfiles/scc-profiles
+   ```
+
+   Then just run `scc start` in the project—your personal profile auto‑applies.
+</Steps>
 
 ## Troubleshooting
 
