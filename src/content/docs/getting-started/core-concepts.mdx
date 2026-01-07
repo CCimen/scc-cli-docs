@@ -76,6 +76,20 @@ scc team current
 scc team info <team-name>
 ```
 
+## Personal Profiles
+
+A **personal profile** captures your own Claude Code preferences for a specific project. It sits between team config and workspace overrides so you can add your own plugins or MCP servers without changing org or repo settings.
+
+```bash
+# Save current workspace settings as a personal profile
+scc profile save
+
+# Apply personal profile on demand
+scc profile apply
+```
+
+Learn more in [Personal Profiles](/guides/developer/personal-profiles/).
+
 ## Worktrees
 
 A **worktree** is a git feature that lets you check out multiple branches simultaneously in different directories. SCC uses worktrees to:
@@ -106,9 +120,13 @@ scc worktree switch feature-auth
 
 ## Configuration Layers
 
-SCC uses a three-layer configuration system:
+SCC uses layered configuration with personal profiles:
 
 <DrawioDiagram src="/diagrams/config-layers2.svg" alt="Configuration Layers" />
+
+Order of precedence:
+
+**Organization → Team → Personal Profile → Workspace overrides**
 
 ## Plugins
 

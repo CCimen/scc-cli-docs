@@ -207,6 +207,17 @@ However, if you have personal overrides, you can create a local file:
   Local overrides (`.scc.local.yaml`) are only supported if your team enables `allow_project_overrides: true`.
 </Aside>
 
+## Personal Profiles (Local)
+
+If you want your own plugins or MCP servers without committing anything to the repo, use **personal profiles** instead of `.scc.local.yaml`.
+
+```bash
+scc profile save
+scc profile apply
+```
+
+Personal profiles live outside the repo and can be synced across machines. See [Personal Profiles](/guides/developer/personal-profiles/) for details.
+
 ## Troubleshooting
 
 ### "Plugin not allowed"
