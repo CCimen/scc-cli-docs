@@ -63,6 +63,10 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
    ```
 </Steps>
 
+<Aside type="tip">
+  If you install plugins inside the container, run `scc profile save` afterward to capture your personal setup. SCC will detect sandbox-only plugin changes and can import them into `.claude/settings.local.json` before saving.
+</Aside>
+
 ## What Happens When You Run `scc`
 
 1. **If no org config exists**, SCC asks whether to run setup or standalone mode
