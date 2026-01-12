@@ -1,23 +1,25 @@
 ---
-title: Settings & Maintenance TUI
-description: Interactive interface for system maintenance and configuration
+title: Settings & Maintenance
+description: Interactive TUI for system maintenance and configuration management
 sidebar:
   order: 7
+  badge:
+    text: New
+    variant: tip
 ---
 
-import { Tabs, TabItem, Aside, Steps, Badge } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Steps, Badge, Card, CardGrid } from '@astrojs/starlight/components';
 
-The Settings & Maintenance TUI provides a visual interface for managing SCC's configuration, clearing cache, and performing maintenance operations.
+<Aside type="tip">
+  Press `s` from the main dashboard to open Settings & Maintenance at any time.
+</Aside>
 
-## Accessing Settings
-
-Press `s` from the main dashboard to open the Settings & Maintenance screen.
+The Settings & Maintenance TUI provides a visual interface for managing SCC's configuration, clearing cache, and performing maintenance operations — all without leaving the terminal.
 
 ## Navigation
 
 | Key | Action |
 |-----|--------|
-| `s` | Open Settings & Maintenance from dashboard |
 | `↑`/`↓` or `j`/`k` | Navigate actions |
 | `←`/`→` or `h`/`l` | Switch categories |
 | `Enter` | Execute action |
@@ -27,19 +29,17 @@ Press `s` from the main dashboard to open the Settings & Maintenance screen.
 
 ## Categories
 
-The Settings TUI is organized into three categories:
-
-### Maintenance
-
-System cleanup and data management operations.
-
-### Diagnostics
-
-Health checks and debugging tools.
-
-### About
-
-Version information and file locations.
+<CardGrid>
+  <Card title="Maintenance" icon="setting">
+    Cache cleanup, session pruning, and configuration reset operations.
+  </Card>
+  <Card title="Diagnostics" icon="magnifier">
+    Health checks and debugging tools like `scc doctor`.
+  </Card>
+  <Card title="About" icon="information">
+    Version info and file locations (`scc config paths`).
+  </Card>
+</CardGrid>
 
 ## Maintenance Actions
 
@@ -96,7 +96,7 @@ Each action has a risk tier that determines the confirmation level:
   Type "FACTORY RESET" to confirm:
   ```
 
-  <Aside type="caution">
+  <Aside type="note">
     This is case-insensitive — "factory reset" also works.
   </Aside>
   </TabItem>
@@ -104,7 +104,7 @@ Each action has a risk tier that determines the confirmation level:
 
 ## Preview Mode
 
-Press `p` on any action to see exactly what will be affected:
+Press `p` on any action to see exactly what will be affected before executing:
 
 ```
 Clear cache
@@ -114,8 +114,6 @@ Paths affected:
 
 Current size: 15.7 KB
 ```
-
-This lets you understand the impact before executing.
 
 ## Common Workflows
 
@@ -135,7 +133,7 @@ This lets you understand the impact before executing.
 
 ## CLI Alternative
 
-All TUI actions are also available via CLI:
+All TUI actions are also available via CLI using `scc reset`:
 
 ```bash
 # Clear cache
@@ -144,11 +142,27 @@ scc reset --cache
 # Clear contexts
 scc reset --contexts
 
-# Prune sessions
+# Prune sessions (keeps newest 20 per team)
 scc reset --sessions
 
-# Factory reset
+# Factory reset (interactive confirmation)
 scc reset --all
+
+# Non-interactive for scripts
+scc reset --cache --yes
 ```
 
-See [scc reset](/reference/cli/admin/#scc-reset) for all CLI options.
+<Aside type="tip">
+  Use `scc reset --plan` to preview what any operation would do without making changes.
+</Aside>
+
+## Related
+
+<CardGrid>
+  <Card title="scc reset Reference" icon="document">
+    Full CLI documentation for all reset flags. [View reference →](/reference/cli/admin/#scc-reset)
+  </Card>
+  <Card title="Troubleshooting" icon="warning">
+    Common issues and how to fix them. [Get help →](/troubleshooting/common-issues/#reset-configuration)
+  </Card>
+</CardGrid>

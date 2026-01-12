@@ -48,6 +48,7 @@ export default defineConfig({
 						{ slug: 'guides/developer/worktrees' },
 						{ slug: 'guides/developer/project-config' },
 						{ slug: 'guides/developer/personal-profiles' },
+						{ slug: 'guides/developer/settings-tui' },
 					],
 				},
 				{
