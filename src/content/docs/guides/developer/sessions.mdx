@@ -209,6 +209,28 @@ scc prune --dry-run
 
 Shows what would be removed without actually removing.
 
+## Session History Cleanup
+
+Over time, session history can accumulate. Use `scc sessions prune` to clean up:
+
+```bash
+# Preview what would be removed
+scc sessions prune --dry-run
+
+# Prune sessions older than 30 days (keeps 20 most recent per team)
+scc sessions prune
+
+# Keep only last 10 sessions per team
+scc sessions prune --keep 10
+
+# Prune sessions older than 7 days
+scc sessions prune --older-than 7d
+```
+
+<Aside type="tip">
+  You can also access session cleanup from the TUI: press `s` from the dashboard to open Settings & Maintenance.
+</Aside>
+
 ## Troubleshooting Sessions
 
 ### Session Won't Resume

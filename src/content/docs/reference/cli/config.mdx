@@ -22,6 +22,7 @@ scc config [ACTION] [KEY] [VALUE] [OPTIONS]
 | `show` | Show all configuration |
 | `edit` | Open config in editor |
 | `explain` | Explain effective configuration with sources |
+| `paths` | Show file locations with sizes and permissions |
 
 **Options:**
 
@@ -63,6 +64,34 @@ blocked_items:
 
 denied_additions:
   - some-server       (requested_by: project, reason: team not delegated)
+```
+
+### scc config paths
+
+Show all SCC file locations with sizes and permissions.
+
+```bash
+scc config paths [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+| `--show-env` | Include XDG environment variables |
+
+**Example output:**
+
+```
+SCC File Locations
+────────────────────────────────────────────────────────────────────
+Config     ~/.config/scc/config.json          2.1 KB   ✓ exists  rw
+Sessions   ~/.config/scc/sessions.json        4.2 KB   ✓ exists  rw
+Exceptions ~/.config/scc/exceptions.json      1.1 KB   ✓ exists  rw
+Cache      ~/.cache/scc/                     15.7 KB   ✓ exists  rw
+────────────────────────────────────────────────────────────────────
+Total                                        23.1 KB
 ```
 
 ---

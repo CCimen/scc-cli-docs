@@ -1,0 +1,154 @@
+---
+title: Settings & Maintenance TUI
+description: Interactive interface for system maintenance and configuration
+sidebar:
+  order: 7
+---
+
+import { Tabs, TabItem, Aside, Steps, Badge } from '@astrojs/starlight/components';
+
+The Settings & Maintenance TUI provides a visual interface for managing SCC's configuration, clearing cache, and performing maintenance operations.
+
+## Accessing Settings
+
+Press `s` from the main dashboard to open the Settings & Maintenance screen.
+
+## Navigation
+
+| Key | Action |
+|-----|--------|
+| `s` | Open Settings & Maintenance from dashboard |
+| `↑`/`↓` or `j`/`k` | Navigate actions |
+| `←`/`→` or `h`/`l` | Switch categories |
+| `Enter` | Execute action |
+| `p` | Preview affected paths and sizes |
+| `?` | Show help panel |
+| `Esc` | Go back / Close panels |
+
+## Categories
+
+The Settings TUI is organized into three categories:
+
+### Maintenance
+
+System cleanup and data management operations.
+
+### Diagnostics
+
+Health checks and debugging tools.
+
+### About
+
+Version information and file locations.
+
+## Maintenance Actions
+
+Each action has a risk tier that determines the confirmation level:
+
+| Action | Risk | Description |
+|--------|------|-------------|
+| Clear cache | <Badge text="Safe" variant="success" /> | Remove regenerable cache files |
+| Clear contexts | <Badge text="Changes State" variant="note" /> | Clear recent work contexts |
+| Prune containers | <Badge text="Changes State" variant="note" /> | Remove stopped Docker containers |
+| Prune sessions | <Badge text="Changes State" variant="note" /> | Remove old sessions (keeps recent 20) |
+| Reset exceptions | <Badge text="Destructive" variant="caution" /> | Clear all policy exceptions |
+| Delete all sessions | <Badge text="Destructive" variant="caution" /> | Remove entire session history |
+| Reset configuration | <Badge text="Destructive" variant="caution" /> | Reset to defaults (requires setup) |
+| Factory reset | <Badge text="Very Destructive" variant="danger" /> | Remove all SCC data |
+
+## Risk-Tiered Confirmations
+
+<Tabs>
+  <TabItem label="Tier 0 (Safe)">
+  Actions like "Clear cache" execute immediately with just a success toast.
+
+  No confirmation required — these operations are always safe to run.
+  </TabItem>
+  <TabItem label="Tier 1 (Changes State)">
+  Actions like "Clear contexts" or "Prune containers" show a simple Y/N confirmation.
+
+  ```
+  This will clear work contexts. Continue? [y/N]
+  ```
+  </TabItem>
+  <TabItem label="Tier 2 (Destructive)">
+  Actions like "Reset configuration" show an impact preview before confirming.
+
+  ```
+  This will reset configuration.
+
+  Affected: ~/.config/scc/config.json
+  You will need to run 'scc setup' again.
+
+  Continue? [y/N]
+  ```
+  </TabItem>
+  <TabItem label="Tier 3 (Factory Reset)">
+  Factory reset requires typing "FACTORY RESET" to confirm.
+
+  ```
+  ⚠️  FACTORY RESET will remove ALL SCC data:
+  - Configuration
+  - Sessions
+  - Exceptions
+  - Cache
+
+  Type "FACTORY RESET" to confirm:
+  ```
+
+  <Aside type="caution">
+    This is case-insensitive — "factory reset" also works.
+  </Aside>
+  </TabItem>
+</Tabs>
+
+## Preview Mode
+
+Press `p` on any action to see exactly what will be affected:
+
+```
+Clear cache
+
+Paths affected:
+  ~/.cache/scc/
+
+Current size: 15.7 KB
+```
+
+This lets you understand the impact before executing.
+
+## Common Workflows
+
+<Steps>
+1. **Quick cleanup after heavy usage**
+
+   Open settings (`s`), select "Clear cache", press Enter.
+
+2. **Starting fresh with a new organization**
+
+   Open settings (`s`), select "Reset configuration", confirm, then run `scc setup`.
+
+3. **Cleaning up old sessions**
+
+   Open settings (`s`), select "Prune sessions" to keep only the 20 most recent per team.
+</Steps>
+
+## CLI Alternative
+
+All TUI actions are also available via CLI:
+
+```bash
+# Clear cache
+scc reset --cache
+
+# Clear contexts
+scc reset --contexts
+
+# Prune sessions
+scc reset --sessions
+
+# Factory reset
+scc reset --all
+```
+
+See [scc reset](/reference/cli/admin/#scc-reset) for all CLI options.

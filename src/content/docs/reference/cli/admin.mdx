@@ -181,6 +181,124 @@ scc prune [OPTIONS]
 
 ---
 
+## scc reset
+
+Unified maintenance hub for cache, sessions, contexts, and configuration.
+
+```bash
+scc reset [OPTIONS]
+```
+
+**Selection Options:**
+
+| Option | Risk | Description |
+|--------|------|-------------|
+| `--cache` | Safe | Clear cache files (~/.cache/scc/) |
+| `--contexts` | Low | Clear work context associations |
+| `--exceptions` | Medium | Reset all policy exceptions |
+| `--exceptions-expired` | Safe | Only cleanup expired exceptions |
+| `--containers` | Low | Prune stopped Docker containers |
+| `--sessions` | Low | Prune old sessions (keeps newest 20 per team) |
+| `--sessions-all` | Medium | Delete entire session history |
+| `--config` | Medium | Reset configuration (requires re-setup) |
+| `--all` | High | Factory reset - removes all SCC data |
+
+**Execution Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--plan` | Fast preview - show what would change |
+| `-n`, `--dry-run` | Execute without writing (validates permissions) |
+| `-y`, `--yes` | Skip confirmation prompts |
+| `--force` | Required with `--yes` for factory reset |
+| `--no-backup` | Skip backup creation |
+| `--continue-on-error` | Don't stop on first failure (for CI) |
+| `--json` | Machine-readable output |
+| `--non-interactive` | Fail if prompt needed |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Common Tasks">
+  ```bash
+  # Clear cache and contexts (quick cleanup)
+  scc reset --cache --contexts
+
+  # Cleanup expired exceptions only
+  scc reset --exceptions-expired
+
+  # Prune old sessions (safe defaults: 30d, keep 20)
+  scc reset --sessions
+  ```
+  </TabItem>
+  <TabItem label="Interactive">
+  ```bash
+  # Open interactive maintenance menu
+  scc reset
+
+  # Preview what factory reset would do
+  scc reset --all --plan
+  ```
+  </TabItem>
+  <TabItem label="CI/Scripting">
+  ```bash
+  # Non-interactive cache clear
+  scc reset --cache --yes
+
+  # Factory reset in CI (requires --force with --yes)
+  scc reset --all --yes --force
+
+  # JSON output for automation
+  scc reset --sessions --json
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note">
+  You can also access maintenance from the TUI by pressing `s` for Settings & Maintenance.
+</Aside>
+
+<Aside type="caution">
+  Factory reset (`--all`) removes all SCC data including configuration, sessions, exceptions, and cache. You'll need to run `scc setup` again after a factory reset.
+</Aside>
+
+---
+
+## scc completion
+
+Generate shell tab-completion scripts.
+
+```bash
+scc completion SHELL
+```
+
+**Supported Shells:** `bash`, `zsh`, `fish`
+
+**Installation:**
+
+<Tabs>
+  <TabItem label="Bash">
+  Add to `~/.bashrc`:
+  ```bash
+  eval "$(scc completion bash)"
+  ```
+  </TabItem>
+  <TabItem label="Zsh">
+  Add to `~/.zshrc`:
+  ```bash
+  eval "$(scc completion zsh)"
+  ```
+  </TabItem>
+  <TabItem label="Fish">
+  Run once:
+  ```bash
+  scc completion fish > ~/.config/fish/completions/scc.fish
+  ```
+  </TabItem>
+</Tabs>
+
+---
+
 ## File Locations
 
 | File | Purpose |
@@ -188,3 +306,5 @@ scc prune [OPTIONS]
 | `~/.config/scc/stats/` | Usage statistics storage |
 | `~/.config/scc/config.json` | User configuration |
 | `~/.cache/scc/` | Cached data (safe to delete) |
+
+Run `scc config paths` to see all locations with sizes and permissions.

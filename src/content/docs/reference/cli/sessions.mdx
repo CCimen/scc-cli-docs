@@ -107,3 +107,45 @@ scc context clear --yes
 - After switching teams
 - When context associations are incorrect
 - Before starting fresh with new setup
+
+---
+
+## scc sessions prune
+
+Clean up old session history.
+
+```bash
+scc sessions prune [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--older-than DURATION` | Prune sessions older than duration (e.g., `30d`, `12h`, `1w`) |
+| `--keep N` | Keep most recent N sessions per team (default: 20) |
+| `--team TEAM` | Prune within specific team only |
+| `--all` | Prune across all teams |
+| `-n`, `--dry-run` | Preview what would be removed |
+| `-y`, `--yes` | Skip confirmation prompt |
+
+**Examples:**
+
+```bash
+# Preview what would be pruned (default: 30d, keep 20)
+scc sessions prune --dry-run
+
+# Prune sessions older than 7 days
+scc sessions prune --older-than 7d
+
+# Keep only last 10 sessions per team
+scc sessions prune --keep 10
+
+# Prune without confirmation
+scc sessions prune --yes
+```
+
+**Default behavior:**
+- Prunes sessions older than 30 days
+- Keeps the 20 most recent sessions per team
+- Safe operation — you can always recreate sessions

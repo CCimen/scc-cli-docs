@@ -56,3 +56,58 @@ scc sessions --all  # Show all teams (if needed)
 scc stop --all  # Clean up
 scc start --fresh  # New session
 ```
+
+## Reset Configuration
+
+**Symptoms:** Want to start fresh, corrupt config, need to change organization
+
+**Option 1 - Interactive TUI:**
+
+Press `s` from the dashboard to open Settings & Maintenance, then select "Reset configuration".
+
+**Option 2 - CLI:**
+```bash
+# Reset config only (will need to run scc setup again)
+scc reset --config
+
+# Preview what would be reset
+scc reset --config --plan
+
+# Full factory reset (removes everything)
+scc reset --all
+```
+
+**Option 3 - Manual:**
+```bash
+# Find your config files
+scc config paths
+
+# Delete and reconfigure
+rm ~/.config/scc/config.json
+scc setup
+```
+
+## Clear Cache
+
+**Symptoms:** Stale org config, outdated marketplace data
+
+**Fix:**
+```bash
+# From TUI: press 's' → Clear cache
+# Or from CLI:
+scc reset --cache
+```
+
+## Too Many Old Sessions
+
+**Fix:**
+```bash
+# Prune old sessions (keeps 20 most recent per team)
+scc sessions prune
+
+# Preview what would be removed
+scc sessions prune --dry-run
+
+# Keep only last 10 sessions
+scc sessions prune --keep 10
+```
