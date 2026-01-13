@@ -52,10 +52,11 @@ By default, this shows sessions for your **active team**. Use `--all` to see
 sessions across teams, or `--team <name>` to filter explicitly.
 
 ```
-Session         Workspace                      Last Used    Team
-feature-auth    /Users/dev/project-a           2h ago       ai-teamet
-bugfix-login    /Users/dev/project-a           1d ago       ai-teamet
-main            /Users/dev/project-b           5h ago       ai-teamet
+ Sessions
+
+  › feature-auth      draken · project-a · main · 2h ago
+    bugfix-login      draken · project-a · fix/login · 1d ago
+    main              draken · project-b · main · 5h ago
 ```
 
 ```bash
@@ -129,23 +130,24 @@ Recent sessions:
   3. spike-new-api (3d ago)
 ```
 
-## Quick Resume
+## Dashboard & Quick Resume
 
-Quick Resume appears when you run `scc` and always includes **New session** as the
-default selection:
+The dashboard appears when you run `scc` and shows a tabbed interface with Status, Containers, Sessions, and Worktrees:
 
 ```
-Quick Resume — Team: ai-teamet
+ Status   Containers   Sessions   Worktrees
 
-  ➕ New session (ai-teamet)
-  👥 Switch team
-  ⚫ ai-teamet · project-a · main  2h ago
+  › New session
+    Resume last                draken · main · 2h ago
+    Team: draken
+    Containers: 2/3 running
+    Settings
 
-[Enter] Select  [n] New session  [a] All teams  [t] Teams  [q] Quit
+↑↓ navigate  ·  Enter open  ·  Tab switch tab  ·  n new  ·  q quit
 ```
 
 <Aside type="tip">
-  Press **a** to show all teams. Resuming a session uses that team’s plugins.
+  Press **Tab** to switch between tabs. The Sessions tab shows all recent sessions for your team.
 </Aside>
 
 ## Session Context
