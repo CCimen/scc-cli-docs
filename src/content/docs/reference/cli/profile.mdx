@@ -1,15 +1,69 @@
 ---
 title: Profile Commands
-description: Managing personal project profiles
+description: Managing personal project profiles via CLI and TUI
 sidebar:
   order: 6
 ---
 
-Personal profiles let you save and re-apply your own Claude Code settings per project.
+import { Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/components';
 
-## scc profile list
+Personal profiles let you save and re-apply your own Claude Code settings (plugins, MCP servers) per project. They're stored outside the repo and auto-applied on `scc start`.
 
-List saved personal profiles.
+## Quick Access
+
+<CardGrid>
+  <Card title="TUI (Visual)" icon="laptop">
+    Press `p` in dashboard or go to **Settings → Profiles**
+  </Card>
+  <Card title="CLI (Terminal)" icon="terminal">
+    Use `scc profile` commands below
+  </Card>
+</CardGrid>
+
+---
+
+## TUI Integration
+
+The Settings TUI provides visual profile management without memorizing CLI commands.
+
+### Accessing Profiles in TUI
+
+**Method 1: Quick Menu**
+- Press `p` from the dashboard to open the profile quick menu
+- Options: Save, Apply, Show diff, Open in Settings
+
+**Method 2: Settings Screen**
+- Press `s` to open Settings & Maintenance
+- Navigate to the **Profiles** tab
+- Actions: Save profile, Apply profile, Show diff, Sync profiles
+
+### Sync Profiles Overlay
+
+The **Sync profiles** action opens an overlay picker:
+
+```
+› 📁 ~/dotfiles/scc-profiles  Change path
+  Export                      Save profiles to folder
+  Import                      Load profiles from folder
+  Full sync                   Load then save  (advanced)
+```
+
+<Aside type="note">
+TUI sync writes files locally only—no git commit or push. Use the CLI with `--commit --push` flags for git operations.
+</Aside>
+
+**Import Preview:** Before importing, you'll see a preview of what will change:
+- `+` (green) — New profiles to add
+- `~` (yellow) — Existing profiles to update
+- `·` (dim) — Unchanged profiles
+
+---
+
+## CLI Commands
+
+### scc profile list
+
+List all saved personal profiles.
 
 ```bash
 scc profile list
@@ -23,7 +77,7 @@ scc profile list
 
 ---
 
-## scc profile save
+### scc profile save
 
 Save the current workspace settings as a personal profile.
 
@@ -31,11 +85,15 @@ Save the current workspace settings as a personal profile.
 scc profile save [--workspace PATH]
 ```
 
-If SCC detects plugins that only exist in sandbox settings, it offers to import them into `.claude/settings.local.json` before saving.
+**Sandbox Plugin Detection:** If SCC detects plugins that only exist in sandbox settings (installed inside the container), it offers to import them into `.claude/settings.local.json` before saving.
+
+<Aside type="tip">
+Run `scc profile status` first to see if there are sandbox-only plugins to import.
+</Aside>
 
 ---
 
-## scc profile apply
+### scc profile apply
 
 Apply your personal profile to the current workspace.
 
@@ -53,7 +111,7 @@ scc profile apply [--workspace PATH] [--preview] [--dry-run] [--force]
 
 ---
 
-## scc profile diff
+### scc profile diff
 
 Show diff between your personal profile and current workspace settings.
 
@@ -61,9 +119,14 @@ Show diff between your personal profile and current workspace settings.
 scc profile diff [--workspace PATH]
 ```
 
+**Output indicators:**
+- `+` — In profile only (will be added)
+- `−` — In workspace only (will be removed)
+- `~` — Modified (values differ)
+
 ---
 
-## scc profile status
+### scc profile status
 
 Show whether a profile exists, when it was last applied, and if drift is detected.
 
@@ -71,44 +134,143 @@ Show whether a profile exists, when it was last applied, and if drift is detecte
 scc profile status [--workspace PATH]
 ```
 
+**Status indicators:**
+- `saved · ✓ synced` — Profile exists and matches workspace
+- `saved · ◇ drifted` — Profile exists but workspace has changed
+- `none` — No profile saved for this workspace
+
 When sandbox-only plugin changes are found, status can offer to import and save them.
 
 ---
 
-## scc profile export
+## Syncing Profiles
 
-Export profiles to a local repo path (any git host).
+Share profiles across machines using any folder (typically a git repo like `~/dotfiles`).
+
+### scc profile export
+
+Export profiles to a local folder.
 
 ```bash
 scc profile export --repo PATH [--workspace PATH] [--commit] [--push] [--force]
 ```
 
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--repo PATH` | Destination folder for exported profiles |
+| `--workspace PATH` | Export only this workspace's profile |
+| `--commit` | Create a git commit after export |
+| `--push` | Push to remote after commit |
+| `--force` | Overwrite existing files |
+
 ---
 
-## scc profile import
+### scc profile import
 
-Import profiles from a local repo path.
+Import profiles from a local folder.
 
 ```bash
 scc profile import --repo PATH [--force] [--preview] [--dry-run]
 ```
 
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--repo PATH` | Source folder containing profiles |
+| `--preview` | Show what would be imported without writing |
+| `--dry-run` | Alias for `--preview` |
+| `--force` | Overwrite existing local profiles |
+
 ---
 
-## scc profile sync
+### scc profile sync
 
-Sync profiles with a local repo path.
+Bidirectional sync: import from repo, then export to repo.
 
 ```bash
 scc profile sync --repo PATH [--pull] [--commit] [--push] [--force]
 ```
 
-**Examples:**
+**Options:**
 
+| Option | Description |
+|--------|-------------|
+| `--repo PATH` | Folder to sync with |
+| `--pull` | Git pull before importing |
+| `--commit` | Git commit after exporting |
+| `--push` | Git push after commit |
+| `--force` | Force overwrite on conflicts |
+
+---
+
+## Examples
+
+<Tabs>
+  <TabItem label="Basic Workflow">
 ```bash
-# Export to a local repo
-scc profile export --repo ~/dotfiles/scc-profiles
+# Save your current settings
+scc profile save
 
-# Sync with pull + push
+# Check if profile matches workspace
+scc profile status
+
+# Apply profile (after team config changes, etc.)
+scc profile apply --preview   # See what will change
+scc profile apply             # Actually apply
+```
+  </TabItem>
+  <TabItem label="Cross-Machine Sync">
+```bash
+# On Machine A: Export to dotfiles repo
+scc profile export --repo ~/dotfiles/scc-profiles --commit --push
+
+# On Machine B: Import from dotfiles repo
+cd ~/dotfiles/scc-profiles && git pull
+scc profile import --repo ~/dotfiles/scc-profiles
+
+# Or use sync for bidirectional
 scc profile sync --repo ~/dotfiles/scc-profiles --pull --commit --push
+```
+  </TabItem>
+  <TabItem label="TUI Workflow">
+```bash
+# Launch SCC dashboard
+scc
+
+# Press 'p' for quick profile menu
+# Or press 's' → Profiles tab → Sync profiles
+
+# In Sync overlay:
+# 1. Set your repo path (saved for next time)
+# 2. Choose Export, Import, or Full sync
+# 3. Import shows preview before applying
+```
+  </TabItem>
+</Tabs>
+
+---
+
+## File Locations
+
+Profiles are stored in your user config directory:
+
+```
+~/.config/scc/personal/projects/<hash>.json
+```
+
+Each profile contains:
+- `repo_id` — Identifier for the workspace (git remote or path)
+- `settings` — Claude Code settings (plugins, etc.)
+- `mcp` — MCP server configurations
+- `saved_at` — Timestamp of last save
+
+Export destination (configurable):
+```
+~/dotfiles/scc-profiles/   # Default/example
+├── <hash>.json
+├── <hash>.json
+└── ...
 ```

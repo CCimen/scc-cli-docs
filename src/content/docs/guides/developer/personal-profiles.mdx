@@ -5,9 +5,20 @@ sidebar:
   order: 6
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 
 Personal profiles let you keep **your own** Claude Code preferences per project, on top of your organization and team configuration. They are stored outside the repository and automatically applied when you start a session.
+
+## Quick Access
+
+<CardGrid>
+  <Card title="TUI (Visual)" icon="laptop">
+    Press `p` in dashboard or go to **Settings → Profiles**
+  </Card>
+  <Card title="CLI (Terminal)" icon="terminal">
+    Use `scc profile` commands below
+  </Card>
+</CardGrid>
 
 ## What This Solves
 
@@ -32,6 +43,45 @@ SCC merges settings in this order:
   Workspace overrides are the files inside the repo: `.claude/settings.local.json` and `.mcp.json`.
   SCC tracks drift to avoid overwriting your local edits.
 </Aside>
+
+---
+
+## TUI Integration
+
+The Settings TUI provides visual profile management without memorizing CLI commands.
+
+### Accessing Profiles in TUI
+
+**Method 1: Quick Menu**
+- Press `p` from the dashboard to open the profile quick menu
+- Options: Save, Apply, Show diff, Open in Settings
+
+**Method 2: Settings Screen**
+- Press `s` to open Settings & Maintenance
+- Navigate to the **Profiles** tab
+- Actions: Save profile, Apply profile, Show diff, Sync profiles
+
+### Sync Profiles via TUI
+
+The **Sync profiles** action opens an overlay picker:
+
+```
+› 📁 ~/dotfiles/scc-profiles  Change path
+  Export                      Save profiles to folder
+  Import                      Load profiles from folder
+  Full sync                   Load then save  (advanced)
+```
+
+<Aside type="note">
+TUI sync writes files locally only—no git commit or push. Use the CLI with `--commit --push` flags for git operations.
+</Aside>
+
+**Import Preview:** Before importing, you'll see a preview of what will change:
+- `+` (green) — New profiles to add
+- `~` (yellow) — Existing profiles to update
+- `·` (dim) — Unchanged profiles
+
+---
 
 ## Save a Personal Profile
 
@@ -118,8 +168,35 @@ scc profile sync --repo ~/dotfiles/scc-profiles --pull --commit --push
 
 ## Recommended Workflow
 
-Use this flow if you move between computers or just want a reliable “personal taste” layer per project.
+Use this flow if you move between computers or just want a reliable "personal taste" layer per project.
 
+<Tabs>
+  <TabItem label="TUI Workflow">
+<Steps>
+1. **Make your changes**
+
+   Install plugins or edit settings inside the container.
+
+2. **Save your profile**
+
+   Press `p` → Save current settings (or Settings → Profiles → Save profile)
+
+3. **Export to your sync folder**
+
+   Settings → Profiles → Sync profiles → Export
+
+4. **On a new machine**
+
+   Settings → Profiles → Sync profiles → Import
+
+   Then just run `scc start` in the project—your personal profile auto‑applies.
+</Steps>
+
+<Aside type="tip">
+TUI sync writes files locally. For git operations, use the CLI with `--commit --push` flags.
+</Aside>
+  </TabItem>
+  <TabItem label="CLI Workflow">
 <Steps>
 1. **Make your changes**
 
@@ -145,6 +222,8 @@ Use this flow if you move between computers or just want a reliable “personal 
 
    Then just run `scc start` in the project—your personal profile auto‑applies.
 </Steps>
+  </TabItem>
+</Tabs>
 
 ## Troubleshooting
 

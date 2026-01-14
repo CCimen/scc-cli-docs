@@ -84,6 +84,7 @@ export default defineConfig({
 						{ slug: 'reference/cli/sessions' },
 						{ slug: 'reference/cli/worktree' },
 						{ slug: 'reference/cli/team' },
+						{ slug: 'reference/cli/profile' },
 						{ slug: 'reference/cli/config' },
 						{ slug: 'reference/cli/governance' },
 						{ slug: 'reference/cli/organization' },
