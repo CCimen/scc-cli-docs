@@ -201,15 +201,23 @@ The org config is a JSON file with these main sections:
 
   Developers configure with:
   ```bash
-  scc setup --org-url https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
+  scc setup --org https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
   ```
   </TabItem>
   <TabItem label="GitHub (Private)">
-  Host in a private repository with token auth:
+  Host in a private repository with token auth (Authorization header):
 
   ```bash
-  export SCC_ORG_TOKEN="ghp_xxxxx"
-  scc setup --org-url https://api.github.com/repos/your-org/scc-config/contents/org-config.json
+  export GITHUB_TOKEN="ghp_xxxxx"
+  scc setup --org https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json --auth env:GITHUB_TOKEN
+  ```
+  </TabItem>
+  <TabItem label="GitLab (Private)">
+  GitLab uses `PRIVATE-TOKEN` by default when auth is provided:
+
+  ```bash
+  export GITLAB_TOKEN="glpat_xxxxx"
+  scc setup --org https://gitlab.example.com/group/scc-config/-/raw/main/org-config.json --auth env:GITLAB_TOKEN
   ```
   </TabItem>
   <TabItem label="HTTPS Endpoint">
@@ -221,20 +229,29 @@ The org config is a JSON file with these main sections:
 
   Developers configure with:
   ```bash
-  scc setup --org-url https://config.your-company.com/scc/org-config.json
+  scc setup --org https://config.your-company.com/scc/org-config.json
   ```
   </TabItem>
 </Tabs>
 
-## Environment Variable
+<Aside type="tip">
+  You can also use shorthand sources like `github:owner/repo@tag:org-config.json` or `gitlab:group/repo@main:org-config.json` with `scc setup --org`.
+</Aside>
 
-Developers can set the org URL as an environment variable:
+## Auth Tokens (optional)
+
+For private org configs, set a token in your environment and pass it via `--auth`:
 
 ```bash
-export SCC_ORG_URL="https://config.your-company.com/scc/org-config.json"
+export SCC_ORG_TOKEN="your-token"
+# or provider-specific tokens:
+# export GITHUB_TOKEN="ghp_xxxxx"
+# export GITLAB_TOKEN="glpat_xxxxx"
+
+scc setup --org https://config.your-company.com/scc/org-config.json --auth env:SCC_ORG_TOKEN
 ```
 
-This avoids needing to specify `--org-url` on every command.
+SCC will use `Authorization: Bearer <token>` by default. For GitLab URLs, SCC uses the `PRIVATE-TOKEN` header automatically.
 
 ## Config Caching
 

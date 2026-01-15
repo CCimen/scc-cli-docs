@@ -49,6 +49,10 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
    scc setup --standalone
    ```
 
+   <Aside type="tip">
+     Private org config? Use a token with `--auth env:SCC_ORG_TOKEN` (or `GITHUB_TOKEN` / `GITLAB_TOKEN`). GitLab URLs use the `PRIVATE-TOKEN` header automatically. See [Config Setup](/guides/organization/config-setup/) for hosting and auth examples.
+   </Aside>
+
 3. **Launch Claude Code in your project**
 
    ```bash
@@ -88,11 +92,13 @@ When in the dashboard:
 |-----|--------|
 | `↑↓` | Navigate list |
 | `Enter` | Open action menu (containers/sessions/worktrees) |
-| `Tab` | Switch between tabs |
+| `Tab` | Switch to next tab |
+| `Shift+Tab` | Switch to previous tab (if supported) |
 | `n` | Start new session |
 | `t` | Switch team |
 | `r` | Refresh |
 | `s` | Settings & Maintenance |
+| `p` | Profile quick menu |
 | `?` | Help |
 | `q` | Quit |
 

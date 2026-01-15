@@ -74,7 +74,7 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
    scc --version
    ```
 
-   You should see output like `scc-cli 1.5.0`
+   You should see output like `scc-cli 1.6.3`
 
 2. **Run diagnostics**
 
@@ -109,13 +109,18 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
     # Log out and back in for changes to take effect
     ```
   </TabItem>
+  <TabItem label="Windows (native)">
+  - Windows Terminal, PowerShell, Git Bash, and VS Code terminal are supported
+  - Install Docker Desktop (WSL2 backend recommended) and keep it running
+  - Use `uv` for the most reliable install and upgrades
+  </TabItem>
   <TabItem label="Windows (WSL2)">
-  - Install Docker Desktop with WSL2 backend
-  - Run SCC from within WSL2, not PowerShell
-  - File operations may be slower due to WSL filesystem translation
+  - Run SCC inside WSL2 for a Linux-like environment
+  - Install Docker Desktop with WSL2 backend and enable WSL integration
+  - File operations are fastest inside the WSL filesystem (`~/projects`)
 
   <Aside type="tip">
-    For best performance on Windows, keep your projects inside the WSL filesystem (`~/projects`) rather than `/mnt/c/`.
+    For best performance, keep your projects inside the WSL filesystem instead of `/mnt/c/`.
   </Aside>
   </TabItem>
 </Tabs>
@@ -123,7 +128,7 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
 ## Updating SCC
 
 <Tabs syncKey="pkg">
-  <TabItem label="uv">
+  <TabItem label="uv (recommended)">
   ```bash
   uv tool upgrade scc-cli
   ```

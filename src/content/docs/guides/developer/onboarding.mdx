@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-import { Aside, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+import { Aside, Steps, Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Welcome to your new team! This guide explains what SCC provides automatically and how to get started.
 
@@ -42,9 +42,23 @@ Your org admin and team lead handle all configuration. You just code.
 <Steps>
 1. **Install SCC CLI**
 
-   ```bash
-   pip install scc-cli
-   ```
+   <Tabs syncKey="pkg">
+     <TabItem label="uv (recommended)">
+     ```bash
+     uv tool install scc-cli
+     ```
+     </TabItem>
+     <TabItem label="pipx">
+     ```bash
+     pipx install scc-cli
+     ```
+     </TabItem>
+     <TabItem label="pip">
+     ```bash
+     pip install scc-cli
+     ```
+     </TabItem>
+   </Tabs>
 
 2. **Run setup and enter your org URL**
 
@@ -55,6 +69,10 @@ Your org admin and team lead handle all configuration. You just code.
    Your team lead or org admin will provide the URL. It looks like:
    - `https://github.com/my-org/scc-config/raw/main/org-config.json`
    - `https://gitlab.example.com/devops/scc-config.json`
+
+   <Aside type="tip">
+     If the config is private, use `--auth env:SCC_ORG_TOKEN` (or `GITHUB_TOKEN` / `GITLAB_TOKEN`). GitLab URLs use `PRIVATE-TOKEN` automatically. See [Config Setup](/guides/organization/config-setup/) for hosting examples.
+   </Aside>
 
 3. **Select your team profile**
 

@@ -22,16 +22,21 @@ The Settings & Maintenance TUI provides a visual interface for managing SCC's co
 |-----|--------|
 | `↑`/`↓` or `j`/`k` | Navigate actions |
 | `←`/`→` or `h`/`l` | Switch categories |
+| `Tab` | Cycle categories |
 | `Enter` | Execute action |
+| `i` | Toggle info panel |
 | `p` | Preview affected paths and sizes |
 | `?` | Show help panel |
-| `Esc` | Go back / Close panels |
+| `Esc` / `q` | Go back / Close panels |
 
 ## Categories
 
 <CardGrid>
   <Card title="Maintenance" icon="setting">
     Cache cleanup, session pruning, and configuration reset operations.
+  </Card>
+  <Card title="Profiles" icon="user">
+    Save, apply, diff, and sync personal profiles from the TUI.
   </Card>
   <Card title="Diagnostics" icon="magnifier">
     Health checks and debugging tools like `scc doctor`.
