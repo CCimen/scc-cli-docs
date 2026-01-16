@@ -17,7 +17,7 @@ Schema reference for federated team configuration files (external team configs).
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": "1.0.0",
   "enabled_plugins": [],
   "disabled_plugins": [],
   "marketplaces": {}
@@ -26,11 +26,11 @@ Schema reference for federated team configuration files (external team configs).
 
 ## schema_version
 
-Schema version for compatibility (integer).
+Schema version for compatibility (semver string).
 
 ```json
 {
-  "schema_version": 1
+  "schema_version": "1.0.0"
 }
 ```
 
@@ -90,7 +90,7 @@ Requirements:
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": "1.0.0",
   "enabled_plugins": [
     "scc-safety-net@sandboxed-code-official",
     "platform-tools@team-internal",

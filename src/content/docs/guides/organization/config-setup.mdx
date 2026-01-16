@@ -67,9 +67,9 @@ The org config is a JSON file with these main sections:
    ```json
    {
      "security": {
-       "blocked_plugins": ["*experimental*", "*beta*"],
-       "blocked_base_images": ["*:latest"],
-       "allow_stdio_mcp": false
+     "blocked_plugins": ["*experimental*", "*beta*"],
+     "allow_stdio_mcp": false
+
      }
    }
    ```
@@ -142,7 +142,6 @@ The org config is a JSON file with these main sections:
   "security": {
     "blocked_plugins": ["*experimental*"],
     "blocked_mcp_servers": ["*.untrusted.com"],
-    "blocked_base_images": ["*:latest"],
     "allow_stdio_mcp": false
   },
   "defaults": {

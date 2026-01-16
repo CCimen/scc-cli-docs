@@ -16,7 +16,6 @@ Security policies define absolute boundaries that no team or project can overrid
   "security": {
     "blocked_plugins": [],
     "blocked_mcp_servers": [],
-    "blocked_base_images": [],
     "allow_stdio_mcp": false,
     "allowed_stdio_prefixes": []
   }
@@ -70,26 +69,6 @@ Block MCP servers by name or URL pattern:
 ```
 
 Both server names and URL domains are matched against these patterns.
-
-## Blocking Docker Images
-
-Block Docker base images:
-
-```json
-{
-  "security": {
-    "blocked_base_images": [
-      "*:latest",
-      "docker.io/*",
-      "untrusted-registry.com/*"
-    ]
-  }
-}
-```
-
-<Aside type="tip">
-  Always block `*:latest` to ensure reproducible builds. Untagged images are normalized to `:latest` before matching.
-</Aside>
 
 ## Plugin Allowlist
 
@@ -223,10 +202,6 @@ Servers inside plugin `.mcp.json` files:
       "*.untrusted.com",
       "*localhost*",
       "*127.0.0.1*"
-    ],
-    "blocked_base_images": [
-      "*:latest",
-      "docker.io/*"
     ],
     "allow_stdio_mcp": false
   },

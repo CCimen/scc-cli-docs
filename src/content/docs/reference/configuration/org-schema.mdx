@@ -82,7 +82,6 @@ Security policies that cannot be overridden.
   "security": {
     "blocked_plugins": ["*experimental*", "*beta*"],
     "blocked_mcp_servers": ["*.untrusted.com"],
-    "blocked_base_images": ["*:latest"],
     "allow_stdio_mcp": false,
     "allowed_stdio_prefixes": ["/usr/local/bin/"]
   }
@@ -93,7 +92,6 @@ Security policies that cannot be overridden.
 |-------|------|---------|-------------|
 | `blocked_plugins` | string[] | `[]` | Glob patterns for blocked plugins |
 | `blocked_mcp_servers` | string[] | `[]` | Glob patterns for blocked servers |
-| `blocked_base_images` | string[] | `[]` | Glob patterns for blocked images |
 | `allow_stdio_mcp` | boolean | `false` | Allow stdio MCP servers |
 | `allowed_stdio_prefixes` | string[] | `[]` | Allowed paths for stdio commands |
 
@@ -175,7 +173,7 @@ Organization-wide defaults applied to all teams.
     "allowed_plugins": ["*@internal", "*@sandboxed-code-official"],
     "disabled_plugins": [],
     "allowed_mcp_servers": ["*"],
-    "network_policy": "allow",
+    "network_policy": "unrestricted",
     "session": {
       "timeout_hours": 12,
       "auto_resume": true
@@ -190,7 +188,7 @@ Organization-wide defaults applied to all teams.
 | `allowed_plugins` | string[] | Governance whitelist for plugins |
 | `disabled_plugins` | string[] | Plugins disabled by default |
 | `allowed_mcp_servers` | string[] | MCP server patterns allowed by default |
-| `network_policy` | string | Network access policy (`allow` or `deny`) |
+| `network_policy` | string | Network access policy (`unrestricted`, `corp-proxy-only`, `isolated`) |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
 | `session.auto_resume` | boolean | Auto-resume sessions |

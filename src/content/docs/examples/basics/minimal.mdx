@@ -30,7 +30,6 @@ import { Aside, Steps } from '@astrojs/starlight/components';
   "security": {
     "blocked_plugins": [],
     "blocked_mcp_servers": [],
-    "blocked_base_images": ["*:latest"],
     "allow_stdio_mcp": false
   },
   "defaults": {
@@ -50,7 +49,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 | Feature | Setting | Effect |
 |---------|---------|--------|
 | Plugins | `allowed_plugins: ["*"]` | All plugins allowed |
-| Security | Minimal blocks | Only blocks `:latest` images |
+| Security | Minimal blocks | No org-level blocks |
 | Teams | Single `default` profile | Simple, one-size-fits-all |
 | Network | `unrestricted` | No proxy requirements |
 
