@@ -7,7 +7,7 @@ sidebar:
 
 ## Docker Not Running
 
-**Symptoms:** "Cannot connect to Docker daemon"
+**Symptoms:** "Cannot connect to Docker daemon" or "Docker Desktop is not running"
 
 **Fix:**
 ```bash
@@ -40,7 +40,6 @@ scc start --fresh
 
 **Fix:**
 ```bash
-scc config explain --field blocked_base_images
 docker pull <image> # Test manually
 ```
 

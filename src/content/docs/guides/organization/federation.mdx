@@ -128,7 +128,7 @@ The team's config repository contains:
 
 ```json title="team-config.json"
 {
-  "schema_version": 1,
+  "schema_version": "1.0.0",
   "enabled_plugins": [
     "platform-tools@team-internal",
     "monitoring@shared"
@@ -147,7 +147,7 @@ The team's config repository contains:
 ```
 
 <Aside type="note">
-  Team config files support: `schema_version` (integer), `enabled_plugins`, `disabled_plugins`, and `marketplaces`. Federated teams skip `defaults.allowed_plugins` filtering and are trusted via trust grants instead.
+  Team config files support: `schema_version` (semver string, currently `1.0.0`), `enabled_plugins`, `disabled_plugins`, and `marketplaces`. Federated teams skip `defaults.allowed_plugins` filtering and are trusted via trust grants instead.
 </Aside>
 
 ## Marketplace Name Collisions
@@ -211,7 +211,7 @@ SCC validates this and rejects configurations where:
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": "1.0.0",
   "enabled_plugins": [
     "platform-tools@team-internal",
     "monitoring@shared"

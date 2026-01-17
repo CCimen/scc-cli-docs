@@ -28,6 +28,14 @@ The org config is a JSON file with these main sections:
 }
 ```
 
+<Aside type="note">
+  `$schema` is optional and ignored by SCC during validation. Use it for editor tooling if you host the schema yourself (for example by exporting `scc org schema --json`).
+</Aside>
+
+<Aside type="caution">
+  `schema_version` must be `1.0.0`. Other versions are rejected.
+</Aside>
+
 ## Creating Your Config
 
 <Steps>
@@ -67,9 +75,9 @@ The org config is a JSON file with these main sections:
    ```json
    {
      "security": {
-       "blocked_plugins": ["*experimental*", "*beta*"],
-       "blocked_base_images": ["*:latest"],
-       "allow_stdio_mcp": false
+     "blocked_plugins": ["*experimental*", "*beta*"],
+     "allow_stdio_mcp": false
+
      }
    }
    ```
@@ -142,7 +150,6 @@ The org config is a JSON file with these main sections:
   "security": {
     "blocked_plugins": ["*experimental*"],
     "blocked_mcp_servers": ["*.untrusted.com"],
-    "blocked_base_images": ["*:latest"],
     "allow_stdio_mcp": false
   },
   "defaults": {

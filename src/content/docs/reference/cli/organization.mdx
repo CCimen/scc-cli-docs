@@ -27,7 +27,6 @@ scc org validate <SOURCE> [OPTIONS]
 
 | Option | Description |
 |--------|-------------|
-| `-s`, `--schema-version` | Specify schema version to validate against |
 | `--json` | Output as JSON |
 | `--pretty` | Pretty-print JSON |
 
@@ -188,7 +187,7 @@ scc org init --output ./configs/org.json
 
 ## scc org schema
 
-Display or validate against the organization configuration schema.
+Display the bundled organization configuration schema.
 
 ```bash
 scc org schema [OPTIONS]
@@ -198,7 +197,6 @@ scc org schema [OPTIONS]
 
 | Option | Description |
 |--------|-------------|
-| `--version VERSION` | Show specific schema version |
 | `--json` | Output schema as JSON |
 | `--pretty` | Pretty-print JSON output |
 
@@ -207,9 +205,6 @@ scc org schema [OPTIONS]
 ```bash
 # Show current schema
 scc org schema
-
-# Show specific schema version
-scc org schema --version 2.0
 
 # Output schema as JSON
 scc org schema --json --pretty
