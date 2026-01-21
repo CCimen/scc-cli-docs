@@ -1,0 +1,184 @@
+---
+title: Team Config Wizard
+description: Create team configuration files for team-managed teams
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+The team config wizard helps you create and edit `team-config.json` files for team-managed teams.
+
+<Aside type="note">
+You only need a team-config file if your team is **team-managed** (has `config_source` in the org config). Org-managed teams don't need separate files.
+</Aside>
+
+## Quick Start
+
+```
+/scc-wizard:team
+```
+
+## When Do I Need a Team Config?
+
+### You Need a Team Config When:
+
+- The org config has a `config_source` entry for your team
+- You want to independently manage your team's plugin list
+
+### You Don't Need a Team Config When:
+
+- Your team is org-managed (no `config_source`)
+- The org admin manages your plugins in `profiles.<team>.additional_plugins`
+
+## Creating a Team Config
+
+<Steps>
+1. Run `/scc-wizard:team`
+2. Select "Create new team config"
+3. Provide team context (name, available marketplaces)
+4. Add plugins to enable
+5. Optionally add plugins to disable
+6. Add team marketplaces (if trusted by org)
+7. Review and save
+</Steps>
+
+### Example Output
+
+```json
+{
+  "$schema": "https://scc-cli.dev/schemas/team-config.v1.json",
+  "schema_version": "1.0.0",
+  "enabled_plugins": [
+    "changelog-generator@official-plugins",
+    "code-review@official-plugins"
+  ],
+  "disabled_plugins": [
+    "legacy-tool@*"
+  ]
+}
+```
+
+## Plugin References
+
+Always use the `plugin@marketplace` format:
+
+```json
+{
+  "enabled_plugins": [
+    "scc-safety-net@official-plugins",
+    "java-analyzer@internal"
+  ]
+}
+```
+
+<Aside type="tip">
+Reference plugins from marketplaces defined in the org config, or from team-defined marketplaces if your org grants that trust.
+</Aside>
+
+## Disabling Plugins
+
+Use `disabled_plugins` to remove plugins from org defaults:
+
+```json
+{
+  "disabled_plugins": [
+    "legacy-tool@*",
+    "*-deprecated"
+  ]
+}
+```
+
+This removes matching plugins from the org's `defaults.enabled_plugins`.
+
+## Team Marketplaces
+
+If your org grants marketplace trust (`trust.allow_additional_marketplaces: true`), you can define team-specific marketplaces:
+
+```json
+{
+  "marketplaces": {
+    "team-plugins": {
+      "source": "github",
+      "owner": "your-org",
+      "repo": "team-plugins"
+    }
+  },
+  "enabled_plugins": [
+    "custom-tool@team-plugins"
+  ]
+}
+```
+
+<Aside type="caution">
+If the org doesn't grant marketplace trust, you can only use org-defined marketplaces. The wizard will inform you if this is the case.
+</Aside>
+
+### Trust Settings in Org Config
+
+For a team to add marketplaces, the org must grant trust:
+
+```json
+{
+  "profiles": {
+    "ai-team": {
+      "config_source": { ... },
+      "trust": {
+        "inherit_org_marketplaces": true,
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": ["https://github.com/your-org/*"]
+      }
+    }
+  }
+}
+```
+
+## Edit Mode
+
+To update an existing team config:
+
+<Steps>
+1. Run `/scc-wizard:team`
+2. Select "Edit existing team config"
+3. Provide the file path
+4. Choose what to modify:
+   - Add/remove enabled plugins
+   - Add/remove disabled patterns
+   - Add/remove/edit marketplaces
+5. Save changes
+</Steps>
+
+## Team-managed Checklist
+
+After creating your team config, complete this checklist:
+
+1. **Host the file** at the path specified in org config's `config_source`
+2. **Ensure URL is accessible** (for private repos, configure auth)
+3. **Verify org config** has matching `config_source` entry
+4. **Test with:** `scc team validate path/to/team-config.json`
+
+## Common Issues
+
+### "Changes not taking effect"
+
+1. Is your team actually team-managed? Check for `config_source` in org config
+2. Is the `config_source` URL correct and accessible?
+3. Has the cache expired? Run `scc update --force`
+4. Are plugins formatted correctly (`plugin@marketplace`)?
+5. Does the referenced marketplace exist?
+
+### "Cannot add marketplaces"
+
+Your org profile has `allow_additional_marketplaces: false`. Contact your org admin to request marketplace trust.
+
+### "Plugin denied at runtime"
+
+The plugin is probably not in the org's allowlist. Check:
+1. `defaults.allowed_plugins` patterns
+2. `delegation.teams.allow_additional_plugins` list
+
+## See Also
+
+- [Team Schema Reference](/reference/configuration/team-schema)
+- [Org Config Wizard](/guides/wizard/org-config-wizard)
+- [Explain Wizard](/guides/wizard/explain-wizard)

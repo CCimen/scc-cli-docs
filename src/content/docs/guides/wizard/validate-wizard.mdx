@@ -1,0 +1,233 @@
+---
+title: Validate Wizard
+description: Validate SCC configuration files before deployment
+sidebar:
+  order: 5
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+The validate wizard checks SCC configuration files for schema compliance and semantic correctness before deployment.
+
+## Quick Start
+
+```
+/scc-wizard:validate path/to/org-config.json
+```
+
+Or run without a path to search common locations.
+
+## Validation Pipeline
+
+The wizard follows the same validation pipeline as SCC CLI:
+
+1. **Schema validation** - JSON structure compliance
+2. **Invariant validation** - Semantic rules and cross-field consistency
+3. **Version compatibility** - schema_version and min_cli_version checks
+4. **Advisory warnings** - Best practices (non-blocking)
+
+## Using SCC CLI
+
+When available, the wizard prefers native SCC validation:
+
+```bash
+# For org configs
+scc org validate org-config.json
+
+# For team configs
+scc team validate team-config.json
+```
+
+<Aside type="tip">
+The SCC CLI provides the most accurate validation. The wizard falls back to static checks when CLI isn't available.
+</Aside>
+
+## Error Categories
+
+### Schema Errors (Hard Errors)
+
+JSON Schema violations that make the config invalid:
+
+```
+SCHEMA ERROR: Invalid organization.id format
+  Path: organization.id
+  Expected: lowercase letters, numbers, hyphens only
+  Found: "Acme Corp"
+  Fix: Use "acme-corp" instead
+```
+
+**Common schema errors:**
+- Missing required fields (`schema_version`, `organization.name`, `organization.id`)
+- Invalid `organization.id` pattern (must match `^[a-z0-9-]+$`)
+- Wrong field types
+- Invalid enum values
+
+### Version Errors (Hard Errors)
+
+```
+VERSION ERROR: min_cli_version requires SCC >= 2.0.0
+  Your SCC version: 1.5.0
+  Fix: Upgrade SCC or lower min_cli_version
+```
+
+### Invariant Errors (Hard Errors)
+
+Semantic rules that block config loading:
+
+| Error | Cause |
+|-------|-------|
+| `additional_plugin_not_allowed` | Team plugin doesn't match org allowlist |
+| `mcp_not_allowed` | Team MCP server doesn't match org allowlist |
+| `blocked_plugin_enabled` | Blocked plugin in defaults |
+| `invalid_plugin_ref` | Plugin not in `name@marketplace` format |
+| `marketplace_not_found` | Plugin references unknown marketplace |
+
+```
+INVARIANT ERROR: additional_plugin_not_allowed
+  Path: profiles.dev-team.additional_plugins[0]
+  Issue: Plugin "custom-tool@team-plugins" not in allowed_plugins
+  Fix: Either:
+    1. Add pattern to defaults.allowed_plugins
+    2. Remove this plugin from the team
+    3. Move to defaults.enabled_plugins (if all teams need it)
+```
+
+### stdio MCP Errors (Hard Errors)
+
+```
+STDIO MCP ERROR: Command not absolute path
+  Team: platform
+  Server: local-tool
+  Command: ./scripts/tool.sh
+  Fix: Use absolute path like /home/user/scripts/tool.sh
+```
+
+**stdio requirements:**
+1. `security.allow_stdio_mcp` must be `true`
+2. `command` must be absolute path (starts with `/`)
+3. If `allowed_stdio_prefixes` set, command must be under one
+
+## Advisory Warnings
+
+Non-blocking issues that may cause runtime problems:
+
+### Delegation Warnings
+
+```
+WARNING: Team additions may be denied
+  Team: backend
+  Note: Team has additional_plugins but is not in delegation allowlist.
+        Additions will be denied at runtime.
+```
+
+### Configuration Warnings
+
+```
+WARNING: Network policy override may not apply
+  Team: frontend
+  Note: Team-level network_policy is not applied by current runtime.
+        Use org-level network_policy instead.
+```
+
+## Results Format
+
+```markdown
+## Validation Results for: org-config.json
+
+Config type: Org config
+
+### Hard Errors (must fix)
+
+1. SCHEMA ERROR: ...
+2. INVARIANT ERROR: ...
+
+### Warnings (advisory)
+
+1. WARNING: ...
+
+### Summary
+
+- Errors: 2
+- Warnings: 1
+- Status: INVALID
+```
+
+## Common Fixes
+
+### "Plugin not in allowlist"
+
+<Tabs>
+  <TabItem label="Add to allowlist">
+  ```json
+  {
+    "defaults": {
+      "allowed_plugins": ["*@official-plugins", "custom-*"]
+    }
+  }
+  ```
+  </TabItem>
+  <TabItem label="Remove from team">
+  Remove the plugin from `profiles.<team>.additional_plugins`
+  </TabItem>
+  <TabItem label="Move to defaults">
+  Add to `defaults.enabled_plugins` if all teams need it
+  </TabItem>
+</Tabs>
+
+### "Invalid plugin reference"
+
+```json
+// Wrong
+"enabled_plugins": ["scc-safety-net"]
+
+// Correct
+"enabled_plugins": ["scc-safety-net@official-plugins"]
+```
+
+### "Marketplace not found"
+
+Ensure the marketplace is defined:
+
+```json
+{
+  "marketplaces": {
+    "official-plugins": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins"
+    }
+  }
+}
+```
+
+## CI Integration
+
+Run validation in CI pipelines:
+
+```bash
+# Validate org config
+scc org validate org-config.json
+if [ $? -ne 0 ]; then
+  echo "Org config validation failed"
+  exit 1
+fi
+
+# Validate team configs
+for config in teams/*/team-config.json; do
+  scc team validate "$config"
+  if [ $? -ne 0 ]; then
+    echo "Team config validation failed: $config"
+    exit 1
+  fi
+done
+```
+
+<Aside type="tip">
+Add config validation as a required check on pull requests to catch errors before merge.
+</Aside>
+
+## See Also
+
+- [Org Schema Reference](/reference/configuration/org-schema)
+- [Team Schema Reference](/reference/configuration/team-schema)
+- [Explain Wizard](/guides/wizard/explain-wizard)

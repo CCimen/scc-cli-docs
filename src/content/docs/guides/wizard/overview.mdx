@@ -1,0 +1,104 @@
+---
+title: Wizard Overview
+description: Interactive wizards for SCC configuration
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Aside, LinkCard } from '@astrojs/starlight/components';
+
+The SCC Wizard plugin provides interactive skills to help you create, edit, validate, and understand SCC configurations without memorizing the schema.
+
+## Prerequisites
+
+Enable the scc-wizard plugin in your org config:
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": [
+      "scc-wizard@official-plugins"
+    ]
+  }
+}
+```
+
+Or install standalone in Claude Code:
+
+```bash
+/plugin marketplace add CCimen/sandboxed-code-plugins
+/plugin install scc-wizard@<marketplace-key>
+```
+
+## Available Wizards
+
+<CardGrid>
+  <Card title="Org Config Wizard" icon="document">
+    Create org configs with a success-first approach. Get a working config in ~60 seconds.
+
+    ```
+    /scc-wizard:org
+    ```
+  </Card>
+  <Card title="Team Config Wizard" icon="users">
+    Create team-config.json files for team-managed teams.
+
+    ```
+    /scc-wizard:team
+    ```
+  </Card>
+  <Card title="Explain Wizard" icon="magnifier">
+    Understand why plugins are blocked, denied, or disabled.
+
+    ```
+    /scc-wizard:explain
+    ```
+  </Card>
+  <Card title="Validate Wizard" icon="approve-check">
+    Validate configs before deployment with schema and semantic checks.
+
+    ```
+    /scc-wizard:validate
+    ```
+  </Card>
+</CardGrid>
+
+## Which Wizard Do I Need?
+
+| I want to... | Use |
+|--------------|-----|
+| Set up a new organization | [Org Config Wizard](/guides/wizard/org-config-wizard) |
+| Create a config for my team (team-managed) | [Team Config Wizard](/guides/wizard/team-config-wizard) |
+| Understand why a plugin isn't working | [Explain Wizard](/guides/wizard/explain-wizard) |
+| Check if my config is valid | [Validate Wizard](/guides/wizard/validate-wizard) |
+| Add teams to an existing org config | [Org Config Wizard](/guides/wizard/org-config-wizard) (Update mode) |
+| Migrate org-managed teams to team-managed | [Org Config Wizard](/guides/wizard/org-config-wizard) (Migration mode) |
+
+## Key Concepts
+
+### Org-managed vs Team-managed
+
+| Model | Description | When to Use |
+|-------|-------------|-------------|
+| **Org-managed** | Org admin controls all plugin lists | Small orgs, pilots, centralized control |
+| **Team-managed** | Teams maintain their own config files | Large orgs, self-service, distributed teams |
+| **Mixed** | Some teams org-managed, some team-managed | Migration, different team needs |
+
+<Aside type="tip">
+Start with **org-managed** for simplicity. Move to **team-managed** when teams need self-service plugin management.
+</Aside>
+
+### Blocked vs Denied vs Disabled
+
+| Term | Meaning | Can Change? |
+|------|---------|-------------|
+| **Blocked** | Security boundary (`security.blocked_*`) | No - immutable |
+| **Denied** | Delegation or allowlist rejection | Yes - update delegation |
+| **Disabled** | Removed by `defaults.disabled_plugins` | Yes - re-enable |
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard title="Create an Org Config" href="/guides/wizard/org-config-wizard" description="Start with the org wizard" />
+  <LinkCard title="Schema Reference" href="/reference/configuration/org-schema" description="Full org-config.json schema" />
+</CardGrid>

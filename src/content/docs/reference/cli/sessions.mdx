@@ -23,6 +23,8 @@ scc sessions [OPTIONS]
 | `-t`, `--team TEAM` | Filter by team |
 | `--all` | Show sessions for all teams (ignore active team) |
 | `-s`, `--select` | Interactive picker to select a session |
+| `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON (implies --json) |
 
 **Examples:**
 
@@ -41,6 +43,9 @@ scc sessions --all
 
 # Filter by a specific team
 scc sessions --team backend
+
+# Output as JSON
+scc sessions --json
 ```
 
 **Output includes:**
