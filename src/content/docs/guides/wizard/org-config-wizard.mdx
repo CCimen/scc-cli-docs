@@ -1,0 +1,224 @@
+---
+title: Org Config Wizard
+description: Create organization configs with the interactive wizard
+sidebar:
+  order: 2
+---
+
+import { Steps, Tabs, TabItem, Aside, Code } from '@astrojs/starlight/components';
+
+The org config wizard helps you create, edit, and migrate SCC organization configurations with a success-first approach.
+
+## Quick Start
+
+```
+/scc-wizard:org
+```
+
+Choose **Quickstart** to get a working config in ~60 seconds.
+
+## Setup Modes
+
+### Quickstart (Recommended)
+
+Get a minimal working config with just 2 inputs:
+
+<Steps>
+1. Select "Create new org config (Quickstart)"
+2. Provide your organization name
+3. Review the generated config
+4. Optionally add features via the add-ons menu
+</Steps>
+
+**What you get:**
+- Official plugins marketplace configured
+- scc-safety-net enabled
+- Balanced security defaults
+- Ready to host and use
+
+### Guided Setup
+
+Same baseline as Quickstart, then choose add-ons:
+
+- Add teams/profiles
+- Add an internal marketplace
+- Allow project overrides
+- Generate onboarding instructions
+- Customize security settings
+
+### Advanced Mode
+
+Full control over every setting from the start:
+- Security presets (Balanced/Strict/Open/Custom)
+- Delegation rules
+- Allowlists and blocklists
+- All team/profile options
+
+## The Baseline Config
+
+Every new config starts with this minimal, working baseline:
+
+```json
+{
+  "$schema": "https://scc-cli.dev/schemas/org-v1.json",
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "Your Org",
+    "id": "your-org"
+  },
+  "marketplaces": {
+    "official-plugins": {
+      "source": "github",
+      "owner": "CCimen",
+      "repo": "sandboxed-code-plugins",
+      "branch": "main",
+      "path": "/"
+    }
+  },
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@official-plugins"]
+  },
+  "security": {
+    "safety_net": { "action": "block" }
+  }
+}
+```
+
+<Aside type="tip">
+The baseline is intentionally minimal. Add complexity only when needed via the add-ons menu.
+</Aside>
+
+## Adding Teams
+
+When you choose "Add teams/profiles", you'll decide the governance model:
+
+### Org-managed (Recommended to Start)
+
+The org admin controls plugin lists for all teams. No extra files needed.
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "description": "Backend team",
+      "additional_plugins": ["java-analyzer@internal"]
+    }
+  }
+}
+```
+
+**Benefits:**
+- Single file to manage
+- Fast onboarding
+- Teams can still own plugin *content* via internal marketplaces
+
+### Team-managed (Recommended for Scale)
+
+Each team maintains their own `team-config.json` file.
+
+```json
+{
+  "profiles": {
+    "platform": {
+      "config_source": {
+        "source": "github",
+        "owner": "your-org",
+        "repo": "scc-team-configs",
+        "branch": "main",
+        "path": "teams/platform/team-config.json"
+      }
+    }
+  }
+}
+```
+
+**Benefits:**
+- Teams self-service their plugin lists
+- Org still enforces security boundaries
+- Better for large organizations
+
+<Aside type="note">
+The wizard handles all the `config_source` and `trust` settings automatically when you choose team-managed.
+</Aside>
+
+## Update Mode
+
+To edit an existing config:
+
+<Steps>
+1. Run `/scc-wizard:org`
+2. Select "Update an existing org config file"
+3. Provide the path (default: `./org-config.json`)
+4. Choose which section to edit
+5. Save when done
+</Steps>
+
+## Migration Mode
+
+To move teams from org-managed to team-managed:
+
+<Steps>
+1. Run `/scc-wizard:org`
+2. Select "Migrate org-managed teams → team-managed configs"
+3. Load your existing config
+4. Select which teams to migrate
+5. Provide hosting details (GitHub/GitLab/HTTPS)
+6. Wizard generates:
+   - Updated org config with `config_source` entries
+   - Starter team-config.json files for each team
+</Steps>
+
+## Onboarding Instructions
+
+After creating your config, generate onboarding instructions:
+
+<Steps>
+1. Select "Generate onboarding instructions"
+2. Choose where you'll host the config (GitHub/GitLab/HTTPS)
+3. Indicate if the repo is public or private
+4. Get the hosting URL and setup command
+</Steps>
+
+**Example output (public GitHub):**
+
+```
+1. Host org-config.json at:
+   https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
+
+2. Users run:
+   scc setup --org https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
+```
+
+**For private repos:**
+
+```
+GITHUB_TOKEN=<token> scc setup --org https://raw.githubusercontent.com/your-org/scc-config/main/org-config.json
+```
+
+## Tips
+
+### Naming Conventions
+
+| Field | Format | Example |
+|-------|--------|---------|
+| `organization.id` | lowercase, hyphens only | `acme-corp` |
+| Team names | lowercase, hyphens only | `backend`, `ai-team` |
+| Marketplace names | lowercase, hyphens | `official-plugins`, `internal` |
+
+### Allowlist Gotchas
+
+| Intent | JSON |
+|--------|------|
+| Allow all | **Omit the field entirely** |
+| Block all | `[]` (empty array) |
+| Allow patterns | `["core-*", "*@official-plugins"]` |
+
+<Aside type="caution">
+Omitting a field and setting it to `[]` have opposite effects. Omit to allow all; use `[]` to block all.
+</Aside>
+
+## See Also
+
+- [Org Schema Reference](/reference/configuration/org-schema)
+- [Team Config Wizard](/guides/wizard/team-config-wizard)
+- [Validate Wizard](/guides/wizard/validate-wizard)

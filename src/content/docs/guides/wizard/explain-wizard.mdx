@@ -1,0 +1,206 @@
+---
+title: Explain Wizard
+description: Understand SCC configuration behavior and troubleshoot issues
+sidebar:
+  order: 4
+---
+
+import { Aside, Steps, Code } from '@astrojs/starlight/components';
+
+The explain wizard helps you understand SCC configuration behavior, why plugins are blocked or denied, and how inheritance works.
+
+## Quick Start
+
+```
+/scc-wizard:explain
+```
+
+Then ask questions like:
+- "Why is plugin X blocked for team Y?"
+- "What's the effective config for team backend?"
+- "Why didn't my team config changes take effect?"
+
+## Response Format
+
+The wizard gives short answers first with copy/paste fixes:
+
+```
+Short answer: Plugin X is denied because team 'backend' is not in
+delegation.teams.allow_additional_plugins.
+
+To fix: Add "backend" to delegation.teams.allow_additional_plugins
+
+Want full reasoning? [y/N]
+```
+
+## What Can I Ask?
+
+### "Why is plugin X blocked?"
+
+The wizard checks in order:
+
+1. Does it match `security.blocked_plugins`? → **Blocked** (immutable)
+2. Does it match `defaults.disabled_plugins`? → **Disabled** (can re-enable)
+3. Is team not in `delegation.teams.allow_additional_plugins`? → **Denied**
+4. Does it not match `defaults.allowed_plugins`? → **Denied**
+
+### "Why is MCP server X blocked?"
+
+Checks in order:
+
+1. Does it match `security.blocked_mcp_servers`? → **Blocked**
+2. Is it stdio type and `allow_stdio_mcp = false`? → **Blocked**
+3. Is stdio command not absolute path? → **Blocked**
+4. Is stdio command outside `allowed_stdio_prefixes`? → **Blocked**
+5. Is team not in `delegation.teams.allow_additional_mcp_servers`? → **Denied**
+6. Does URL not match `defaults.allowed_mcp_servers`? → **Denied**
+
+### "What's the effective config for team X?"
+
+Shows the final computed configuration after all merges:
+
+1. Org defaults applied
+2. Team profile additions
+3. Security boundaries enforced
+4. What actually runs
+
+### "Explain delegation for team X"
+
+Shows:
+- Team's position in delegation allowlists
+- Whether project overrides are enabled
+- What the team can and cannot add
+
+## Blocked vs Denied vs Disabled
+
+| Term | Meaning | Can Fix? | Source |
+|------|---------|----------|--------|
+| **Blocked** | Security boundary | No | `security.blocked_*` |
+| **Denied** | Governance decision | Yes | Delegation or allowlist |
+| **Disabled** | Removed from defaults | Yes | `defaults.disabled_plugins` |
+
+<Aside type="tip">
+**Blocked** is immutable - you cannot bypass it. **Denied** and **Disabled** can be changed by updating the config.
+</Aside>
+
+## Copy/Paste Fixes
+
+The wizard provides ready-to-use JSON snippets:
+
+### Allow a Plugin Pattern
+
+```json
+{
+  "defaults": {
+    "allowed_plugins": ["*@official-plugins", "core-*"]
+  }
+}
+```
+
+### Delegate Plugin Additions to a Team
+
+```json
+{
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["*"]
+    }
+  }
+}
+```
+
+### Enable Project Overrides
+
+```json
+{
+  "delegation": {
+    "projects": { "inherit_team_delegation": true }
+  }
+}
+```
+
+Then for the specific team:
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "delegation": { "allow_project_overrides": true }
+    }
+  }
+}
+```
+
+### Grant Team Marketplace Trust
+
+```json
+{
+  "profiles": {
+    "ai-team": {
+      "trust": {
+        "allow_additional_marketplaces": true,
+        "marketplace_source_patterns": ["https://github.com/myorg/*"]
+      }
+    }
+  }
+}
+```
+
+## Inheritance Model
+
+SCC merges configs in layers:
+
+```
+Layer 1: Org config (org-v1)
+   ↓ (apply defaults)
+Layer 2: Team profile OR team-managed team-config
+   ↓ (if delegation allows)
+Layer 3: Project .scc.yaml additions
+   ↓
+Effective config (what actually runs)
+```
+
+### Merge Rules by Field
+
+| Field | Rule |
+|-------|------|
+| `enabled_plugins` | Accumulate (union) |
+| `disabled_plugins` | Remove from enabled |
+| `additional_mcp_servers` | Accumulate |
+| `security.blocked_*` | Immutable, all layers |
+| `session.timeout_hours` | Last-wins |
+| `network_policy` | Org defaults only |
+| `cache_ttl_hours` | Org defaults only |
+
+<Aside type="caution">
+Team-level `network_policy` and `session.auto_resume` exist in the schema but are **not applied** by the current runtime. These only work as org defaults.
+</Aside>
+
+## Common Questions
+
+### "Why didn't my team config changes take effect?"
+
+Check:
+1. Is your team team-managed? (`config_source` must exist)
+2. Is `config_source` URL correct and accessible?
+3. Has the cache expired?
+4. Are plugins formatted as `plugin@marketplace`?
+5. Does the marketplace exist?
+
+**Quick fix if config seems stale:**
+
+```bash
+rm ~/.cache/scc/org_config.json ~/.cache/scc/cache_meta.json
+```
+
+Then rerun your command.
+
+### "Why is blocked_mcp_servers not blocking a plugin's MCP?"
+
+`security.blocked_mcp_servers` only checks **explicitly-declared** MCP servers in org/team/project configs. It does not inspect MCP servers bundled inside marketplace plugins.
+
+## See Also
+
+- [Config Inheritance](/architecture/config-inheritance)
+- [Validate Wizard](/guides/wizard/validate-wizard)
+- [Troubleshooting](/troubleshooting/common-issues)

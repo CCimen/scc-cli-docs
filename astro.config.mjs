@@ -39,6 +39,18 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Wizard Guides',
+					collapsed: false,
+					badge: { text: 'New', variant: 'tip' },
+					items: [
+						{ slug: 'guides/wizard/overview' },
+						{ slug: 'guides/wizard/org-config-wizard' },
+						{ slug: 'guides/wizard/team-config-wizard' },
+						{ slug: 'guides/wizard/explain-wizard' },
+						{ slug: 'guides/wizard/validate-wizard' },
+					],
+				},
+				{
 					label: 'Developer Guide',
 					collapsed: false,
 					items: [
