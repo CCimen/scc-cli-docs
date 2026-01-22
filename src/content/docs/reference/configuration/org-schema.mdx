@@ -108,8 +108,8 @@ Security policies that cannot be overridden.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `blocked_plugins` | string[] | `[]` | Glob patterns for blocked plugins |
-| `blocked_mcp_servers` | string[] | `[]` | Glob patterns for blocked servers |
+| `blocked_plugins` | string[] | `[]` | Glob patterns for blocked plugins (bare names match any marketplace) |
+| `blocked_mcp_servers` | string[] | `[]` | Glob patterns for blocked MCP servers (name, URL, domain, command) |
 | `allow_stdio_mcp` | boolean | `false` | Allow stdio MCP servers |
 | `allowed_stdio_prefixes` | string[] | `[]` | Allowed paths for stdio commands |
 
@@ -206,10 +206,10 @@ Organization-wide defaults applied to all teams.
 | `allowed_plugins` | string[] | Governance whitelist for plugins |
 | `disabled_plugins` | string[] | Plugins disabled by default |
 | `allowed_mcp_servers` | string[] | MCP server patterns allowed by default |
-| `network_policy` | string | Network access policy (`unrestricted`, `corp-proxy-only`, `isolated`) |
+| `network_policy` | string | Network posture policy (partial enforcement in v1) |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
-| `session.auto_resume` | boolean | Auto-resume sessions |
+| `session.auto_resume` | boolean | Advisory only in v1 (accepted but not enforced) |
 
 ### allowed_plugins Semantics
 

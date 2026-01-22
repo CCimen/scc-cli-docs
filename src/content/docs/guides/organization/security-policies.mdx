@@ -40,13 +40,15 @@ Block plugins by name pattern:
 ```
 
 Patterns use glob syntax (fnmatch) with case-insensitive matching.
+Patterns without `@` match the **plugin name** across all marketplaces.
+Use `@marketplace` to target a specific marketplace.
 
 | Pattern | Matches |
 |---------|---------|
 | `malicious-*` | `malicious-tool`, `malicious-plugin` |
 | `*experimental*` | `experimental-v1`, `my-experimental-tool` |
 | `*beta*` | `feature-beta`, `beta-release` |
-| `untrusted-tool` | Exact match only |
+| `untrusted-tool` | `untrusted-tool@any-marketplace` |
 
 <Aside type="danger">
   If a plugin matches a blocked pattern, no team or project can use it. This is absolute.
@@ -54,7 +56,7 @@ Patterns use glob syntax (fnmatch) with case-insensitive matching.
 
 ## Blocking MCP Servers
 
-Block MCP servers by name or URL pattern:
+Block MCP servers by name, URL, domain, or stdio command pattern:
 
 ```json
 {
@@ -68,7 +70,11 @@ Block MCP servers by name or URL pattern:
 }
 ```
 
-Both server names and URL domains are matched against these patterns.
+Patterns are matched against:
+- Server name
+- Full URL
+- URL domain
+- Stdio command path
 
 ## Plugin Allowlist
 

@@ -73,12 +73,13 @@ A typical team profile includes:
       "scc-safety-net@sandboxed-code-official",
       "java-tools@internal"
     ],
-    "additional_mcp_servers": {
-      "context7": {
+    "additional_mcp_servers": [
+      {
+        "name": "context7",
         "type": "http",
         "url": "https://context7.example.com"
       }
-    },
+    ],
     "delegation": {
       "allow_project_overrides": true,
       "allow_additional_plugins": ["team-*"]

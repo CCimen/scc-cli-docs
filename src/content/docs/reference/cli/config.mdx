@@ -32,6 +32,7 @@ scc config [ACTION] [KEY] [VALUE] [OPTIONS]
 | `--edit` | Open config in editor |
 | `--field FIELD` | Filter explain output |
 | `--workspace PATH` | Workspace path for project context |
+| `--json` | Output explain as JSON envelope |
 
 **Examples:**
 
@@ -51,7 +52,7 @@ scc config edit
 
 ### scc config explain
 
-Shows the effective configuration with source tracking:
+Shows the effective configuration with source tracking, enforcement status, and warnings:
 
 ```
 plugins:
@@ -64,6 +65,12 @@ blocked_items:
 
 denied_additions:
   - some-server       (requested_by: project, reason: team not delegated)
+```
+
+For machine-readable output:
+
+```bash
+scc config explain --json
 ```
 
 ### scc config paths

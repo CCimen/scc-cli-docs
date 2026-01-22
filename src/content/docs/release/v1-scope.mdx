@@ -1,0 +1,43 @@
+---
+title: V1 Scope
+description: What SCC v1 enforces and what remains advisory
+sidebar:
+  order: 1
+---
+
+SCC v1 focuses on a safe-by-default runtime wrapper, governed configuration, and clear explainability.
+This page defines what SCC enforces at runtime, what is advisory, and what is out of scope in v1.
+
+## Core identity
+
+- Runs Claude Code inside Docker sandboxes with controlled mounts.
+- Distributes org and team configuration consistently across users and projects.
+- Enforces governance where SCC controls the surface.
+- Explains what is active, blocked, or denied and why.
+
+## Non-goals for v1
+
+- No data loss prevention (DLP) guarantees.
+- No inspection of plugin internals (plugins are the trust unit).
+- No hard network egress firewall or proxy enforcement across all traffic.
+
+## Enforcement states
+
+- Enforced: SCC changes runtime behavior deterministically.
+- Partially enforced: SCC enforces part of the intent and warns about the rest.
+- Advisory: SCC validates and reports but does not enforce at runtime.
+- Out of scope: SCC does not attempt to govern this surface.
+
+## Scope by surface
+
+| Surface | Status | Notes |
+| --- | --- | --- |
+| Plugins | Enforced | Managed via marketplaces and injected into runtime settings. |
+| Marketplaces | Enforced | Materialized and injected into runtime settings. |
+| MCP servers (org/team/project) | Enforced | Injected into runtime settings after policy gates. |
+| MCP servers (.mcp.json) | Advisory | SCC does not modify repo files in v1. |
+| MCP servers (plugin-bundled) | Out of scope | Block the plugin to block bundled MCPs. |
+| network_policy | Partially enforced | Proxy env injection and MCP suppression; not a full egress firewall. |
+| safety_net policy | Enforced when enabled | Enforced by the scc-safety-net plugin. |
+| session.auto_resume | Advisory | Accepted in config but not enforced yet. |
+

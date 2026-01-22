@@ -70,12 +70,13 @@ import { Aside, Steps } from '@astrojs/starlight/components';
     "platform": {
       "description": "Platform/DevOps team",
       "additional_plugins": ["k8s-tools@internal"],
-      "additional_mcp_servers": {
-        "monitoring": {
+      "additional_mcp_servers": [
+        {
+          "name": "monitoring",
           "type": "http",
           "url": "https://monitoring.internal/mcp"
         }
-      }
+      ]
     }
   }
 }

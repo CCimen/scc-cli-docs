@@ -31,12 +31,13 @@ Your team profile lives in the `profiles` section of the org config:
         "scc-safety-net@sandboxed-code-official",
         "java-analyzer@internal"
       ],
-      "additional_mcp_servers": {
-        "context7": {
+      "additional_mcp_servers": [
+        {
+          "name": "context7",
           "type": "http",
           "url": "https://context7.com/api"
         }
-      },
+      ],
       "session": {
         "timeout_hours": 12
       }
@@ -71,16 +72,16 @@ Plugins must:
 ### MCP Servers
 
 ```json
-"additional_mcp_servers": {
-  "server-name": {
+"additional_mcp_servers": [
+  {
+    "name": "server-name",
     "type": "http",
     "url": "https://api.example.com",
-    "auth": {
-      "type": "bearer",
-      "token": "env:MCP_TOKEN"
+    "headers": {
+      "Authorization": "Bearer ${MCP_TOKEN}"
     }
   }
-}
+]
 ```
 
 Types: `http`, `sse`, `stdio` (if allowed)
@@ -93,6 +94,10 @@ Types: `http`, `sse`, `stdio` (if allowed)
   "auto_resume": true
 }
 ```
+
+<Aside type="note">
+  `session.auto_resume` is advisory only in v1. It is accepted but not enforced at runtime.
+</Aside>
 
 ### Delegation
 
