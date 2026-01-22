@@ -75,38 +75,34 @@ export NO_COLOR=1
 export SCC_NO_DEPRECATION_WARN=1
 ```
 
-## Token References
+## Header References
 
-MCP servers and auth can reference environment variables:
+Config headers (marketplaces, MCP servers, config sources) support `${VAR}` expansion:
 
 ```json
 {
-  "auth": {
-    "type": "bearer",
-    "token": "env:MCP_TOKEN"
+  "headers": {
+    "Authorization": "Bearer ${MCP_TOKEN}"
   }
 }
 ```
 
-The `env:VAR_NAME` syntax reads from environment at runtime.
+`$VAR` and `${VAR}` read from the environment at runtime.
 
-## Command References
+## Setup Auth Specs
 
-For dynamic tokens:
+When running `scc setup`, the `--auth` flag accepts `env:` or `command:` specs:
 
-```json
-{
-  "auth": {
-    "type": "bearer",
-    "token": "command:vault read -field=token secret/mcp"
-  }
-}
+```bash
+scc setup --org https://config.example.com/org.json --auth env:SCC_ORG_TOKEN
+scc setup --org https://config.example.com/org.json --auth command:op read scc/token
 ```
 
 The `command:CMD` syntax executes the command and uses stdout.
 
 <Aside type="caution">
-  Command references require `SCC_ALLOW_REMOTE_COMMANDS=1` when used in remote configs. They run on each config resolution, so keep them fast.
+  Command specs require `SCC_ALLOW_REMOTE_COMMANDS=1` when used with remote org configs.
+  They run on each config resolution, so keep them fast.
 </Aside>
 
 ## Shell Configuration

@@ -70,8 +70,12 @@ Override session behavior:
 ```yaml
 session:
   timeout_hours: 4      # Override team default
-  auto_resume: false    # Disable auto-resume
+  auto_resume: false    # Advisory only in v1
 ```
+
+<Aside type="note">
+  `session.auto_resume` is accepted but advisory in v1. It is not enforced at runtime.
+</Aside>
 
 ### Team Pinning
 
@@ -174,7 +178,7 @@ plugins:
 
 session:
   timeout_hours: 4        (from: project/.scc.yaml)  ← Project override
-  auto_resume: true       (from: team/backend)
+  auto_resume: true       (from: team/backend, advisory)
 
 network_policy: corp-proxy-only (from: org/defaults)
 ```
@@ -185,7 +189,7 @@ Project config cannot:
 
 - Remove team default plugins
 - Unblock organization-blocked plugins
-- Override network policy (if org restricts it)
+- Override network policy (projects cannot set it; teams can only tighten org defaults)
 - Bypass security settings
 
 <Aside type="danger">

@@ -8,9 +8,24 @@ sidebar:
 ## Isolation Layers
 
 1. **Docker Container**: Claude Code runs isolated from host
-2. **Network Policy**: Control container network access
+2. **Network Policy**: Control container network posture (partial enforcement in v1)
 3. **Plugin Governance**: Only approved plugins execute
 4. **Git Protection**: Safety net blocks destructive commands
+
+## Enforcement States
+
+SCC uses these enforcement states in docs and CLI output:
+
+- **Enforced**: SCC changes runtime behavior deterministically.
+- **Partially enforced**: SCC enforces part of the intent and warns about the rest.
+- **Advisory**: SCC validates and reports but does not enforce at runtime.
+- **Out of scope**: SCC does not attempt to govern this surface.
+
+## Permissions Mode
+
+SCC launches Claude Code with permission prompts skipped by default inside the sandbox.
+This reduces friction but does not provide data loss prevention.
+You can re-enable prompts inside Claude if you want stricter confirmation.
 
 ## Trust Boundaries
 

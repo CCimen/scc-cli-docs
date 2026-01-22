@@ -40,7 +40,7 @@ A **sandbox** is the Docker container that isolates Claude Code from your host s
 
 - Has access only to mounted directories (your project)
 - Cannot access sensitive files like `~/.ssh` or `~/.aws`
-- Has network access controlled by your org's policy
+- Uses your org's network policy as a runtime posture (partial enforcement in v1)
 - Uses a specific base Docker image
 
 <Aside type="note">
@@ -55,8 +55,8 @@ A **team profile** defines the configuration for a group of users. Each profile 
 |---------|-------------|
 | `plugins` | Claude Code plugins enabled for this team |
 | `mcp_servers` | MCP servers available to Claude |
-| `network_policy` | Network access rules (unrestricted, corp-proxy-only, isolated) |
-| `session` | Timeout and auto-resume settings |
+| `network_policy` | Network posture rules (unrestricted, corp-proxy-only, isolated) |
+| `session` | Timeout settings (auto_resume is advisory in v1) |
 
 Profiles are defined in your organization's config and can be:
 - **Inline**: Defined directly in the org config file

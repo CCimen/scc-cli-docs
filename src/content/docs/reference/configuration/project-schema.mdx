@@ -81,9 +81,8 @@ additional_mcp_servers:
   - name: context7
     type: sse
     url: https://context7.com/api
-    auth:
-      type: bearer
-      token: env:CONTEXT7_TOKEN
+    headers:
+      Authorization: "Bearer ${CONTEXT7_TOKEN}"
 ```
 
 ### Stdio Server
@@ -113,6 +112,10 @@ session:
 ```
 
 Project session settings override team settings.
+
+<Aside type="note">
+  `session.auto_resume` is advisory only in v1. It is accepted but not enforced at runtime.
+</Aside>
 
 ## Plugin Configuration
 
@@ -157,6 +160,10 @@ plugins:
   scc-safety-net:
     allow_force_push: false
 ```
+
+<Aside type="note">
+  `session.auto_resume` is advisory only in v1. It is accepted but not enforced at runtime.
+</Aside>
 
 ## Validation
 

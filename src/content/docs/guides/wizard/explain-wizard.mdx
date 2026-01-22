@@ -169,11 +169,11 @@ Effective config (what actually runs)
 | `additional_mcp_servers` | Accumulate |
 | `security.blocked_*` | Immutable, all layers |
 | `session.timeout_hours` | Last-wins |
-| `network_policy` | Org defaults only |
+| `network_policy` | Org defaults with stricter-only team overrides |
 | `cache_ttl_hours` | Org defaults only |
 
 <Aside type="caution">
-Team-level `network_policy` and `session.auto_resume` exist in the schema but are **not applied** by the current runtime. These only work as org defaults.
+Team-level `network_policy` can only be **more restrictive** than org defaults. Looser values are ignored. `session.auto_resume` is advisory only in v1.
 </Aside>
 
 ## Common Questions

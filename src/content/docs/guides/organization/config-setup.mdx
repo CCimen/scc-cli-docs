@@ -104,6 +104,10 @@ The org config is a JSON file with these main sections:
    }
    ```
 
+<Aside type="note">
+  `session.auto_resume` is advisory only in v1. It is accepted but not enforced at runtime.
+</Aside>
+
 5. **Create team profiles**
 
    ```json
@@ -191,12 +195,13 @@ The org config is a JSON file with these main sections:
     "platform": {
       "description": "Platform engineering",
       "additional_plugins": ["k8s-tools@internal"],
-      "additional_mcp_servers": {
-        "monitoring": {
+      "additional_mcp_servers": [
+        {
+          "name": "monitoring",
           "type": "http",
           "url": "https://monitoring.internal/mcp"
         }
-      }
+      ]
     }
   }
 }

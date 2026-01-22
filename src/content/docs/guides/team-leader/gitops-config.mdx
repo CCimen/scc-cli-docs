@@ -40,19 +40,10 @@ GitOps (federated) configuration lets your team maintain its own config reposito
    ```json title="team-config.json"
    {
      "schema_version": "1.0.0",
-     "additional_plugins": [
+     "enabled_plugins": [
        "scc-safety-net@sandboxed-code-official",
        "java-analyzer@internal-marketplace"
-     ],
-     "additional_mcp_servers": {
-       "context7": {
-         "type": "http",
-         "url": "https://context7.com/api"
-       }
-     },
-     "session": {
-       "timeout_hours": 12
-     }
+     ]
    }
    ```
 
@@ -117,9 +108,8 @@ For private repos, org admin configures token auth.
 "config_source": {
   "source": "url",
   "url": "https://config.example.com/team/backend.json",
-  "auth": {
-    "type": "bearer",
-    "token": "env:CONFIG_TOKEN"
+  "headers": {
+    "Authorization": "Bearer ${CONFIG_TOKEN}"
   }
 }
 ```
@@ -163,16 +153,13 @@ Org admin controls what your federated config can do:
 {
   "schema_version": "1.0.0",
 
-  "additional_plugins": [
+  "enabled_plugins": [
     "plugin-name@marketplace"
   ],
 
-  "additional_mcp_servers": {
-    "server-name": {
-      "type": "http",
-      "url": "https://..."
-    }
-  },
+  "disabled_plugins": [
+    "legacy-tool@marketplace"
+  ],
 
   "marketplaces": {
     "team-marketplace": {
@@ -180,19 +167,14 @@ Org admin controls what your federated config can do:
       "owner": "acme",
       "repo": "team-plugins"
     }
-  },
-
-  "delegation": {
-    "allow_project_overrides": true,
-    "allow_additional_plugins": ["team-*"]
-  },
-
-  "session": {
-    "timeout_hours": 12,
-    "auto_resume": true
   }
 }
 ```
+
+<Aside type="note">
+  Federated team configs only support `enabled_plugins`, `disabled_plugins`, and `marketplaces`.
+  MCP servers and session settings must be configured at the organization level.
+</Aside>
 
 ## Workflow: Making Changes
 
