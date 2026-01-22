@@ -9,6 +9,11 @@ import { Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/compone
 
 Personal profiles let you save and re-apply your own Claude Code settings (plugins, MCP servers) per project. They're stored outside the repo and auto-applied on `scc start`.
 
+<Aside type="note">
+  When SCC applies a profile, it enforces org security blocks and stdio MCP gating. Manual edits
+  to local workspace files are detected as drift—SCC will warn and require confirmation before overwriting.
+</Aside>
+
 ## Quick Access
 
 <CardGrid>
@@ -108,6 +113,15 @@ scc profile apply [--workspace PATH] [--preview] [--dry-run] [--force]
 | `--preview` | Show diff without writing |
 | `--dry-run` | Alias for `--preview` |
 | `--force` | Apply even if drift is detected |
+
+**Skipped Items:** If your personal profile contains plugins or MCP servers that are blocked by org security policy, they will be skipped with a warning:
+
+```
+Skipped plugin 'experimental-tool': blocked by org policy (*experimental*)
+Skipped MCP server 'evil-mcp': blocked by org policy (evil-*)
+```
+
+This ensures org security blocks are enforced even on personal preferences.
 
 ---
 

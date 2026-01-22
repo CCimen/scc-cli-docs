@@ -27,7 +27,10 @@ Personal profiles let you keep **your own** Claude Code preferences per project,
 - You work on multiple machines and want to sync your personal setup
 - You switch teams often but still want your **personal taste** per project
 
-Personal profiles are **optional** and never override org security rules.
+Personal profiles are **optional**. When SCC applies a profile, it enforces org security
+blocks (`blocked_*`) and stdio MCP gating. Manual edits to
+`.claude/settings.local.json` or `.mcp.json` are detected as **drift**—SCC will warn you
+and require confirmation before overwriting (use `--force` in non-interactive mode to skip the prompt).
 
 <Aside type="tip">
   Think of this as your per‑project “personal taste” layer. You still benefit from org + team defaults, while keeping your own tweaks portable.

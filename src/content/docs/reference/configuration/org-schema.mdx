@@ -42,6 +42,24 @@ Schema version for compatibility (semver string).
   SCC currently requires `schema_version` to be `1.0.0`. Other versions are rejected.
 </Aside>
 
+## min_cli_version
+
+Minimum CLI version required to use this configuration (optional semver string).
+
+```json
+{
+  "min_cli_version": "1.7.0"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `min_cli_version` | string | No | Minimum SCC CLI version required (semver format) |
+
+<Aside type="tip">
+  Use this to ensure developers have a compatible CLI version before loading the config. SCC will warn if the running CLI version is older than specified.
+</Aside>
+
 ## organization
 
 Organization identification.
@@ -50,7 +68,8 @@ Organization identification.
 {
   "organization": {
     "name": "Acme Corp",
-    "id": "acme"
+    "id": "acme",
+    "contact": "platform-team@acme.com"
   }
 }
 ```
@@ -59,6 +78,7 @@ Organization identification.
 |-------|------|----------|-------------|
 | `name` | string | Yes | Human-readable organization name |
 | `id` | string | Yes | Unique identifier (lowercase, no spaces) |
+| `contact` | string | No | Contact email for configuration issues |
 
 ## marketplaces
 
@@ -191,6 +211,8 @@ Organization-wide defaults applied to all teams.
     "allowed_plugins": ["*@internal", "*@sandboxed-code-official"],
     "disabled_plugins": [],
     "allowed_mcp_servers": ["*"],
+    "extra_marketplaces": ["internal"],
+    "cache_ttl_hours": 24,
     "network_policy": "unrestricted",
     "session": {
       "timeout_hours": 12,
@@ -206,6 +228,8 @@ Organization-wide defaults applied to all teams.
 | `allowed_plugins` | string[] | Governance whitelist for plugins |
 | `disabled_plugins` | string[] | Plugins disabled by default |
 | `allowed_mcp_servers` | string[] | MCP server patterns allowed by default |
+| `extra_marketplaces` | string[] | Additional marketplace keys to enable by default |
+| `cache_ttl_hours` | number | Cache TTL in hours for org config (1-168, default: 24) |
 | `network_policy` | string | Network posture policy (partial enforcement in v1) |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
@@ -306,10 +330,15 @@ Team profile definitions.
 | `description` | string | Human-readable description |
 | `additional_plugins` | string[] | Plugins for this team |
 | `additional_mcp_servers` | array | MCP servers for this team |
+| `network_policy` | string | Network policy override (`unrestricted`, `corp-proxy-only`, `isolated`) |
 | `delegation` | object | Project override settings |
 | `session` | object | Session settings |
 | `config_source` | object | External config (federated) |
 | `trust` | object | Trust grants (federated) |
+
+<Aside type="note">
+  Profile-level `network_policy` overrides the org default. It can only be **more restrictive** than the org default (e.g., `unrestricted` → `corp-proxy-only` is allowed, but `isolated` → `unrestricted` is not).
+</Aside>
 
 ### Trust Grants
 

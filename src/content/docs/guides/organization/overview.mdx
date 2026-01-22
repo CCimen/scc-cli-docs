@@ -50,9 +50,14 @@ Each layer can add to the previous, but **cannot remove security restrictions**.
 | Setting | Purpose |
 |---------|---------|
 | `security.blocked_plugins` | Plugin patterns nobody can use |
-| `security.blocked_mcp_servers` | MCP server patterns nobody can use |
+| `security.blocked_mcp_servers` | SCC-managed MCP server patterns nobody can use |
 | `security.allow_stdio_mcp` | Whether stdio MCP servers are permitted |
 | `defaults.allowed_plugins` | Governance whitelist for plugins |
+
+<Aside type="note">
+  `blocked_mcp_servers` applies to MCP servers declared in org/team/project config. Plugin-bundled
+  MCP servers are governed by plugin allow/block decisions.
+</Aside>
 
 ## What Teams Control (Within Your Boundaries)
 
