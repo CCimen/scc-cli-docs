@@ -78,7 +78,7 @@ scc team info <team-name>
 
 ## Personal Profiles
 
-A **personal profile** captures your own Claude Code preferences for a specific project. It sits between team config and workspace overrides so you can add your own plugins or MCP servers without changing org or repo settings.
+A **personal profile** captures your own Claude Code preferences for a specific project. It sits between team config and workspace overrides so you can add your own plugins or MCP servers without changing org or repo settings, while still respecting org security blocks.
 
 ```bash
 # Save current workspace settings as a personal profile
@@ -87,6 +87,11 @@ scc profile save
 # Apply personal profile on demand
 scc profile apply
 ```
+
+<Aside type="note">
+  When SCC applies a profile, it enforces org security blocks and stdio MCP gating. Manual
+  edits to local workspace files are advisory.
+</Aside>
 
 Learn more in [Personal Profiles](/guides/developer/personal-profiles/).
 
