@@ -1,0 +1,228 @@
+---
+title: GitHub Actions Integration
+description: "Run SCC CLI in GitHub Actions: validate configurations, run sandboxed Claude Code sessions, and automate AI coding governance in your CI/CD pipeline."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Can I run SCC in GitHub Actions?", answer: "Yes. SCC supports non-interactive mode for CI environments. Use 'scc setup' with secrets for configuration, then 'scc start --dry-run' to validate or 'scc start' to run sandboxed sessions." },
+  { question: "How do I pass SCC credentials in GitHub Actions?", answer: "Store your org config source and auth token as GitHub secrets (SCC_ORG_SOURCE, SCC_ORG_TOKEN). Pass them to 'scc setup' using the --auth env:SCC_ORG_TOKEN flag." },
+  { question: "Does SCC require Docker in GitHub Actions?", answer: "For validation (--dry-run), Docker is not required. For running actual Claude Code sessions, you need a runner with Docker access (ubuntu-latest has Docker pre-installed)." }
+]} />
+
+SCC CLI integrates with GitHub Actions for automated configuration validation and AI coding governance.
+
+## Basic Setup
+
+```yaml title=".github/workflows/scc-validate.yml"
+name: SCC Validation
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install SCC
+        run: uv tool install scc-cli
+
+      - name: Configure SCC
+        run: scc setup --org "$SCC_ORG_SOURCE" --auth env:SCC_ORG_TOKEN --team ci --non-interactive
+        env:
+          SCC_ORG_SOURCE: ${{ secrets.SCC_ORG_SOURCE }}
+          SCC_ORG_TOKEN: ${{ secrets.SCC_ORG_TOKEN }}
+
+      - name: Validate configuration
+        run: scc start --dry-run --json --non-interactive --team ci .
+```
+
+## Required Secrets
+
+Add these secrets to your repository (Settings → Secrets):
+
+| Secret | Description |
+|--------|-------------|
+| `SCC_ORG_SOURCE` | URL or shorthand for your org config |
+| `SCC_ORG_TOKEN` | Auth token for private configs (if needed) |
+
+## Workflow Examples
+
+### Validate on Pull Request
+
+```yaml
+name: Validate SCC Config
+on:
+  pull_request:
+    paths:
+      - '.scc.yaml'
+      - 'team-config.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install SCC
+        run: pip install scc-cli
+      - name: Validate team config
+        run: scc team validate --file team-config.json
+```
+
+### Audit Plugins
+
+```yaml
+name: Weekly Plugin Audit
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9am
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install SCC
+        run: pip install scc-cli
+      - name: Configure SCC
+        run: scc setup --org "$SCC_ORG_SOURCE" --non-interactive
+        env:
+          SCC_ORG_SOURCE: ${{ secrets.SCC_ORG_SOURCE }}
+      - name: Audit plugins
+        run: scc audit plugins --json
+```
+
+### Cache Configuration
+
+Speed up workflows by caching SCC configuration:
+
+```yaml
+- uses: actions/cache@v4
+  with:
+    path: ~/.cache/scc
+    key: scc-cache-${{ hashFiles('**/org-config.json') }}
+    restore-keys: |
+      scc-cache-
+```
+
+## Exit Codes
+
+Use exit codes for conditional workflow logic:
+
+| Code | Meaning | Action |
+|------|---------|--------|
+| 0 | Success | Continue |
+| 2 | Usage error | Check command syntax |
+| 3 | Configuration error | Fix config files |
+| 6 | Governance block | Review policy violations |
+
+```yaml
+- name: Check validation result
+  run: |
+    scc start --dry-run --non-interactive --team ci .
+    exit_code=$?
+    if [ $exit_code -eq 6 ]; then
+      echo "::error::Configuration blocked by governance policy"
+      exit 1
+    fi
+```
+
+## CI-Specific Team Profile
+
+Create a minimal profile for CI environments:
+
+```json
+{
+  "profiles": {
+    "ci": {
+      "description": "CI/CD pipeline profile",
+      "additional_plugins": [],
+      "session": {
+        "timeout_hours": 1
+      },
+      "network_policy": "isolated"
+    }
+  }
+}
+```
+
+<Aside type="tip">
+  CI profiles typically need fewer plugins and shorter timeouts than developer profiles.
+</Aside>
+
+## Security Best Practices
+
+- **Never expose secrets in logs**: Use GitHub's secret masking
+- **Use minimal permissions**: CI profiles should be restrictive
+- **Validate before merge**: Catch config issues in PRs
+- **Review JSON output**: Parse `--json` output for detailed validation results
+
+<Aside type="danger">
+  Never commit org config sources or tokens to your repository. Always use GitHub secrets.
+</Aside>
+
+## Troubleshooting
+
+### "Command not found: scc"
+
+Ensure `$HOME/.local/bin` is in PATH after installing with uv:
+
+```yaml
+- name: Install uv
+  run: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "$HOME/.local/bin" >> $GITHUB_PATH
+```
+
+### "Cannot connect to Docker daemon"
+
+For dry-run validation, Docker isn't required. For actual sessions, ensure your runner has Docker:
+
+```yaml
+runs-on: ubuntu-latest  # Has Docker pre-installed
+```
+
+### "Governance block" exit code
+
+Your configuration violates org policies. Run `scc config explain` locally to see what's blocked.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="CI/CD Automation Guide"
+    href="/guides/team-leader/ci-automation/"
+    description="Complete CI/CD integration guide"
+  />
+  <LinkCard
+    title="GitLab CI"
+    href="/integrations/gitlab-ci/"
+    description="GitLab CI integration"
+  />
+  <LinkCard
+    title="CLI Reference"
+    href="/reference/cli/overview/"
+    description="Full command reference"
+  />
+</CardGrid>

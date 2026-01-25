@@ -85,6 +85,7 @@ export default defineConfig({
 				},
 			],
 			sidebar: [
+				// 1. Getting Started - Discovery & orientation
 				{
 					label: 'Getting Started',
 					items: [
@@ -95,18 +96,7 @@ export default defineConfig({
 						{ slug: 'getting-started/core-concepts' },
 					],
 				},
-				{
-					label: 'Wizard Guides',
-					collapsed: false,
-					badge: { text: 'New', variant: 'tip' },
-					items: [
-						{ slug: 'guides/wizard/overview' },
-						{ slug: 'guides/wizard/org-config-wizard' },
-						{ slug: 'guides/wizard/team-config-wizard' },
-						{ slug: 'guides/wizard/explain-wizard' },
-						{ slug: 'guides/wizard/validate-wizard' },
-					],
-				},
+				// 2. Developer Guide - Most common user type, get productive fast
 				{
 					label: 'Developer Guide',
 					collapsed: false,
@@ -120,6 +110,17 @@ export default defineConfig({
 						{ slug: 'guides/developer/settings-tui' },
 					],
 				},
+				// 3. Plugins - Central feature, needed by devs and team leads
+				{
+					label: 'Plugins',
+					collapsed: true,
+					items: [
+						{ slug: 'plugins/marketplace' },
+						{ slug: 'plugins/safety-net' },
+						{ slug: 'plugins/creating' },
+					],
+				},
+				// 4. Team Leader Guide - Configure what developers use
 				{
 					label: 'Team Leader Guide',
 					collapsed: true,
@@ -131,6 +132,7 @@ export default defineConfig({
 						{ slug: 'guides/team-leader/ci-automation' },
 					],
 				},
+				// 5. Organization Admin - Highest-level governance
 				{
 					label: 'Organization Admin',
 					collapsed: true,
@@ -144,32 +146,52 @@ export default defineConfig({
 						{ slug: 'guides/organization/exceptions' },
 					],
 				},
+				// 6. Wizard Guides - Config tools for leads/admins (after they know their role)
 				{
-					label: 'CLI Reference',
+					label: 'Wizard Guides',
 					collapsed: true,
+					badge: { text: 'New', variant: 'tip' },
 					items: [
-						{ slug: 'reference/cli/overview' },
-						{ slug: 'reference/cli/essential' },
-						{ slug: 'reference/cli/sessions' },
-						{ slug: 'reference/cli/worktree' },
-						{ slug: 'reference/cli/team' },
-						{ slug: 'reference/cli/profile' },
-						{ slug: 'reference/cli/config' },
-						{ slug: 'reference/cli/governance' },
-						{ slug: 'reference/cli/organization' },
-						{ slug: 'reference/cli/admin' },
+						{ slug: 'guides/wizard/overview' },
+						{ slug: 'guides/wizard/org-config-wizard' },
+						{ slug: 'guides/wizard/team-config-wizard' },
+						{ slug: 'guides/wizard/explain-wizard' },
+						{ slug: 'guides/wizard/validate-wizard' },
 					],
 				},
+				// 7. Use Cases - Help evaluators find their scenario
 				{
-					label: 'Configuration',
+					label: 'Use Cases',
 					collapsed: true,
 					items: [
-						{ slug: 'reference/configuration/org-schema' },
-						{ slug: 'reference/configuration/team-schema' },
-						{ slug: 'reference/configuration/project-schema' },
-						{ slug: 'reference/configuration/environment' },
+						{ slug: 'use-cases', label: 'Overview' },
+						{ slug: 'use-cases/why-sandbox-claude-code' },
+						{ slug: 'use-cases/claude-code-in-docker' },
+						{ slug: 'use-cases/ai-coding-guardrails' },
 					],
 				},
+				// 8. Comparisons - Decision support after understanding SCC
+				{
+					label: 'Comparisons',
+					collapsed: true,
+					items: [
+						{ slug: 'comparisons', label: 'Overview' },
+						{ slug: 'comparisons/scc-vs-local-claude-code' },
+						{ slug: 'comparisons/scc-vs-dev-containers' },
+						{ slug: 'comparisons/scc-vs-docker-manual' },
+					],
+				},
+				// 9. Integrations - CI/CD setup (advanced)
+				{
+					label: 'Integrations',
+					collapsed: true,
+					items: [
+						{ slug: 'integrations', label: 'Overview' },
+						{ slug: 'integrations/github-actions' },
+						{ slug: 'integrations/gitlab-ci' },
+					],
+				},
+				// 10. Examples - Reference configs by scenario
 				{
 					label: 'Examples',
 					collapsed: true,
@@ -214,15 +236,18 @@ export default defineConfig({
 						},
 					],
 				},
+				// 11. Configuration - Schema references for admins
 				{
-					label: 'Plugins',
+					label: 'Configuration',
 					collapsed: true,
 					items: [
-						{ slug: 'plugins/marketplace' },
-						{ slug: 'plugins/safety-net' },
-						{ slug: 'plugins/creating' },
+						{ slug: 'reference/configuration/org-schema' },
+						{ slug: 'reference/configuration/team-schema' },
+						{ slug: 'reference/configuration/project-schema' },
+						{ slug: 'reference/configuration/environment' },
 					],
 				},
+				// 12. Architecture - Deep dives for security/evaluators
 				{
 					label: 'Architecture',
 					collapsed: true,
@@ -233,6 +258,24 @@ export default defineConfig({
 						{ slug: 'architecture/governance-model' },
 					],
 				},
+				// 13. CLI Reference - Command lookup
+				{
+					label: 'CLI Reference',
+					collapsed: true,
+					items: [
+						{ slug: 'reference/cli/overview' },
+						{ slug: 'reference/cli/essential' },
+						{ slug: 'reference/cli/sessions' },
+						{ slug: 'reference/cli/worktree' },
+						{ slug: 'reference/cli/team' },
+						{ slug: 'reference/cli/profile' },
+						{ slug: 'reference/cli/config' },
+						{ slug: 'reference/cli/governance' },
+						{ slug: 'reference/cli/organization' },
+						{ slug: 'reference/cli/admin' },
+					],
+				},
+				// 14. Troubleshooting - Problem-solving
 				{
 					label: 'Troubleshooting',
 					collapsed: true,
@@ -246,6 +289,7 @@ export default defineConfig({
 						{ slug: 'troubleshooting/getting-help' },
 					],
 				},
+				// 15. Glossary - Terminology reference
 				{ slug: 'reference/glossary', label: 'Glossary' },
 			],
 		}),

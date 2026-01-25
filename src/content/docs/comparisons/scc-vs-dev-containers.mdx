@@ -1,0 +1,149 @@
+---
+title: "SCC vs Dev Containers"
+description: "Compare SCC's Claude Code-specific sandboxing to generic dev container workflows. Learn when each approach fits your team's needs."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Can I use SCC inside a dev container?", answer: "Yes. SCC requires Docker access, so your dev container needs Docker-in-Docker or access to the host Docker socket. SCC then creates its own containers for Claude Code sessions." },
+  { question: "What does SCC provide that dev containers don't?", answer: "SCC adds Claude Code-specific features: Safety Net (blocks destructive git commands), plugin governance (org-approved plugins only), team profiles (consistent configs), and git worktree management. Dev containers provide general containerized development environments." },
+  { question: "Should I use dev containers or SCC for AI coding?", answer: "They solve different problems. Dev containers standardize your development environment. SCC governs how Claude Code runs within that environment. Many teams use both together." }
+]} />
+
+This guide compares SCC's purpose-built Claude Code sandboxing to using generic dev containers for AI-assisted development.
+
+## Different Goals
+
+**Dev Containers** standardize your entire development environment—language runtimes, tools, extensions, and settings—in a reproducible container.
+
+**SCC** specifically governs how Claude Code runs: isolation, plugin control, git safety, and team policies. It focuses on the AI coding assistant, not your full dev environment.
+
+## Quick Comparison
+
+| Aspect | SCC CLI | Dev Containers |
+|--------|---------|----------------|
+| **Primary purpose** | Sandbox and govern Claude Code | Standardize dev environment |
+| **Scope** | Claude Code sessions only | Full development workflow |
+| **Claude-specific features** | Safety Net, plugin governance, worktrees | None (runs Claude Code normally) |
+| **Configuration** | Org/team JSON configs | devcontainer.json |
+| **IDE integration** | CLI-based | VS Code, JetBrains, Codespaces |
+
+## What SCC Provides
+
+SCC focuses on Claude Code governance:
+
+### Safety Net Plugin
+Blocks destructive git commands that could damage your repository:
+- `git push --force`
+- `git reset --hard`
+- `git branch -D`
+- `git clean -fd`
+
+### Plugin Governance
+Organizations control which Claude Code plugins developers can use:
+
+```json
+{
+  "security": {
+    "blocked_plugins": ["*experimental*", "*beta*"]
+  },
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
+  }
+}
+```
+
+### Team Profiles
+Consistent Claude Code configuration across all team members:
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "additional_plugins": ["java-analyzer@internal"],
+      "session": { "timeout_hours": 8 }
+    }
+  }
+}
+```
+
+### Git Worktree Management
+Built-in isolation for parallel AI tasks:
+
+```bash
+scc worktree create ~/project feature-auth
+# AI work happens on isolated branch
+```
+
+## What Dev Containers Provide
+
+Dev containers standardize your full development environment:
+
+- Language runtimes and versions
+- Build tools and dependencies
+- VS Code extensions
+- Editor settings
+- Port forwarding
+
+Dev containers don't provide Claude Code-specific governance—Claude Code runs inside them the same way it runs on your host.
+
+## Using Both Together
+
+Many teams combine both approaches:
+
+1. **Dev Container** defines the development environment (Node.js version, tools, extensions)
+2. **SCC** governs Claude Code sessions within that environment
+
+```bash
+# Inside your dev container
+scc setup --org https://example.com/org-config.json
+scc start .
+```
+
+<Aside type="note">
+  Running SCC inside a dev container requires Docker access. Configure Docker-in-Docker or mount the host Docker socket in your devcontainer.json.
+</Aside>
+
+## When to Use Each
+
+### Choose SCC When
+
+- Your priority is governing Claude Code specifically
+- You need Safety Net to protect against destructive git commands
+- Organization must control Claude Code plugins
+- Team needs consistent Claude Code policies (not just dev environment)
+
+### Choose Dev Containers When
+
+- Your priority is standardizing the overall dev environment
+- You need reproducible builds and consistent tooling
+- IDE integration (VS Code, Codespaces) is important
+- Claude Code governance isn't a concern
+
+### Use Both When
+
+- You want standardized dev environments AND Claude Code governance
+- Your org has both general dev standards and AI-specific policies
+- Different teams need different Claude Code configurations within similar dev environments
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Try SCC in minutes"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Understand SCC's isolation layers"
+  />
+  <LinkCard
+    title="Team Profiles"
+    href="/guides/team-leader/inline-config/"
+    description="Configure team-specific profiles"
+  />
+</CardGrid>

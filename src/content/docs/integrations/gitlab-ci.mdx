@@ -1,0 +1,241 @@
+---
+title: GitLab CI Integration
+description: "Run SCC CLI in GitLab CI/CD: validate configurations, automate AI coding governance, and integrate sandboxed Claude Code into your GitLab pipelines."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Can I run SCC in GitLab CI?", answer: "Yes. SCC supports non-interactive mode for CI environments. Use CI/CD variables for credentials, then run 'scc setup' and 'scc start --dry-run' for validation." },
+  { question: "How do I pass SCC credentials in GitLab CI?", answer: "Define SCC_ORG_SOURCE and SCC_ORG_TOKEN as CI/CD variables (Settings → CI/CD → Variables). Mark tokens as masked and protected. Pass them to 'scc setup' using environment variable references." },
+  { question: "Does SCC work with GitLab's Docker executor?", answer: "Yes. For validation (--dry-run), any executor works. For running actual sessions, use an executor with Docker access (Docker-in-Docker or shell executor with Docker installed)." }
+]} />
+
+SCC CLI integrates with GitLab CI/CD for automated configuration validation and AI coding governance.
+
+## Basic Setup
+
+```yaml title=".gitlab-ci.yml"
+stages:
+  - validate
+
+scc-validate:
+  stage: validate
+  image: python:3.12
+  script:
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+    - uv tool install scc-cli
+    - scc setup --org "$SCC_ORG_SOURCE" --auth env:SCC_ORG_TOKEN --team ci --non-interactive
+    - scc start --dry-run --json --non-interactive --team ci .
+  variables:
+    SCC_ORG_SOURCE: $SCC_ORG_SOURCE
+    SCC_ORG_TOKEN: $SCC_ORG_TOKEN
+```
+
+## Required CI/CD Variables
+
+Add these variables in Settings → CI/CD → Variables:
+
+| Variable | Description | Settings |
+|----------|-------------|----------|
+| `SCC_ORG_SOURCE` | URL or shorthand for your org config | Protected |
+| `SCC_ORG_TOKEN` | Auth token for private configs | Masked, Protected |
+
+<Aside type="tip">
+  Mark `SCC_ORG_TOKEN` as masked to prevent it from appearing in job logs.
+</Aside>
+
+## Pipeline Examples
+
+### Validate on Merge Request
+
+```yaml
+scc-validate:
+  stage: validate
+  image: python:3.12
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - .scc.yaml
+        - team-config.json
+  script:
+    - pip install scc-cli
+    - scc team validate --file team-config.json
+```
+
+### Validate Team Config Changes
+
+```yaml
+validate-team-config:
+  stage: validate
+  image: python:3.12
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - team-config.json
+  script:
+    - pip install scc-cli
+    - scc team validate --file team-config.json
+  artifacts:
+    reports:
+      dotenv: scc-validation.env
+```
+
+### Scheduled Plugin Audit
+
+```yaml
+plugin-audit:
+  stage: audit
+  image: python:3.12
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - pip install scc-cli
+    - scc setup --org "$SCC_ORG_SOURCE" --non-interactive
+    - scc audit plugins --json > plugin-audit.json
+  artifacts:
+    paths:
+      - plugin-audit.json
+    expire_in: 30 days
+```
+
+## Caching
+
+Speed up pipelines by caching SCC configuration:
+
+```yaml
+scc-validate:
+  stage: validate
+  image: python:3.12
+  cache:
+    key: scc-cache
+    paths:
+      - ~/.cache/scc/
+  script:
+    - pip install scc-cli
+    - scc setup --org "$SCC_ORG_SOURCE" --non-interactive
+    - scc start --dry-run --non-interactive --team ci .
+```
+
+## Exit Codes and Job Status
+
+SCC exit codes map to GitLab job status:
+
+| Code | Meaning | Job Status |
+|------|---------|------------|
+| 0 | Success | Passed |
+| 2 | Usage error | Failed |
+| 3 | Configuration error | Failed |
+| 6 | Governance block | Failed |
+
+Handle specific failures:
+
+```yaml
+scc-validate:
+  script:
+    - pip install scc-cli
+    - |
+      scc start --dry-run --non-interactive --team ci .
+      exit_code=$?
+      if [ $exit_code -eq 6 ]; then
+        echo "Configuration blocked by governance policy"
+        exit 1
+      fi
+```
+
+## CI-Specific Team Profile
+
+Create a minimal profile for GitLab CI:
+
+```json
+{
+  "profiles": {
+    "ci": {
+      "description": "GitLab CI pipeline profile",
+      "additional_plugins": [],
+      "session": {
+        "timeout_hours": 1
+      },
+      "network_policy": "isolated"
+    }
+  }
+}
+```
+
+## Docker-in-Docker Setup
+
+For running actual SCC sessions (not just validation):
+
+```yaml
+scc-session:
+  stage: test
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip install scc-cli
+  script:
+    - scc setup --org "$SCC_ORG_SOURCE" --non-interactive
+    - scc start --non-interactive --team ci .
+```
+
+<Aside type="note">
+  Docker-in-Docker adds complexity. For most CI use cases, `--dry-run` validation is sufficient.
+</Aside>
+
+## Security Best Practices
+
+- **Use protected variables**: Restrict access to protected branches
+- **Mask tokens**: Prevent secrets from appearing in logs
+- **Minimal profiles**: CI profiles should be restrictive
+- **Review MR changes**: Validate config changes before merge
+
+<Aside type="danger">
+  Never commit org config sources or tokens to your repository. Always use GitLab CI/CD variables.
+</Aside>
+
+## Troubleshooting
+
+### "Command not found: scc"
+
+Ensure PATH includes the installation directory:
+
+```yaml
+script:
+  - pip install scc-cli
+  - export PATH="$HOME/.local/bin:$PATH"
+  - scc --version
+```
+
+### "Cannot connect to Docker daemon"
+
+For dry-run validation, Docker isn't required. For sessions, use Docker-in-Docker service or a shell executor with Docker.
+
+### "Variable not found"
+
+Ensure CI/CD variables are defined and not limited to protected branches if running on feature branches.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="CI/CD Automation Guide"
+    href="/guides/team-leader/ci-automation/"
+    description="Complete CI/CD integration guide"
+  />
+  <LinkCard
+    title="GitHub Actions"
+    href="/integrations/github-actions/"
+    description="GitHub Actions integration"
+  />
+  <LinkCard
+    title="CLI Reference"
+    href="/reference/cli/overview/"
+    description="Full command reference"
+  />
+</CardGrid>

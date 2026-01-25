@@ -1,0 +1,37 @@
+---
+/**
+ * FAQSchema component for structured data markup
+ * Generates JSON-LD FAQPage schema for rich snippets in search results
+ *
+ * Usage:
+ * <FAQSchema faqs={[
+ *   { question: "What is SCC?", answer: "SCC is a sandboxed coding CLI..." }
+ * ]} />
+ */
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs: FAQ[];
+}
+
+const { faqs } = Astro.props;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

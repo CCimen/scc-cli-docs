@@ -1,0 +1,127 @@
+---
+title: "SCC vs Local Claude Code"
+description: "Compare running Claude Code in SCC's Docker sandbox versus directly on your local machine. Security isolation, team governance, and workflow differences explained."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "What is the difference between SCC and Claude Code?", answer: "Claude Code is Anthropic's AI coding CLI. SCC runs Claude Code inside Docker containers with team-managed policies, git safety rails, and plugin governance. SCC doesn't replace Claude Code—it wraps it in a sandboxed, governed environment." },
+  { question: "Is SCC safer than running Claude Code locally?", answer: "SCC adds Docker isolation (AI cannot access host files outside mounted paths), git safety rails (blocks destructive commands like push --force), and plugin governance (org-approved plugins only). These reduce risk compared to unrestricted local execution." },
+  { question: "Do I need SCC if I'm a solo developer?", answer: "Solo developers can use Claude Code directly. SCC is most valuable for teams that need consistent configurations, security policies, and governance. However, solo developers who want Docker isolation or git protection may still benefit from SCC." }
+]} />
+
+This guide compares running Claude Code through SCC's Docker sandbox versus running it directly on your local machine.
+
+## Quick Comparison
+
+| Aspect | SCC CLI | Local Claude Code |
+|--------|---------|-------------------|
+| **Execution environment** | Docker container | Your host machine |
+| **File access** | Only mounted paths | Full filesystem |
+| **Git protection** | Safety Net blocks destructive commands | Relies on Claude's built-in behavior |
+| **Configuration** | Centralized org/team profiles | Per-user `~/.claude/` settings |
+| **Plugin control** | Org-approved plugins only | Any plugin |
+| **Setup** | `scc setup` + `scc start` | `claude` directly |
+
+## What SCC Adds
+
+### Docker Isolation
+
+With SCC, Claude Code runs inside a Docker container. The AI can only access files in paths you explicitly mount—typically your project directory.
+
+```bash
+# SCC mounts only the workspace
+scc start ~/my-project
+# Claude Code sees /home/user/my-project inside container
+# Cannot access ~/.ssh, ~/.aws, or other host paths
+```
+
+Running Claude Code locally gives it access to your full filesystem (within the permissions of your user account).
+
+### Git Safety Rails
+
+SCC's Safety Net plugin blocks commands that can cause data loss:
+
+| Blocked Command | Risk |
+|-----------------|------|
+| `git push --force` | Overwrites remote history |
+| `git reset --hard` | Discards uncommitted changes |
+| `git branch -D` | Force-deletes branches |
+| `git clean -fd` | Deletes untracked files |
+
+Local Claude Code relies on its own judgment and your confirmation prompts.
+
+### Team-Managed Configuration
+
+SCC lets organizations define:
+
+- **Approved plugins**: Only whitelisted plugins can run
+- **MCP servers**: Control which external services Claude can access
+- **Security policies**: Network posture, blocked patterns
+- **Team profiles**: Consistent defaults across developers
+
+Developers run `scc setup` once to inherit all team settings.
+
+With local Claude Code, each developer manages their own `~/.claude/` configuration independently.
+
+### Git Worktree Integration
+
+SCC provides built-in worktree management for parallel AI tasks:
+
+```bash
+scc worktree create ~/project feature-auth
+# Creates isolated branch scc/feature-auth
+# Claude experiments don't touch main branch
+```
+
+This keeps AI work isolated from your main development branch.
+
+## When to Use Each
+
+### Choose SCC When
+
+- Your team needs consistent Claude Code configurations
+- You want Docker isolation between AI and host system
+- You need to prevent destructive git operations
+- Org admins must control which plugins are allowed
+- Multiple developers need standardized setups
+
+### Choose Local Claude Code When
+
+- You're a solo developer with simple needs
+- You need maximum speed (no container startup)
+- You trust Claude Code's built-in safety measures
+- You don't need team-wide governance
+
+## Hybrid Approach
+
+Some teams use both:
+
+- **Local Claude Code** for quick, trusted tasks
+- **SCC** for experimental work or when working with sensitive code
+
+<Aside type="tip">
+  SCC doesn't modify how Claude Code itself works. The AI behavior is identical—SCC just controls the environment it runs in.
+</Aside>
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Try SCC in minutes"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Understand SCC's isolation layers"
+  />
+  <LinkCard
+    title="Why Sandbox Claude Code"
+    href="/use-cases/why-sandbox-claude-code/"
+    description="Detailed reasons for sandboxing"
+  />
+</CardGrid>

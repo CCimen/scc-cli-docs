@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: Key terms and concepts in SCC
+description: "SCC CLI glossary: sandbox, session, profile, worktree, safety net, federation, and more. All key terms for sandboxed Claude Code explained."
 sidebar:
   order: 10
 ---
@@ -103,3 +103,20 @@ How long SCC caches remote configurations before re-fetching. Default: 24 hours.
 
 ### Exit Code
 Numeric code returned by commands indicating success or failure type. See [CLI Overview](/reference/cli/overview/).
+
+## AI Development Terms
+
+### AI Code Sandbox
+An isolated environment for running AI coding assistants safely. SCC provides an AI code sandbox using Docker containers, preventing AI from accessing files or systems outside the designated workspace.
+
+### Claude Code Guardrails
+Policy controls that prevent Claude Code from executing dangerous commands or accessing restricted resources. SCC implements guardrails through Docker isolation, Safety Net (git protection), plugin governance, and network policies. See [AI Coding Guardrails](/use-cases/ai-coding-guardrails/).
+
+### Docker Sandbox
+A container-based isolation environment for secure code execution. SCC uses Docker sandboxes to run Claude Code in an isolated environment where the AI can only access mounted directories and approved resources.
+
+### AI Coding Security
+Practices and tools for safe AI-assisted development. Includes isolation (sandboxing), access control (plugin governance), history protection (Safety Net), and configuration management (team profiles). SCC provides comprehensive AI coding security for Claude Code.
+
+### AI Coding Assistant Isolation
+Separating AI coding assistant execution from the host system to limit potential damage. SCC achieves isolation through Docker containers, controlled mounts, and policy enforcement.

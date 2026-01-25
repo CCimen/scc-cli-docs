@@ -1,0 +1,75 @@
+---
+title: Integrations
+description: "Integrate SCC CLI with your CI/CD pipelines, IDEs, and development workflows. GitHub Actions, GitLab CI, Jenkins, and more."
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+SCC CLI integrates with your existing development infrastructure. This section covers CI/CD pipelines, automation, and workflow integration.
+
+## CI/CD Integrations
+
+<CardGrid>
+  <LinkCard
+    title="GitHub Actions"
+    href="/integrations/github-actions/"
+    description="Run SCC validation and sandboxed Claude Code sessions in GitHub Actions workflows"
+  />
+  <LinkCard
+    title="GitLab CI"
+    href="/integrations/gitlab-ci/"
+    description="Integrate SCC with GitLab CI/CD pipelines for automated validation"
+  />
+</CardGrid>
+
+## Integration Capabilities
+
+SCC provides features designed for automation:
+
+| Feature | Description |
+|---------|-------------|
+| **Non-interactive mode** | `--non-interactive` flag for CI environments |
+| **Dry run** | `--dry-run` validates without launching |
+| **JSON output** | `--json` for machine-readable results |
+| **Exit codes** | Distinct codes for different failure types |
+| **Config validation** | `scc team validate` checks configs |
+
+## Quick Example
+
+```bash
+# CI-friendly validation
+scc start --dry-run --json --non-interactive --team ci ~/project
+```
+
+Exit codes:
+- `0` - Success
+- `3` - Configuration error
+- `6` - Governance block
+
+## Use Cases
+
+### Pre-Merge Validation
+Validate SCC configuration changes before merging to main.
+
+### Automated Testing
+Run sandboxed Claude Code sessions as part of your test suite.
+
+### Config Auditing
+Regularly audit plugin usage and configuration drift.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="CI/CD Automation Guide"
+    href="/guides/team-leader/ci-automation/"
+    description="Complete guide to CI/CD integration"
+  />
+  <LinkCard
+    title="CLI Reference"
+    href="/reference/cli/overview/"
+    description="Full command reference"
+  />
+</CardGrid>

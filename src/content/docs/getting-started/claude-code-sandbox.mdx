@@ -4,6 +4,13 @@ description: Build a Claude Code sandbox with SCC CLI, a sandboxed coding CLI th
 ---
 
 import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Is SCC CLI a Claude Code CLI?", answer: "SCC CLI is a wrapper around the official Claude Code CLI. It runs Claude Code inside Docker and adds governance, isolation, and safety features." },
+  { question: "Can I sandbox Claude Code without Docker?", answer: "SCC relies on Docker for isolation. If you need container-level sandboxing, Docker is the simplest and most widely supported option." },
+  { question: "Is SCC an AI coding CLI?", answer: "Claude Code is the AI coding CLI. SCC manages and hardens how it runs." }
+]} />
 
 If you are searching for how to sandbox Claude Code or want a sandboxed coding CLI, SCC CLI wraps the official Claude Code in Docker containers with policy guardrails and team-managed profiles.
 
@@ -74,5 +81,25 @@ Claude Code is the AI coding CLI. SCC manages and hardens how it runs.
     title="Worktrees"
     href="/guides/developer/worktrees/"
     description="Run parallel Claude Code sessions safely"
+  />
+</CardGrid>
+
+## Related Pages
+
+<CardGrid>
+  <LinkCard
+    title="SCC vs Local Claude Code"
+    href="/comparisons/scc-vs-local-claude-code/"
+    description="Compare sandboxed and local execution"
+  />
+  <LinkCard
+    title="Why Sandbox Claude Code"
+    href="/use-cases/why-sandbox-claude-code/"
+    description="Understand the risks sandboxing addresses"
+  />
+  <LinkCard
+    title="AI Coding Guardrails"
+    href="/use-cases/ai-coding-guardrails/"
+    description="Implement safety rails for AI development"
   />
 </CardGrid>
