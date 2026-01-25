@@ -1,0 +1,65 @@
+---
+title: Use Cases
+description: Explore common use cases for SCC CLI - from sandboxing Claude Code to implementing AI coding guardrails and running Claude Code in Docker.
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+SCC CLI addresses specific challenges teams face when adopting AI coding assistants. This section explores the most common use cases.
+
+## Use Case Guides
+
+<CardGrid>
+  <LinkCard
+    title="Why Sandbox Claude Code"
+    href="/use-cases/why-sandbox-claude-code/"
+    description="Understand the risks of unrestricted AI coding and how sandboxing mitigates them"
+  />
+  <LinkCard
+    title="Claude Code in Docker"
+    href="/use-cases/claude-code-in-docker/"
+    description="Run Claude Code in Docker containers for isolation and reproducibility"
+  />
+  <LinkCard
+    title="AI Coding Guardrails"
+    href="/use-cases/ai-coding-guardrails/"
+    description="Implement safety rails and governance for AI-assisted development"
+  />
+</CardGrid>
+
+## Common Scenarios
+
+### Enterprise Teams
+Organizations adopting Claude Code across multiple teams need:
+- Consistent configurations (team profiles)
+- Security policies (plugin governance, network control)
+- Audit capability (config explain, dry-run)
+
+### Security-Conscious Development
+Teams working with sensitive code want:
+- Filesystem isolation (Docker sandboxing)
+- Protected git history (Safety Net plugin)
+- Controlled external access (network policies)
+
+### Parallel AI Development
+Developers running multiple AI experiments need:
+- Branch isolation (git worktrees)
+- Session management (resume, list, stop)
+- Clean separation from main development
+
+## Getting Started
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Install and run SCC in minutes"
+  />
+  <LinkCard
+    title="Core Concepts"
+    href="/getting-started/core-concepts/"
+    description="Understand SCC's fundamental concepts"
+  />
+</CardGrid>

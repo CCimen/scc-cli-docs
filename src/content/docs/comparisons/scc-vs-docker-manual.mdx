@@ -1,0 +1,193 @@
+---
+title: "SCC vs Manual Docker Setup"
+description: "Compare SCC's automated Docker sandboxing to manually configuring Docker for Claude Code. Setup complexity, maintenance, and feature differences explained."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Can I run Claude Code in Docker without SCC?", answer: "Yes. You can manually create Docker containers, mount your project, and run Claude Code inside. SCC automates this process and adds governance features like team profiles, plugin control, and git safety rails." },
+  { question: "What does SCC automate that I'd have to do manually?", answer: "SCC handles: container lifecycle management, volume mounts, team configuration inheritance, plugin governance, Safety Net installation, git worktree integration, session persistence, and dry-run validation. Manual setup requires scripting all of this yourself." },
+  { question: "Is SCC faster than manual Docker setup?", answer: "For initial setup, SCC is significantly faster—one 'scc setup' command versus writing Dockerfiles and scripts. For ongoing use, performance is similar since both run Claude Code in Docker containers." }
+]} />
+
+This guide compares using SCC's automated Docker management to manually setting up Docker containers for Claude Code.
+
+## Quick Comparison
+
+| Aspect | SCC CLI | Manual Docker |
+|--------|---------|---------------|
+| **Setup time** | Minutes (`scc setup`) | Hours to days |
+| **Configuration** | JSON-based org/team profiles | Custom Dockerfiles/scripts |
+| **Team consistency** | Automatic via profiles | Manual enforcement |
+| **Git safety** | Built-in Safety Net plugin | DIY implementation |
+| **Plugin governance** | Org-level allow/block lists | Manual tracking |
+| **Maintenance** | SCC updates handle changes | You maintain scripts |
+
+## What SCC Automates
+
+### Container Lifecycle
+
+SCC manages container creation, startup, and cleanup:
+
+```bash
+# SCC handles everything
+scc start ~/my-project
+
+# Equivalent manual steps:
+# 1. Build or pull base image
+# 2. Create container with correct mounts
+# 3. Configure environment variables
+# 4. Start container
+# 5. Attach to Claude Code process
+# 6. Handle cleanup on exit
+```
+
+### Volume Mounts
+
+SCC configures secure mounts automatically:
+
+```bash
+scc start ~/my-project
+# Mounts workspace at correct path
+# Handles permissions
+# Isolates from host filesystem
+```
+
+Manual setup requires specifying all mounts explicitly and handling path translations.
+
+### Team Configuration
+
+With SCC, team settings flow automatically:
+
+```bash
+# Developer runs once
+scc setup --org https://company.com/org-config.json
+
+# Gets: approved plugins, MCP servers, network policies, team defaults
+```
+
+Manual Docker requires distributing and enforcing configuration through other means.
+
+### Git Worktrees
+
+SCC integrates git worktree management:
+
+```bash
+scc worktree create ~/project feature-auth
+scc start ~/project-scc-worktrees/feature-auth
+```
+
+Manual setup requires scripting worktree creation and container coordination yourself.
+
+### Session Persistence
+
+SCC tracks sessions for resume capability:
+
+```bash
+scc start --resume ~/my-project  # Resume previous session
+scc session list                  # See all sessions
+```
+
+## What Manual Setup Requires
+
+If you choose to set up Docker manually, you'll need to:
+
+1. **Create Docker configuration**
+   - Dockerfile or base image selection
+   - Volume mount configuration
+   - Network settings
+   - Environment variables
+
+2. **Script container management**
+   - Start/stop scripts
+   - Session tracking
+   - Cleanup procedures
+
+3. **Implement safety features** (if desired)
+   - Git command filtering
+   - Plugin restrictions
+   - Network isolation
+
+4. **Distribute configuration**
+   - Share Dockerfiles/scripts with team
+   - Enforce consistency manually
+   - Handle updates across machines
+
+5. **Maintain over time**
+   - Update base images
+   - Fix issues as Docker/Claude Code evolve
+   - Propagate changes to team
+
+## Example: Manual Docker Setup
+
+Here's what a minimal manual setup might look like:
+
+```bash
+# Run Claude Code in Docker manually
+docker run -it --rm \
+  -v ~/my-project:/workspace \
+  -w /workspace \
+  -e ANTHROPIC_API_KEY \
+  python:3.12 \
+  bash -c "pip install claude-code && claude"
+```
+
+This lacks:
+- Team configuration
+- Git safety rails
+- Plugin governance
+- Session persistence
+- Worktree integration
+
+<Aside type="caution">
+  Manual Docker setups require ongoing maintenance as Claude Code, Docker, and your team's needs evolve. SCC handles these updates for you.
+</Aside>
+
+## When to Use Each
+
+### Choose SCC When
+
+- You want quick setup without Docker expertise
+- Teams need consistent configurations
+- Git safety and plugin governance matter
+- You prefer maintained tooling over custom scripts
+
+### Choose Manual Docker When
+
+- You need complete control over the container environment
+- Your organization has specific Docker requirements SCC can't meet
+- You're experimenting or learning Docker
+- You have dedicated DevOps resources to maintain scripts
+
+## Migration Path
+
+If you have manual Docker scripts, migrating to SCC is straightforward:
+
+1. **Install SCC**: `uv tool install scc-cli`
+2. **Create org config**: Define your team's policies in JSON
+3. **Run setup**: `scc setup --org your-config-url`
+4. **Start using**: `scc start ~/project`
+
+Your manual scripts can remain as fallback or for special cases.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Try SCC in minutes"
+  />
+  <LinkCard
+    title="Installation"
+    href="/getting-started/installation/"
+    description="Install SCC on your system"
+  />
+  <LinkCard
+    title="Org Config Setup"
+    href="/guides/organization/config-setup/"
+    description="Create your organization's config"
+  />
+</CardGrid>

@@ -1,0 +1,255 @@
+---
+title: AI Coding Guardrails
+description: "Implement guardrails for AI-assisted development: git safety rails, plugin governance, network policies, and team-wide configuration standards with SCC CLI."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "What are AI coding guardrails?", answer: "AI coding guardrails are controls that limit what AI coding assistants can do. Examples include blocking destructive git commands, restricting plugin installation, controlling network access, and enforcing team-wide configuration standards." },
+  { question: "How does SCC implement guardrails for Claude Code?", answer: "SCC implements guardrails through: Docker isolation (filesystem boundaries), Safety Net plugin (blocks git push --force, reset --hard, etc.), plugin governance (org-approved plugins only), and team profiles (consistent configuration)." },
+  { question: "Can developers bypass SCC guardrails?", answer: "Security blocks at the organization level cannot be bypassed. Team and project-level configurations respect org boundaries. Exceptions require explicit approval with time limits and audit trails." }
+]} />
+
+AI coding assistants are powerful tools, but power needs boundaries. Guardrails help teams adopt AI safely by limiting potential damage from mistakes or unexpected behavior.
+
+## What Are Guardrails?
+
+Guardrails are controls that constrain what AI coding assistants can do:
+
+| Guardrail Type | What It Controls |
+|----------------|------------------|
+| **Git safety** | Prevents destructive version control operations |
+| **Filesystem isolation** | Limits which files AI can access |
+| **Plugin governance** | Controls which extensions are allowed |
+| **Network policies** | Restricts outbound connections |
+| **Configuration standards** | Ensures consistent behavior across team |
+
+## SCC's Guardrail Layers
+
+### Layer 1: Docker Isolation
+
+Every Claude Code session runs in a container:
+
+- AI sees only mounted directories
+- Host filesystem is inaccessible
+- Clean separation between sessions
+
+```bash
+scc start ~/project
+# Claude Code can only access ~/project
+# Cannot reach ~/.ssh, ~/.aws, other directories
+```
+
+### Layer 2: Safety Net Plugin
+
+The `scc-safety-net` plugin blocks dangerous git commands:
+
+| Blocked | Why |
+|---------|-----|
+| `git push --force` | Overwrites remote history |
+| `git reset --hard` | Discards uncommitted changes |
+| `git branch -D` | Force-deletes branches |
+| `git clean -fd` | Deletes untracked files |
+
+Installation is automatic with most org configurations:
+
+```json
+{
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
+  }
+}
+```
+
+### Layer 3: Plugin Governance
+
+Organizations control which plugins are allowed:
+
+```json
+{
+  "security": {
+    "blocked_plugins": [
+      "*experimental*",
+      "*untrusted*"
+    ]
+  },
+  "defaults": {
+    "enabled_plugins": [
+      "scc-safety-net@sandboxed-code-official",
+      "approved-tool@internal"
+    ]
+  }
+}
+```
+
+- **Blocked plugins**: Cannot be used by anyone
+- **Enabled plugins**: Available to all teams
+- **Team additions**: Teams can add plugins within allowed boundaries
+
+### Layer 4: Network Policies
+
+Control what external connections Claude Code can make:
+
+```json
+{
+  "defaults": {
+    "network_policy": "isolated"
+  }
+}
+```
+
+<Aside type="note">
+  Network policy enforcement is partial in v1. SCC validates policy and warns, but full enforcement depends on Docker network configuration.
+</Aside>
+
+### Layer 5: Team Profiles
+
+Ensure consistent configuration across developers:
+
+```json
+{
+  "profiles": {
+    "backend": {
+      "additional_plugins": ["java-analyzer@internal"],
+      "session": { "timeout_hours": 8 }
+    },
+    "frontend": {
+      "additional_plugins": ["eslint-runner@internal"],
+      "session": { "timeout_hours": 4 }
+    }
+  }
+}
+```
+
+Developers run `scc setup` once to inherit all team settings.
+
+## Trust Hierarchy
+
+SCC enforces a trust hierarchy where higher levels override lower ones:
+
+| Level | Trust | Can Override |
+|-------|-------|--------------|
+| Organization | Absolute | Nothing |
+| Team | Delegated | Within org bounds |
+| Project | Restricted | Within team bounds |
+| User | Advisory | Within project bounds |
+
+**Security blocks are absolute**—no team, project, or user can bypass them.
+
+## Implementing Guardrails
+
+### Step 1: Define Organization Policies
+
+Create an org config with security blocks:
+
+```json
+{
+  "apiVersion": "scc.cli/v1",
+  "kind": "OrganizationConfig",
+  "metadata": { "name": "my-org" },
+  "security": {
+    "blocked_plugins": ["*experimental*"],
+    "blocked_mcp_servers": ["*untrusted*"]
+  },
+  "defaults": {
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
+  }
+}
+```
+
+### Step 2: Configure Team Profiles
+
+Add team-specific settings:
+
+```json
+{
+  "profiles": {
+    "default": {
+      "description": "Standard development profile"
+    },
+    "security-team": {
+      "description": "Stricter controls for security work",
+      "additional_plugins": [],
+      "network_policy": "isolated"
+    }
+  }
+}
+```
+
+### Step 3: Distribute Configuration
+
+Host the config where teams can access it:
+
+```bash
+# Developers configure once
+scc setup --org https://company.com/org-config.json
+```
+
+### Step 4: Verify Enforcement
+
+```bash
+# Check what's blocked
+scc config explain
+
+# Dry run to see effective configuration
+scc start --dry-run ~/project
+```
+
+## Exceptions
+
+Sometimes guardrails need temporary overrides. SCC supports time-bounded exceptions:
+
+```bash
+scc exception add local-override \
+  --allow-plugin "experimental-tool@vendor" \
+  --ttl 8h \
+  --reason "Testing integration"
+```
+
+Exceptions:
+- Have time limits (TTL)
+- Require explicit reasons
+- Are visible in `scc config explain`
+- Cannot override absolute security blocks
+
+## Auditing
+
+Track guardrail status and exceptions:
+
+```bash
+# List active exceptions
+scc exception list
+
+# Audit installed plugins
+scc audit plugins
+
+# See configuration sources
+scc config explain
+```
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Deep dive into SCC's security architecture"
+  />
+  <LinkCard
+    title="Safety Net Plugin"
+    href="/plugins/safety-net/"
+    description="Configure git protection"
+  />
+  <LinkCard
+    title="Security Policies"
+    href="/guides/organization/security-policies/"
+    description="Set up organization-wide policies"
+  />
+  <LinkCard
+    title="Exceptions"
+    href="/guides/organization/exceptions/"
+    description="Handle temporary overrides"
+  />
+</CardGrid>

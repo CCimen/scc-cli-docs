@@ -1,6 +1,6 @@
 ---
 title: What is SCC?
-description: Introduction to SCC CLI - Sandboxed Claude CLI for running Claude Code in Docker containers
+description: Introduction to SCC CLI - sandboxed coding CLI for running Claude Code in Docker containers
 sidebar:
   order: 1
 ---
@@ -8,11 +8,13 @@ sidebar:
 import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
-**SCC (Sandboxed Claude CLI)** runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic's AI coding CLI) inside Docker containers with organization-managed team profiles and git worktree support.
+**SCC (Sandboxed Claude CLI)** is a sandboxed coding CLI that runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic's AI coding CLI) inside Docker containers with organization-managed team profiles and git worktree support.
 
 <Aside type="tip">
   SCC isolates AI execution in containers, enforces branch safety, and prevents destructive git commands. Organizations distribute plugins through a central config—developers get standardized setups without manual configuration.
 </Aside>
+
+Looking for a step-by-step guide? See [Sandbox Claude Code](/getting-started/claude-code-sandbox/) for a focused walkthrough.
 
 ## The Problem SCC Solves
 

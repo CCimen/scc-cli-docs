@@ -1,0 +1,177 @@
+---
+title: Why Sandbox Claude Code
+description: "Understand why sandboxing Claude Code matters: security risks of unrestricted AI execution, how Docker isolation protects your system, and when sandboxing is essential."
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Why should I sandbox Claude Code?", answer: "Claude Code executes commands on your system. Sandboxing limits what it can access—only mounted directories, controlled network access, and approved plugins. This reduces risk from AI mistakes or unexpected behavior." },
+  { question: "What risks does sandboxing Claude Code prevent?", answer: "Sandboxing prevents: accidental file deletion outside your project, unintended git operations (force push, reset --hard), access to sensitive files (~/.ssh, ~/.aws), and installation of unapproved plugins or tools." },
+  { question: "Is Claude Code dangerous without a sandbox?", answer: "Claude Code is designed to be helpful and follows safety guidelines. However, AI can make mistakes. Sandboxing adds defense-in-depth—even if Claude makes an error, the blast radius is limited to the sandbox." }
+]} />
+
+AI coding assistants like Claude Code execute real commands on real systems. This guide explains why sandboxing matters and when it's essential.
+
+## The Reality of AI Code Execution
+
+Claude Code is powerful because it can:
+- Read and write files in your project
+- Execute shell commands
+- Run git operations
+- Install dependencies
+- Make API calls
+
+This power comes with responsibility. While Claude Code is designed to be helpful and careful, any system that executes commands can cause unintended effects.
+
+## Risks Without Sandboxing
+
+### Filesystem Access
+
+Without isolation, Claude Code can access any file your user account can access:
+
+| Accessible | Risk |
+|------------|------|
+| `~/.ssh/` | SSH keys for servers and services |
+| `~/.aws/` | AWS credentials |
+| `~/.config/` | Application configurations |
+| Other projects | Cross-project contamination |
+
+With SCC, Claude Code only sees the workspace you explicitly mount.
+
+### Git History Damage
+
+AI coding sessions involve experimentation. Without guardrails:
+
+| Command | Impact |
+|---------|--------|
+| `git push --force` | Overwrites remote history, affects entire team |
+| `git reset --hard` | Discards uncommitted work |
+| `git branch -D` | Force-deletes branches without merge check |
+| `git clean -fd` | Deletes untracked files permanently |
+
+SCC's Safety Net plugin blocks these commands by default.
+
+### Configuration Drift
+
+When each developer configures Claude Code independently:
+- Plugins vary across the team
+- Settings differ between machines
+- Behavior is inconsistent and hard to debug
+
+SCC provides team profiles that ensure consistent configuration.
+
+## How Sandboxing Helps
+
+### Docker Isolation
+
+SCC runs Claude Code inside Docker containers:
+
+```
+┌─────────────────────────────────┐
+│          Host System            │
+│  ~/.ssh  ~/.aws  ~/other-work   │
+│           ▲                     │
+│           │ (blocked)           │
+│  ┌────────┴────────────────┐    │
+│  │    Docker Container     │    │
+│  │  /workspace (mounted)   │    │
+│  │  Claude Code runs here  │    │
+│  └─────────────────────────┘    │
+└─────────────────────────────────┘
+```
+
+Claude Code can only access `/workspace`—your mounted project directory.
+
+### Controlled Environment
+
+SCC provides layers of control:
+
+1. **What files**: Only mounted paths are visible
+2. **What plugins**: Only org-approved plugins run
+3. **What git ops**: Safety Net filters dangerous commands
+4. **What network**: Network policies control outbound access
+
+### Blast Radius Reduction
+
+If something goes wrong, damage is contained:
+
+| Without Sandbox | With SCC |
+|-----------------|----------|
+| Could affect entire system | Limited to mounted workspace |
+| Could damage git history | Safety Net blocks destructive commands |
+| Could install anything | Only approved plugins |
+| Inconsistent recovery | Worktrees provide clean rollback |
+
+## When Sandboxing Is Essential
+
+### Enterprise Environments
+
+- Multiple teams sharing AI tools
+- Compliance requirements
+- Need for audit trails
+- Consistent security posture
+
+### Sensitive Codebases
+
+- Financial or healthcare systems
+- Code with embedded secrets
+- Production infrastructure
+
+### Team Adoption
+
+- Onboarding new developers
+- Standardizing AI tool usage
+- Reducing support burden from inconsistent setups
+
+## When Sandboxing May Be Optional
+
+### Solo Development
+Individual developers with:
+- Full system backups
+- Git remotes as backup
+- Understanding of risks
+
+### Quick Experiments
+One-off tests where:
+- No sensitive data involved
+- Results are disposable
+- Speed matters more than safety
+
+<Aside type="note">
+  Even in these cases, sandboxing provides peace of mind. SCC's overhead is minimal once set up.
+</Aside>
+
+## Getting Started with Sandboxing
+
+```bash
+# Install SCC
+uv tool install scc-cli
+
+# Configure (one time)
+scc setup
+
+# Run sandboxed
+scc start ~/your-project
+```
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Install and try SCC"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Understand SCC's isolation layers"
+  />
+  <LinkCard
+    title="Safety Net Plugin"
+    href="/plugins/safety-net/"
+    description="Learn about git protection"
+  />
+</CardGrid>

@@ -1,0 +1,66 @@
+---
+title: Comparisons
+description: Compare SCC CLI's sandboxed approach to other ways of running Claude Code. Understand the tradeoffs for security, team management, and developer experience.
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+SCC CLI takes a specific approach to running Claude Code: Docker-based sandboxing with centralized team governance. This section compares that approach to other common setups.
+
+## Comparison Guides
+
+<CardGrid>
+  <LinkCard
+    title="SCC vs Local Claude Code"
+    href="/comparisons/scc-vs-local-claude-code/"
+    description="Compare sandboxed execution to running Claude Code directly on your machine"
+  />
+  <LinkCard
+    title="SCC vs Dev Containers"
+    href="/comparisons/scc-vs-dev-containers/"
+    description="Compare SCC's Claude-specific governance to generic dev container workflows"
+  />
+  <LinkCard
+    title="SCC vs Manual Docker"
+    href="/comparisons/scc-vs-docker-manual/"
+    description="Compare SCC's automated setup to manually configuring Docker for Claude Code"
+  />
+</CardGrid>
+
+## What Makes SCC Different
+
+SCC is purpose-built for running Claude Code in teams. It combines:
+
+| Capability | What SCC Provides |
+|------------|-------------------|
+| **Docker Isolation** | Every session runs in a container—AI cannot access host files outside mounted paths |
+| **Team Profiles** | Org admins define plugins, MCP servers, and policies; developers run `scc setup` once |
+| **Git Worktrees** | Create isolated branches for each AI task without polluting main |
+| **Safety Net** | Block destructive git commands like `push --force` and `reset --hard` |
+| **Plugin Governance** | Approve or block plugins at the org level; teams cannot override security blocks |
+
+## Which Approach Fits Your Needs?
+
+| If you need... | Consider |
+|----------------|----------|
+| Maximum isolation and team governance | SCC CLI |
+| Simple local development (solo) | Local Claude Code |
+| Containerized IDE experience | Dev Containers + SCC or local Claude Code |
+| Full control over Docker configuration | Manual Docker setup |
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Try SCC in minutes"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Understand SCC's isolation layers"
+  />
+</CardGrid>
