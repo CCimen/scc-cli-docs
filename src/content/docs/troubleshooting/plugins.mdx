@@ -14,7 +14,7 @@ import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/
 scc audit plugins
 
 # Check for blocked plugins
-scc config explain --field blocked_items
+scc config explain --field blocked
 
 # Check governance status
 scc config explain
@@ -181,10 +181,10 @@ Each plugin can have two manifest files:
 
 ```bash
 # Check blocked patterns
-scc config explain --field blocked_items
+scc config explain --field blocked
 
 # See which plugins are blocked
-scc config explain | grep -A5 "blocked_plugins"
+scc config explain --json | jq '.data.blocked_items'
 ```
 
 **Common causes:**
@@ -213,7 +213,7 @@ scc config explain | grep -A5 "blocked_plugins"
 **Check effective config:**
 
 ```bash
-scc start --dry-run --json | jq '.plugins'
+scc start --dry-run --json | jq '.data.plugins'
 ```
 
 **Common causes:**
@@ -241,7 +241,7 @@ scc start --dry-run --json --pretty
 
 # Check specific fields
 scc config explain --field plugins
-scc config explain --field denied_additions
+scc config explain --field denied
 ```
 
 ---

@@ -81,8 +81,7 @@ A typical team profile includes:
       }
     ],
     "delegation": {
-      "allow_project_overrides": true,
-      "allow_additional_plugins": ["team-*"]
+      "allow_project_overrides": true
     },
     "session": {
       "timeout_hours": 12
@@ -90,6 +89,8 @@ A typical team profile includes:
   }
 }
 ```
+
+Org-level delegation and allowlists still apply. See [Delegation](/guides/organization/delegation/).
 
 ## Key Decisions
 
@@ -115,13 +116,13 @@ A typical team profile includes:
 Always validate before deploying:
 
 ```bash
-scc team validate
+scc team validate backend
 ```
 
 Or validate a specific config file:
 
 ```bash
-scc org validate team-config.json
+scc team validate --file team-config.json
 ```
 
 ## Next Steps

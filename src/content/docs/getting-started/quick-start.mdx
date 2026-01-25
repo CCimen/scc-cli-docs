@@ -81,7 +81,7 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
 6. **Starts Docker container** with your team's configuration
 
 <Aside type="tip">
-  **Safety guard:** SCC won't auto-launch from suspicious directories (home, `/tmp`). If you try `scc start ~/`, it will prompt for confirmation.
+  **Safety guard:** SCC won't auto-launch from suspicious directories (home, `/tmp`). If you try `scc start ~/`, it will prompt for confirmation. In non-interactive mode, pass `--allow-suspicious-workspace` only if you explicitly intend to run there.
 </Aside>
 
 ## Keyboard Shortcuts

@@ -144,20 +144,9 @@ For fine-grained control, configure individual command categories:
   Use granular controls when you need to allow specific destructive commands while blocking others. For example, set `block_checkout_restore: false` to allow file restoration but keep force push blocked.
 </Aside>
 
-## Exceptions for Specific Projects
+## Project Overrides
 
-Some projects may legitimately need force-push (e.g., release branches). Configure at the project level:
-
-```yaml title=".scc.yaml"
-plugins:
-  scc-safety-net:
-    allow_force_push: true
-```
-
-This requires:
-1. Team has `allow_project_overrides: true`
-2. The project explicitly opts in
-3. Org admin has not blocked this via policy
+Safety-net policy is **org-scoped**. `.scc.yaml` cannot override it. If a project truly needs different behavior, adjust `security.safety_net` in the org config or split that project into a separate org/team policy boundary.
 
 ## Auditing
 
@@ -182,8 +171,8 @@ If commands are unexpectedly blocked:
 # Check what plugins are active
 scc config explain --field plugins
 
-# Check policy mode
-scc config explain --field security.safety_net.action
+# Check safety-net policy inside Claude Code
+/scc-safety-net:status
 ```
 
 ## Best Practices

@@ -30,6 +30,10 @@ Define which teams can add plugins and MCP servers:
 | `["team1", "team2"]` | Only listed teams can add |
 | `[]` or missing | No team can add this resource type |
 
+<Aside type="note">
+  These lists contain team IDs/patterns, not plugin names. Plugin allowlists live in `defaults.allowed_plugins`.
+</Aside>
+
 ### Example: Restrictive Delegation
 
 ```json
@@ -64,13 +68,19 @@ All teams can add both plugins and MCP servers.
 
 Each team profile controls whether projects can add resources:
 
+The org must also enable project delegation via `delegation.projects.inherit_team_delegation: true`.
+
 ```json
 {
+  "delegation": {
+    "projects": {
+      "inherit_team_delegation": true
+    }
+  },
   "profiles": {
     "backend": {
       "delegation": {
-        "allow_project_overrides": true,
-        "allow_additional_plugins": ["project-*", "team-*"]
+        "allow_project_overrides": true
       }
     },
     "security": {
@@ -89,39 +99,38 @@ Each team profile controls whether projects can add resources:
 | `true` | Projects can use `.scc.yaml` to add resources |
 | `false` | Projects cannot add anything beyond team config |
 
-### allow_additional_plugins (Team Level)
+## Plugin and MCP Allowlists
 
-Patterns for what plugins projects can add:
+Allowlist patterns for what teams/projects can add live in defaults:
 
 ```json
 {
-  "delegation": {
-    "allow_additional_plugins": ["project-*", "linter-*"]
+  "defaults": {
+    "allowed_plugins": ["project-*", "linter-*"],
+    "allowed_mcp_servers": ["*.internal.example.com", "corp-*"]
   }
 }
 ```
 
-Projects can only add plugins matching these patterns.
+Teams/projects can only add resources matching these patterns (if set).
 
 ## Delegation Chain
 
 A project can only add a resource if:
 
-1. The **organization** has delegated that resource type to the team
+1. The **organization** enables project delegation (`delegation.projects.inherit_team_delegation: true`)
 2. The **team** has `allow_project_overrides: true`
-3. The resource matches the team's `allow_additional_plugins` patterns (if specified)
+3. The resource matches `defaults.allowed_plugins` / `defaults.allowed_mcp_servers` (if set)
 4. The resource doesn't match any security block
 
 ```
-Organization delegates "plugins" to team "backend"
+Organization enables project delegation
     ↓
 Team "backend" has allow_project_overrides: true
     ↓
-Team "backend" has allow_additional_plugins: ["project-*"]
-    ↓
 Project adds "project-linter" in .scc.yaml
     ↓
-"project-linter" matches "project-*" pattern
+"project-linter" matches defaults.allowed_plugins
     ↓
 "project-linter" is not in blocked_plugins
     ↓
@@ -133,40 +142,43 @@ Project adds "project-linter" in .scc.yaml
 When a resource is denied, SCC tracks the reason:
 
 ```bash
-scc config explain
+scc config explain --field denied
 ```
 
-Output:
+Use `--json` if you need machine-readable reasons:
 
-```
-denied_additions:
-  - some-mcp-server  (requested_by: project, reason: team not delegated for MCP)
-  - custom-plugin    (requested_by: project, reason: team disallows project overrides)
+```bash
+scc config explain --json | jq '.data.denied_additions'
 ```
 
 ## Example: Complete Delegation Setup
 
 ```json
 {
+  "defaults": {
+    "allowed_plugins": ["react-*", "project-*"],
+    "allowed_mcp_servers": ["*.internal.example.com", "corp-*"]
+  },
   "delegation": {
     "teams": {
-      "allow_additional_plugins": ["*"],
+      "allow_additional_plugins": ["backend", "frontend", "platform"],
       "allow_additional_mcp_servers": ["platform", "data"]
+    },
+    "projects": {
+      "inherit_team_delegation": true
     }
   },
   "profiles": {
     "backend": {
       "description": "Backend team - flexible",
       "delegation": {
-        "allow_project_overrides": true,
-        "allow_additional_plugins": ["*"]
+        "allow_project_overrides": true
       }
     },
     "frontend": {
       "description": "Frontend team - moderate",
       "delegation": {
-        "allow_project_overrides": true,
-        "allow_additional_plugins": ["react-*", "vue-*", "angular-*"]
+        "allow_project_overrides": true
       }
     },
     "security": {

@@ -105,10 +105,13 @@ Control what developers can do:
 
 ```json
 "delegation": {
-  "allow_project_overrides": true,
-  "allow_additional_plugins": ["team-*", "approved-*"]
+  "allow_project_overrides": true
 }
 ```
+
+<Aside type="note">
+  Plugin allowlists live in `defaults.allowed_plugins`, and team add permissions live in `delegation.teams.allow_additional_plugins` (org-level).
+</Aside>
 
 ## Making Changes
 
@@ -130,7 +133,7 @@ Since inline config is in the org config file, changes require:
     "backend-java": {
       "description": "Java/Spring Boot developers",
       "additional_plugins": [
-        "scc-safety-net@official",
+        "scc-safety-net@sandboxed-code-official",
         "java-analyzer@internal",
         "spring-boot-tools@internal"
       ],
@@ -139,7 +142,7 @@ Since inline config is in the org config file, changes require:
     "backend-python": {
       "description": "Python/FastAPI developers",
       "additional_plugins": [
-        "scc-safety-net@official",
+        "scc-safety-net@sandboxed-code-official",
         "python-tools@internal",
         "fastapi-helper@internal"
       ],

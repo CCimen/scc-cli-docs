@@ -123,17 +123,31 @@ scc start --dry-run --json --non-interactive --team backend ~/project
 Output:
 ```json
 {
-  "status": "ok",
-  "data": {
-    "workspace": "/home/runner/project",
-    "entry_directory": "/home/runner/project",
-    "team": "backend",
-    "plugins": ["scc-safety-net", "java-analyzer"],
-    "network_policy": "corp-proxy-only"
-  },
+  "apiVersion": "scc.cli/v1",
+  "kind": "StartDryRun",
   "metadata": {
-    "cli_version": "1.6.3",
-    "timestamp": "2024-01-15T10:30:00Z"
+    "generatedAt": "2024-01-15T10:30:00Z",
+    "cliVersion": "1.6.3"
+  },
+  "status": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "data": {
+    "workspace_root": "/home/runner/project",
+    "entry_dir": "/home/runner/project",
+    "mount_root": "/home/runner/project",
+    "container_workdir": "/home/runner/project",
+    "team": "backend",
+    "plugins": [
+      { "name": "scc-safety-net@sandboxed-code-official", "source": "resolved" },
+      { "name": "java-analyzer@internal", "source": "resolved" }
+    ],
+    "blocked_items": [],
+    "network_policy": "corp-proxy-only",
+    "ready_to_start": true,
+    "resolution_reason": "Git repository detected at: /home/runner/project"
   }
 }
 ```
@@ -212,11 +226,11 @@ Create a minimal CI profile:
 In CI, validate your team config changes:
 
 ```bash
-# Validate config syntax
-scc org validate team-config.json
+# Validate team config file
+scc team validate --file team-config.json
 
-# Check if changes would break anything
-scc team validate
+# Validate the resolved team (requires org config)
+scc team validate ci
 ```
 
 ## Plugin Auditing in CI

@@ -67,7 +67,7 @@ Every new config starts with this minimal, working baseline:
     "id": "your-org"
   },
   "marketplaces": {
-    "official-plugins": {
+    "sandboxed-code-official": {
       "source": "github",
       "owner": "CCimen",
       "repo": "sandboxed-code-plugins",
@@ -76,7 +76,7 @@ Every new config starts with this minimal, working baseline:
     }
   },
   "defaults": {
-    "enabled_plugins": ["scc-safety-net@official-plugins"]
+    "enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
   },
   "security": {
     "safety_net": { "action": "block" }
@@ -203,7 +203,7 @@ GITHUB_TOKEN=<token> scc setup --org https://raw.githubusercontent.com/your-org/
 |-------|--------|---------|
 | `organization.id` | lowercase, hyphens only | `acme-corp` |
 | Team names | lowercase, hyphens only | `backend`, `ai-team` |
-| Marketplace names | lowercase, hyphens | `official-plugins`, `internal` |
+| Marketplace names | lowercase, hyphens | `sandboxed-code-official`, `internal` |
 
 ### Allowlist Gotchas
 
@@ -211,7 +211,7 @@ GITHUB_TOKEN=<token> scc setup --org https://raw.githubusercontent.com/your-org/
 |--------|------|
 | Allow all | **Omit the field entirely** |
 | Block all | `[]` (empty array) |
-| Allow patterns | `["core-*", "*@official-plugins"]` |
+| Allow patterns | `["core-*", "*@sandboxed-code-official"]` |
 
 <Aside type="caution">
 Omitting a field and setting it to `[]` have opposite effects. Omit to allow all; use `[]` to block all.

@@ -13,6 +13,10 @@ Schema reference for federated team configuration files (external team configs).
   Team configurations only support four fields: `schema_version`, `enabled_plugins`, `disabled_plugins`, and `marketplaces`. The fields `additional_mcp_servers`, `delegation`, and `session` do not exist in the team schema and should be configured at the organization level instead.
 </Aside>
 
+<Aside type="note">
+  `$schema` is optional and ignored by SCC during validation. For editor tooling, use the hosted schema at `https://scc-cli.dev/schemas/team-config.v1.json`.
+</Aside>
+
 ## Top-Level Structure
 
 ```json

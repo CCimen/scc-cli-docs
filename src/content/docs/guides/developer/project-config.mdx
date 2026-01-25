@@ -13,9 +13,8 @@ You can add a `.scc.yaml` file to your repository root to customize SCC settings
 
 Use `.scc.yaml` when you need:
 - Project-specific plugins
-- Custom session timeouts
-- Entry directory overrides
-- Team pinning for the project
+- Project-specific MCP servers
+- Custom session timeouts (auto_resume is advisory)
 
 <Aside type="note">
   Project configuration **extends** your team config. You cannot override organization security blocks or remove team defaults.
@@ -39,13 +38,20 @@ additional_plugins:
   - "eslint-plugin@internal"
   - "project-linter@team-marketplace"
 
+# Optional MCP servers for this project
+additional_mcp_servers:
+  - name: "project-api"
+    type: "sse"
+    url: "https://api.example.com/mcp"
+
 # Override session settings
 session:
   timeout_hours: 4
-
-# Pin this project to a specific team
-team: backend
 ```
+
+<Aside type="note">
+  `.scc.yaml` does not select a team. Use `scc team switch` or `scc start --team`.
+</Aside>
 
 ## Available Options
 
@@ -60,7 +66,7 @@ additional_plugins:
 ```
 
 <Aside type="caution">
-  You can only add plugins that match your team's `allow_additional_plugins` patterns. Attempts to add disallowed plugins will be blocked.
+  You can only add plugins that match `defaults.allowed_plugins` (if set) and pass org security blocks. Attempts to add disallowed plugins will be blocked.
 </Aside>
 
 ### Session Settings
@@ -77,37 +83,26 @@ session:
   `session.auto_resume` is accepted but advisory in v1. It is not enforced at runtime.
 </Aside>
 
-### Team Pinning
+### Additional MCP Servers
 
-Force a specific team profile for this project:
-
-```yaml
-team: security
-```
-
-When developers open this project with `scc`, it will use the security team's configuration regardless of their default team.
-
-### Entry Directory
-
-Specify a different entry point:
+Add MCP servers scoped to this project:
 
 ```yaml
-entry_directory: ./packages/frontend
+additional_mcp_servers:
+  - name: project-api
+    type: sse
+    url: https://api.example.com/mcp
 ```
 
-Claude Code will start in this directory instead of the project root.
+<Aside type="note">
+  MCP servers must pass org security blocks and `defaults.allowed_mcp_servers` (if set). Plugin-bundled MCP servers are not inspected.
+</Aside>
 
 ## Example Configurations
 
 ### Monorepo Frontend Package
 
 ```yaml title=".scc.yaml"
-# Pin to frontend team
-team: frontend
-
-# Start in the frontend package
-entry_directory: ./packages/frontend
-
 # Add React-specific tooling
 additional_plugins:
   - "react-tools@frontend-marketplace"
@@ -119,9 +114,6 @@ session:
 ### Security-Sensitive Project
 
 ```yaml title=".scc.yaml"
-# Force security team config (strictest settings)
-team: security
-
 # Short sessions for sensitive work
 session:
   timeout_hours: 2
@@ -131,9 +123,6 @@ session:
 ### Data Science Project
 
 ```yaml title=".scc.yaml"
-# Use ML team profile
-team: ml-team
-
 # Longer sessions for training runs
 session:
   timeout_hours: 24
@@ -154,9 +143,14 @@ scc config validate
 
 This checks:
 - YAML syntax is correct
-- Referenced plugins are allowed
-- Team exists (if pinned)
-- All settings are recognized
+- Referenced plugins/MCP servers are allowed
+- Project delegation rules are satisfied
+- Selected team exists in org config
+- Unknown keys are reported (ignored at runtime)
+
+<Aside type="note">
+  Validation uses your current team (set via `scc team switch`) unless you pass `--team`.
+</Aside>
 
 ## Seeing Effective Config
 
@@ -200,20 +194,11 @@ Project config cannot:
 
 The `.scc.yaml` file should typically be committed to your repository so all team members get the same project settings.
 
-However, if you have personal overrides, you can create a local file:
-
-```bash
-# Add to .git/info/exclude (not committed)
-.scc.local.yaml
-```
-
-<Aside type="note">
-  Local overrides (`.scc.local.yaml`) are only supported if your team enables `allow_project_overrides: true`.
-</Aside>
+Local-only overrides are not supported in v1. Use personal profiles for machine-specific plugins or MCP servers.
 
 ## Personal Profiles (Local)
 
-If you want your own plugins or MCP servers without committing anything to the repo, use **personal profiles** instead of `.scc.local.yaml`.
+If you want your own plugins or MCP servers without committing anything to the repo, use **personal profiles**.
 
 ```bash
 scc profile save
@@ -234,15 +219,16 @@ Personal profiles live outside the repo and can be synced across machines. See [
 Your team's delegation rules don't permit that plugin. Check with your team lead.
 
 ```bash
-scc config explain --field delegation
+scc config explain --field denied
 ```
 
 ### "Team not found"
 
-The pinned team doesn't exist in your org config. Verify the team name:
+Your selected team no longer exists in the org config. Pick a valid team:
 
 ```bash
-scc team
+scc team list
+scc team switch <team>
 ```
 
 ### Changes not taking effect

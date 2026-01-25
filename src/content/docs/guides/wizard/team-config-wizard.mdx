@@ -50,8 +50,8 @@ You only need a team-config file if your team is **team-managed** (has `config_s
   "$schema": "https://scc-cli.dev/schemas/team-config.v1.json",
   "schema_version": "1.0.0",
   "enabled_plugins": [
-    "changelog-generator@official-plugins",
-    "code-review@official-plugins"
+    "changelog-generator@sandboxed-code-official",
+    "code-review@sandboxed-code-official"
   ],
   "disabled_plugins": [
     "legacy-tool@*"
@@ -66,7 +66,7 @@ Always use the `plugin@marketplace` format:
 ```json
 {
   "enabled_plugins": [
-    "scc-safety-net@official-plugins",
+    "scc-safety-net@sandboxed-code-official",
     "java-analyzer@internal"
   ]
 }
@@ -155,7 +155,7 @@ After creating your team config, complete this checklist:
 1. **Host the file** at the path specified in org config's `config_source`
 2. **Ensure URL is accessible** (for private repos, configure auth)
 3. **Verify org config** has matching `config_source` entry
-4. **Test with:** `scc team validate path/to/team-config.json`
+4. **Test with:** `scc team validate --file path/to/team-config.json`
 
 ## Common Issues
 

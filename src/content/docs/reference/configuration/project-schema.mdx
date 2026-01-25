@@ -23,25 +23,17 @@ my-project/
 ## Requirements
 
 For `.scc.yaml` to take effect:
-1. Team must have `delegation.allow_project_overrides: true`
-2. Resources must not match security blocks
-3. Plugins must match team's `allow_additional_plugins` patterns (if specified)
+1. Org enables project delegation (`delegation.projects.inherit_team_delegation: true`)
+2. Team has `delegation.allow_project_overrides: true`
+3. Resources must not match security blocks
+4. Plugins must match `defaults.allowed_plugins` (if specified)
 
 ## Top-Level Structure
 
 ```yaml
-schema_version: "1.0.0"
 additional_plugins: []
 additional_mcp_servers: []
 session: {}
-```
-
-## schema_version
-
-Schema version for compatibility.
-
-```yaml
-schema_version: "1.0.0"
 ```
 
 ## additional_plugins
@@ -51,12 +43,12 @@ Plugins to add for this project.
 ```yaml
 additional_plugins:
   - project-linter@internal
-  - react-tools@official
+  - react-tools@claude-plugins-official
 ```
 
 Requirements:
 - Team must allow project overrides
-- Plugin must match team's `allow_additional_plugins` patterns
+- Plugin must match `defaults.allowed_plugins` patterns
 - Plugin must not match org's `blocked_plugins`
 
 <Aside type="note">
@@ -100,6 +92,7 @@ additional_mcp_servers:
 Requires:
 - Org to set `security.allow_stdio_mcp: true`
 - Command path to match `security.allowed_stdio_prefixes`
+- MCP server must match `defaults.allowed_mcp_servers` (if specified)
 
 ## session
 
@@ -117,28 +110,18 @@ Project session settings override team settings.
   `session.auto_resume` is advisory only in v1. It is accepted but not enforced at runtime.
 </Aside>
 
-## Plugin Configuration
+## Notes
 
-Some plugins accept project-level configuration:
-
-```yaml
-plugins:
-  scc-safety-net:
-    allow_force_push: true
-```
-
-<Aside type="caution">
-  Plugin configuration options depend on the individual plugin. Check plugin documentation.
-</Aside>
+- Unknown keys are ignored; `scc config validate` will warn.
+- `mcp_servers` is accepted as a legacy alias for `additional_mcp_servers`.
+- `.scc.yaml` does not set team selection or entry directories.
 
 ## Complete Example
 
 ```yaml
-schema_version: "1.0.0"
-
 additional_plugins:
   - project-linter@internal
-  - react-devtools@official
+  - react-devtools@claude-plugins-official
   - team-formatter@internal
 
 additional_mcp_servers:
@@ -155,10 +138,6 @@ additional_mcp_servers:
 session:
   timeout_hours: 8
   auto_resume: true
-
-plugins:
-  scc-safety-net:
-    allow_force_push: false
 ```
 
 <Aside type="note">
@@ -171,37 +150,40 @@ Validate your project config:
 
 ```bash
 # In the project directory
-scc config explain
+scc config validate
 
-# Check for denied additions
-scc config explain --field denied_additions
+# Inspect denied additions
+scc config explain --field denied
 ```
 
 ## Common Issues
 
 ### "Team disallows project overrides"
 
-```
-denied_additions:
-  - my-plugin (reason: team disallows project overrides)
+Run:
+
+```bash
+scc config explain --field denied
 ```
 
-Team has `delegation.allow_project_overrides: false`.
+Look for a "Denied Additions" entry with reason `team '<team>' disabled project overrides`.
 
 ### "Plugin doesn't match allowed patterns"
 
-```
-denied_additions:
-  - custom-tool (reason: doesn't match allow_additional_plugins)
+Run:
+
+```bash
+scc config explain --field denied
 ```
 
-Plugin name doesn't match team's `delegation.allow_additional_plugins` patterns.
+Look for a "Denied Additions" entry with reason `Plugin not allowed by defaults.allowed_plugins`.
 
 ### "Blocked by security policy"
 
-```
-blocked_items:
-  - experimental-tool (blocked_by: *experimental*, source: org.security)
+Run:
+
+```bash
+scc config explain --field blocked
 ```
 
-Plugin matches org's `security.blocked_plugins` pattern.
+Look for a "Blocked Items" entry showing the `security.blocked_plugins` pattern.

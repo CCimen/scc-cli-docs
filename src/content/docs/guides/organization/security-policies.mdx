@@ -116,7 +116,7 @@ The `defaults.allowed_plugins` field controls which plugins can be enabled (gove
       "allowed_plugins": [
         "*@internal",
         "code-review@*",
-        "approved-tool@official"
+        "approved-tool@claude-plugins-official"
       ]
     }
   }
@@ -127,12 +127,13 @@ The `defaults.allowed_plugins` field controls which plugins can be enabled (gove
 
 ### Invariant Rules
 
-SCC enforces two invariants at config validation:
+SCC enforces these invariants at **runtime** when computing effective config:
 
 1. **`enabled ⊆ allowed`**: Enabled plugins must be in the allowed list
 2. **`enabled ∩ blocked = ∅`**: Enabled plugins must not be blocked by security
 
-If these invariants are violated, config validation fails.
+Violations are surfaced as blocked/denied items in `scc config explain`. `scc org validate`
+does not currently fail on these invariants.
 
 ## Stdio MCP Policy
 
@@ -225,13 +226,11 @@ Servers inside plugin `.mcp.json` files:
 See what's blocked:
 
 ```bash
-scc config explain --field blocked_items
+scc config explain --field blocked
 ```
 
-Output shows which patterns blocked which resources:
+Use `--json` for machine-readable details:
 
-```
-blocked_items:
-  - experimental-tool  (blocked_by: *experimental*, source: org.security)
-  - beta-plugin        (blocked_by: *beta*, source: org.security)
+```bash
+scc config explain --json | jq '.data.blocked_items'
 ```

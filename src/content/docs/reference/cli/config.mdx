@@ -22,6 +22,7 @@ scc config [ACTION] [KEY] [VALUE] [OPTIONS]
 | `show` | Show all configuration |
 | `edit` | Open config in editor |
 | `explain` | Explain effective configuration with sources |
+| `validate` | Validate `.scc.yaml` for this workspace |
 | `paths` | Show file locations with sizes and permissions |
 
 **Options:**
@@ -32,7 +33,8 @@ scc config [ACTION] [KEY] [VALUE] [OPTIONS]
 | `--edit` | Open config in editor |
 | `--field FIELD` | Filter explain output |
 | `--workspace PATH` | Workspace path for project context |
-| `--json` | Output explain as JSON envelope |
+| `--team TEAM` | Team profile to use for explain/validate |
+| `--json` | Output explain/validate as JSON envelope |
 
 **Examples:**
 
@@ -46,6 +48,12 @@ scc config explain
 # Explain specific field
 scc config explain --field plugins
 
+# Validate project config in the current workspace
+scc config validate
+
+# Validate with a specific team
+scc config validate --team backend
+
 # Edit configuration
 scc config edit
 ```
@@ -55,22 +63,36 @@ scc config edit
 Shows the effective configuration with source tracking, enforcement status, and warnings:
 
 ```
-plugins:
-  - github-copilot    (source: org.defaults)
-  - gis-tools         (source: team.urban-planning)
-  - project-linter    (source: project)
+Enforcement Status
+  Plugins: Enforced
+  network_policy: Partially enforced
 
-blocked_items:
-  - malicious-plugin  (blocked_by: malicious-*, source: org.security)
+Plugins
+  ✓ scc-safety-net@sandboxed-code-official (from org.defaults)
+  ✓ gis-tools@internal (from team.urban-planning)
+  ✓ project-linter@internal (from project)
 
-denied_additions:
-  - some-server       (requested_by: project, reason: team not delegated)
+Blocked Items
+  ✗ malicious-plugin@internal (blocked by pattern 'malicious-*' from org.security)
+
+Denied Additions
+  ⚠ some-server (requested by project: team not delegated)
 ```
 
 For machine-readable output:
 
 ```bash
 scc config explain --json
+```
+
+JSON includes `data.blocked_items` and `data.denied_additions` for automation.
+
+### scc config validate
+
+Validates project config (`.scc.yaml`) against team/org policy gates and reports blocked or denied additions.
+
+```bash
+scc config validate --team backend
 ```
 
 ### scc config paths

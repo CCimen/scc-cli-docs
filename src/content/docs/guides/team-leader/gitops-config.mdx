@@ -72,7 +72,7 @@ GitOps (federated) configuration lets your team maintain its own config reposito
 4. **Validate your config**
 
    ```bash
-   scc org validate team-config.json
+   scc team validate --file team-config.json
    ```
 </Steps>
 
@@ -188,8 +188,8 @@ Org admin controls what your federated config can do:
 2. **Edit team-config.json**
 
    ```json
-   "additional_plugins": [
-     "scc-safety-net@official",
+   "enabled_plugins": [
+     "scc-safety-net@sandboxed-code-official",
      "new-tool@marketplace"  // ← Added
    ]
    ```
@@ -197,7 +197,7 @@ Org admin controls what your federated config can do:
 3. **Validate locally**
 
    ```bash
-   scc org validate team-config.json
+   scc team validate --file team-config.json
    ```
 
 4. **Create PR and get review**
@@ -233,7 +233,7 @@ Team configs are cached locally:
 Your config tries to use something the org doesn't permit:
 
 ```bash
-scc team validate
+scc team validate backend
 ```
 
 Common causes:
