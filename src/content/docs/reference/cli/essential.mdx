@@ -103,7 +103,7 @@ scc init [PATH] [OPTIONS]
 </Tabs>
 
 <Aside type="note">
-  Creates a `.scc.yaml` file with sensible defaults including sections for `additional_plugins`, `session` settings, and optional `mcp_servers`.
+  Creates a `.scc.yaml` file with sensible defaults including sections for `additional_plugins`, `session` settings, and optional `additional_mcp_servers`.
 </Aside>
 
 ---
@@ -181,7 +181,9 @@ scc start [WORKSPACE] [OPTIONS]
 | `--standalone` | Run without organization config |
 | `--dry-run` | Preview configuration without launching |
 | `--json` | Output as JSON |
+| `--pretty` | Pretty-print JSON (implies `--json`) |
 | `--non-interactive` | Fail if input required |
+| `--allow-suspicious-workspace` | Allow starting in suspicious directories (e.g., home, `/tmp`) in non-interactive mode |
 
 **Examples:**
 

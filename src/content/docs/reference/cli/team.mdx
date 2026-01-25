@@ -127,32 +127,32 @@ scc team info <TEAM_NAME> [OPTIONS]
 **Output includes:**
 
 - Description
-- Enabled plugins
-- MCP servers
-- Delegation settings
-- Session configuration
-- Config source (for federated teams)
+- Plugin list
+- Marketplace info (if defined)
+- Federation mode and config source (for federated teams)
+- Trust grants (for federated teams)
 
 ---
 
 ## scc team validate
 
-Validate team configuration against organization policies.
+Validate team configuration against organization policies or validate a team config file.
 
 ```bash
-scc team validate <TEAM_NAME> [OPTIONS]
+scc team validate [TEAM_NAME] [OPTIONS]
 ```
 
 **Arguments:**
 
 | Argument | Description |
 |----------|-------------|
-| `TEAM_NAME` | Team name to validate |
+| `TEAM_NAME` | Team name to validate (defaults to current team if omitted) |
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
+| `-f`, `--file` | Validate a local team config file against the schema |
 | `-v`, `--verbose` | Show detailed validation output |
 | `--json` | Output as JSON |
 | `--pretty` | Pretty-print JSON |
@@ -160,8 +160,14 @@ scc team validate <TEAM_NAME> [OPTIONS]
 **Examples:**
 
 ```bash
-# Validate team config
+# Validate current team
+scc team validate
+
+# Validate specific team
 scc team validate backend
+
+# Validate a team config file
+scc team validate --file team-config.json
 
 # Detailed validation output
 scc team validate backend --verbose
@@ -169,8 +175,8 @@ scc team validate backend --verbose
 
 **Validates:**
 
-- Plugin references exist in approved marketplaces
-- No blocked plugins are enabled
-- MCP server URLs don't match blocked patterns
+- Plugin additions respect delegation and allowlists
+- Security blocks (`blocked_plugins`) are enforced
 - Trust grants are valid (for federated teams)
-- Delegation settings are consistent
+- Cache freshness is reported for federated teams
+- `--file` validates team config against the team schema

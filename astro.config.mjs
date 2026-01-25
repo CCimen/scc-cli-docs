@@ -19,6 +19,7 @@ export default defineConfig({
 			],
 			plugins: [starlightThemeGalaxy()],
 			customCss: ['./src/styles/custom.css'],
+			disable404Route: true,
 			editLink: {
 				baseUrl: 'https://github.com/CCimen/scc-docs/edit/main/',
 			},

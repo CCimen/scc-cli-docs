@@ -129,24 +129,36 @@ Your additions must:
 
 ## Allowing Developer Additions
 
-You can let developers add project-specific plugins:
+You can let developers add project-specific plugins by opening two gates:
+1. Allow their team in `delegation.teams.allow_additional_plugins`
+2. If `defaults.allowed_plugins` is set, the plugin name must match one of those patterns
 
 ```json
 {
+  "defaults": {
+    "allowed_plugins": ["team-*", "project-*"]
+  },
   "delegation": {
-    "allow_additional_plugins": ["team-*", "project-*"]
+    "teams": {
+      "allow_additional_plugins": ["backend", "frontend"]
+    },
+    "projects": {
+      "inherit_team_delegation": true
+    }
   }
 }
 ```
 
-This lets developers add plugins matching those patterns in their `.scc.yaml`.
+Teams still need `profiles.<team>.delegation.allow_project_overrides: true` for `.scc.yaml` additions.
 
 ### Restrictive Approach
 
 ```json
 {
   "delegation": {
-    "allow_additional_plugins": []
+    "teams": {
+      "allow_additional_plugins": []
+    }
   }
 }
 ```
@@ -157,8 +169,13 @@ Developers cannot add any plugins beyond team defaults.
 
 ```json
 {
+  "defaults": {
+    "allowed_plugins": ["*"]
+  },
   "delegation": {
-    "allow_additional_plugins": ["*"]
+    "teams": {
+      "allow_additional_plugins": ["*"]
+    }
   }
 }
 ```
@@ -190,21 +207,27 @@ Blocked plugins (attempted but filtered):
 ### Plugin not appearing
 
 <Steps>
-1. Check it's in an approved marketplace
+1. Check the plugin is actually present in the effective config
 
    ```bash
-   scc config explain --field marketplaces
+   scc config explain --field plugins
    ```
 
-2. Check it's not blocked
+2. Check for delegation/allowlist denials
 
    ```bash
-   scc config explain --field blocked_plugins
+   scc config explain --field denied
    ```
 
-3. Check spelling of plugin and marketplace names
+3. Check for security blocks
 
-4. Force refresh config
+   ```bash
+   scc config explain --field blocked
+   ```
+
+4. Check spelling of plugin and marketplace names
+
+5. Force refresh config
 
    ```bash
    scc update --force

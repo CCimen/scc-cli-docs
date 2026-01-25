@@ -7,7 +7,8 @@ sidebar:
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-The validate wizard checks SCC configuration files for schema compliance and semantic correctness before deployment.
+The validate wizard checks SCC configuration files for schema compliance and basic semantic checks.
+When SCC CLI is available, it reports the CLI's validation output directly.
 
 ## Quick Start
 
@@ -19,12 +20,13 @@ Or run without a path to search common locations.
 
 ## Validation Pipeline
 
-The wizard follows the same validation pipeline as SCC CLI:
+When the CLI is available, validation follows SCC's current enforcement:
 
 1. **Schema validation** - JSON structure compliance
-2. **Invariant validation** - Semantic rules and cross-field consistency
-3. **Version compatibility** - schema_version and min_cli_version checks
-4. **Advisory warnings** - Best practices (non-blocking)
+2. **Basic semantic check** - `organization.default_profile` references an existing team (org configs only)
+
+When the CLI isn't available, the wizard performs schema validation and may surface
+**advisory** checks (allowlists, delegation, stdio MCP) to prevent runtime surprises.
 
 ## Using SCC CLI
 
@@ -35,16 +37,16 @@ When available, the wizard prefers native SCC validation:
 scc org validate org-config.json
 
 # For team configs
-scc team validate team-config.json
+scc team validate --file team-config.json
 ```
 
 <Aside type="tip">
 The SCC CLI provides the most accurate validation. The wizard falls back to static checks when CLI isn't available.
 </Aside>
 
-## Error Categories
+## Error Categories (CLI-enforced)
 
-### Schema Errors (Hard Errors)
+### Schema Errors
 
 JSON Schema violations that make the config invalid:
 
@@ -62,72 +64,23 @@ SCHEMA ERROR: Invalid organization.id format
 - Wrong field types
 - Invalid enum values
 
-### Version Errors (Hard Errors)
+### Org Default Profile Errors
+
+If `organization.default_profile` points to a team that doesn't exist, validation fails:
 
 ```
-VERSION ERROR: min_cli_version requires SCC >= 2.0.0
-  Your SCC version: 1.5.0
-  Fix: Upgrade SCC or lower min_cli_version
+DEFAULT_PROFILE ERROR: default_profile "backend" not found in profiles
+  Fix: Update default_profile or add the team to profiles
 ```
 
-### Invariant Errors (Hard Errors)
+## Wizard Advisory Checks (not enforced by SCC CLI)
 
-Semantic rules that block config loading:
+These warnings help catch runtime denials, but do not block `scc org validate` today:
 
-| Error | Cause |
-|-------|-------|
-| `additional_plugin_not_allowed` | Team plugin doesn't match org allowlist |
-| `mcp_not_allowed` | Team MCP server doesn't match org allowlist |
-| `blocked_plugin_enabled` | Blocked plugin in defaults |
-| `invalid_plugin_ref` | Plugin not in `name@marketplace` format |
-| `marketplace_not_found` | Plugin references unknown marketplace |
-
-```
-INVARIANT ERROR: additional_plugin_not_allowed
-  Path: profiles.dev-team.additional_plugins[0]
-  Issue: Plugin "custom-tool@team-plugins" not in allowed_plugins
-  Fix: Either:
-    1. Add pattern to defaults.allowed_plugins
-    2. Remove this plugin from the team
-    3. Move to defaults.enabled_plugins (if all teams need it)
-```
-
-### stdio MCP Errors (Hard Errors)
-
-```
-STDIO MCP ERROR: Command not absolute path
-  Team: platform
-  Server: local-tool
-  Command: ./scripts/tool.sh
-  Fix: Use absolute path like /home/user/scripts/tool.sh
-```
-
-**stdio requirements:**
-1. `security.allow_stdio_mcp` must be `true`
-2. `command` must be absolute path (starts with `/`)
-3. If `allowed_stdio_prefixes` set, command must be under one
-
-## Advisory Warnings
-
-Non-blocking issues that may cause runtime problems:
-
-### Delegation Warnings
-
-```
-WARNING: Team additions may be denied
-  Team: backend
-  Note: Team has additional_plugins but is not in delegation allowlist.
-        Additions will be denied at runtime.
-```
-
-### Configuration Warnings
-
-```
-WARNING: Network policy override may not apply
-  Team: frontend
-  Note: Team-level network_policy cannot loosen org defaults.
-        Less restrictive overrides are ignored.
-```
+- allowlist/delegation mismatches for plugins or MCP servers
+- blocked plugins present in defaults
+- stdio MCP requirements (allow_stdio_mcp + absolute command path)
+- network_policy and session.auto_resume advisories
 
 ## Results Format
 
@@ -136,10 +89,10 @@ WARNING: Network policy override may not apply
 
 Config type: Org config
 
-### Hard Errors (must fix)
+### Errors (CLI-enforced)
 
 1. SCHEMA ERROR: ...
-2. INVARIANT ERROR: ...
+2. DEFAULT_PROFILE ERROR: ...
 
 ### Warnings (advisory)
 
@@ -154,6 +107,8 @@ Config type: Org config
 
 ## Common Fixes
 
+These fixes address advisory warnings and common runtime denials.
+
 ### "Plugin not in allowlist"
 
 <Tabs>
@@ -161,7 +116,7 @@ Config type: Org config
   ```json
   {
     "defaults": {
-      "allowed_plugins": ["*@official-plugins", "custom-*"]
+      "allowed_plugins": ["*@sandboxed-code-official", "custom-*"]
     }
   }
   ```
@@ -181,7 +136,7 @@ Config type: Org config
 "enabled_plugins": ["scc-safety-net"]
 
 // Correct
-"enabled_plugins": ["scc-safety-net@official-plugins"]
+"enabled_plugins": ["scc-safety-net@sandboxed-code-official"]
 ```
 
 ### "Marketplace not found"
@@ -191,7 +146,7 @@ Ensure the marketplace is defined:
 ```json
 {
   "marketplaces": {
-    "official-plugins": {
+    "sandboxed-code-official": {
       "source": "github",
       "owner": "CCimen",
       "repo": "sandboxed-code-plugins"
@@ -214,7 +169,7 @@ fi
 
 # Validate team configs
 for config in teams/*/team-config.json; do
-  scc team validate "$config"
+  scc team validate --file "$config"
   if [ $? -ne 0 ]; then
     echo "Team config validation failed: $config"
     exit 1
