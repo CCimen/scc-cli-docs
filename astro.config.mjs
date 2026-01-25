@@ -3,9 +3,21 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeGalaxy from 'starlight-theme-galaxy';
 
+const siteUrl = 'https://scc-cli.dev';
+const ogImageUrl = `${siteUrl}/og-image.png`;
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: 'SCC CLI',
+	url: siteUrl,
+	description: 'Run Claude Code safely in Docker sandboxes with team-managed profiles and guardrails',
+	applicationCategory: 'DeveloperApplication',
+	operatingSystem: 'macOS, Windows, Linux',
+};
+
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://scc-cli.dev',
+	site: siteUrl,
 	integrations: [
 		starlight({
 			title: 'SCC CLI',
@@ -27,6 +39,39 @@ export default defineConfig({
 				{
 					tag: 'script',
 					content: `(function(){var t=localStorage.getItem('starlight-theme');if(!t){localStorage.setItem('starlight-theme','light');document.documentElement.dataset.theme='light';}})();`,
+				},
+				{
+					tag: 'meta',
+					attrs: { property: 'og:image', content: ogImageUrl },
+				},
+				{
+					tag: 'meta',
+					attrs: { property: 'og:image:alt', content: 'SCC CLI logo' },
+				},
+				{
+					tag: 'meta',
+					attrs: { property: 'og:image:width', content: '1200' },
+				},
+				{
+					tag: 'meta',
+					attrs: { property: 'og:image:height', content: '630' },
+				},
+				{
+					tag: 'meta',
+					attrs: { property: 'og:image:type', content: 'image/png' },
+				},
+				{
+					tag: 'meta',
+					attrs: { name: 'twitter:image', content: ogImageUrl },
+				},
+				{
+					tag: 'meta',
+					attrs: { name: 'twitter:image:alt', content: 'SCC CLI logo' },
+				},
+				{
+					tag: 'script',
+					attrs: { type: 'application/ld+json' },
+					content: JSON.stringify(structuredData),
 				},
 			],
 			sidebar: [
