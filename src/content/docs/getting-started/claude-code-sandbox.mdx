@@ -1,0 +1,78 @@
+---
+title: Sandbox Claude Code with SCC CLI
+description: Build a Claude Code sandbox with SCC CLI, a sandboxed coding CLI that runs Claude Code in Docker with guardrails.
+---
+
+import { Aside, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+If you are searching for how to sandbox Claude Code or want a sandboxed coding CLI, SCC CLI wraps the official Claude Code in Docker containers with policy guardrails and team-managed profiles.
+
+<Aside type="note">
+  SCC is not a replacement for Claude Code. It runs the official Claude Code CLI inside a Docker sandbox and adds governance, safety rails, and repeatable team setup.
+</Aside>
+
+## What is a Claude Code sandbox?
+
+A Claude Code sandbox is an isolated environment where the AI coding CLI can read and write only the files you explicitly mount. The goal is to keep AI execution separated from your host machine while still letting it work on your project.
+
+With SCC CLI, the sandbox is a Docker container. You control what gets mounted, which network access is allowed, and which plugins or MCP servers are permitted. This makes SCC a practical sandboxed coding CLI for teams.
+
+## Why teams choose a sandboxed coding CLI
+
+- **Reduce risk**: AI can make destructive changes. A sandbox limits blast radius.
+- **Enforce policy**: Security blocks and delegation rules keep plugins and MCP servers in check.
+- **Standardize setup**: Team profiles eliminate local drift across developers.
+- **Work in parallel**: Each task can run in a separate git worktree.
+- **Stay audit-ready**: Config changes and exceptions are explicit and reviewable.
+
+## How SCC CLI sandboxes Claude Code
+
+1. **Install SCC** with your preferred package manager.
+2. **Configure** your org or team profiles.
+3. **Start a session** in a Docker sandbox.
+
+```bash
+scc setup
+scc start
+```
+
+From there, Claude Code runs inside the sandbox while SCC applies your policies and safety net protections.
+
+## What you can control in the sandbox
+
+- **File access**: Mount only the workspace or subpaths you approve.
+- **Network policy**: Allow or block outbound traffic for safer runs.
+- **Plugins and MCP servers**: Whitelist approved tools and block risky ones.
+- **Git safety rails**: Prevent destructive commands by policy.
+- **Team profiles**: Apply consistent defaults by team or org.
+
+## FAQ
+
+### Is SCC CLI a Claude Code CLI?
+SCC CLI is a wrapper around the official Claude Code CLI. It runs Claude Code inside Docker and adds governance, isolation, and safety features.
+
+### Can I sandbox Claude Code without Docker?
+SCC relies on Docker for isolation. If you need container-level sandboxing, Docker is the simplest and most widely supported option.
+
+### Is SCC an AI coding CLI?
+Claude Code is the AI coding CLI. SCC manages and hardens how it runs.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Install and run SCC in minutes"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Understand isolation boundaries and trust assumptions"
+  />
+  <LinkCard
+    title="Worktrees"
+    href="/guides/developer/worktrees/"
+    description="Run parallel Claude Code sessions safely"
+  />
+</CardGrid>

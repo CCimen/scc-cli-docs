@@ -5,6 +5,10 @@ import starlightThemeGalaxy from 'starlight-theme-galaxy';
 
 const siteUrl = 'https://scc-cli.dev';
 const ogImageUrl = `${siteUrl}/og-image.png`;
+const socialProfiles = [
+	'https://github.com/CCimen',
+	'https://www.linkedin.com/in/%C3%A7agri-%C3%A7imen-83106b272/',
+];
 const structuredData = {
 	'@context': 'https://schema.org',
 	'@type': 'SoftwareApplication',
@@ -13,6 +17,7 @@ const structuredData = {
 	description: 'Run Claude Code safely in Docker sandboxes with team-managed profiles and guardrails',
 	applicationCategory: 'DeveloperApplication',
 	operatingSystem: 'macOS, Windows, Linux',
+	sameAs: socialProfiles,
 };
 
 // https://astro.build/config
@@ -27,7 +32,12 @@ export default defineConfig({
 				replacesTitle: false,
 			},
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/CCimen/scc' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/CCimen' },
+				{
+					icon: 'linkedin',
+					label: 'LinkedIn',
+					href: 'https://www.linkedin.com/in/%C3%A7agri-%C3%A7imen-83106b272/',
+				},
 			],
 			plugins: [starlightThemeGalaxy()],
 			customCss: ['./src/styles/custom.css'],
@@ -79,6 +89,7 @@ export default defineConfig({
 					label: 'Getting Started',
 					items: [
 						{ slug: 'getting-started/introduction' },
+						{ slug: 'getting-started/claude-code-sandbox', label: 'Claude Code Sandbox' },
 						{ slug: 'getting-started/installation' },
 						{ slug: 'getting-started/quick-start', badge: { text: 'Start', variant: 'success' } },
 						{ slug: 'getting-started/core-concepts' },

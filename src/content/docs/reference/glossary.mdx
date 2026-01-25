@@ -7,8 +7,14 @@ sidebar:
 
 ## Core Concepts
 
+### Claude Code
+Anthropic's AI coding CLI. SCC CLI runs the official Claude Code inside Docker sandboxes with team-managed policies and profiles.
+
 ### Session
 A Claude Code work session running inside a Docker container. Sessions persist across restarts and can be resumed with `scc start --resume`.
+
+### Sandboxed Coding CLI
+A CLI that runs AI coding sessions inside an isolated environment (such as Docker) with controlled file, network, and policy access. SCC is a sandboxed coding CLI for Claude Code.
 
 ### Sandbox
 The Docker container that isolates Claude Code from the host system. Sandboxes provide security through containerization while allowing workspace access.
