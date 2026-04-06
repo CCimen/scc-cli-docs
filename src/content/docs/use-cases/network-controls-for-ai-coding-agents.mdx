@@ -1,0 +1,149 @@
+---
+title: Network Controls for AI Coding Agents
+description: Understand how SCC controls outbound access for Claude Code and Codex with open, web-egress-enforced, and locked-down-web network policies
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "Does running an AI coding agent in a container automatically protect my network?", answer: "No. A container helps with filesystem and process isolation, but it does not automatically stop outbound network access. SCC adds separate network policies for that." },
+  { question: "What is web-egress-enforced in SCC?", answer: "It places the agent container on an internal-only network and routes HTTP and HTTPS through a Squid proxy sidecar. The proxy enforces an ACL, and the agent cannot bypass it by ignoring proxy environment variables." },
+  { question: "What is the difference between web-egress-enforced and locked-down-web?", answer: "web-egress-enforced allows controlled web access through the proxy. locked-down-web disables networking entirely with --network=none." }
+]}/>
+
+If your main concern is what an AI coding agent can reach on your network, containerization is only the first step.
+
+SCC separates two different questions:
+
+- what files and processes the agent can access
+- what network destinations the agent can reach
+
+That distinction matters because a normal container can still reach internal services, cloud metadata endpoints, or public APIs unless the runtime constrains the network path as well.
+
+## The Core Point
+
+Running Claude Code or Codex in a container does **not** by itself create a network boundary.
+
+That is why SCC documents network policy separately from container isolation.
+
+## SCC Network Policies
+
+| Policy | What It Means | Typical Use |
+|--------|----------------|-------------|
+| `open` | Normal outbound network access | Fast-moving teams that accept ordinary container networking |
+| `web-egress-enforced` | HTTP/HTTPS must go through a Squid proxy sidecar | Teams that want web access, but want to control where it goes |
+| `locked-down-web` | No network access at all (`--network=none`) | Sensitive work, strict review flows, or offline-style tasks |
+
+## What `web-egress-enforced` Actually Does
+
+When SCC uses `web-egress-enforced`:
+
+- the agent container runs on an internal-only Docker network
+- the Squid proxy sidecar is the only route to the outside network
+- the proxy enforces an ACL compiled from allowed destinations
+- default deny rules block loopback, private CIDRs, link-local ranges, and cloud metadata endpoints before any team allow rules are applied
+
+That is real topology enforcement. It is not just `HTTP_PROXY` and `HTTPS_PROXY`.
+
+<Aside type="caution">
+  In v1, this enforcement is aimed at HTTP and HTTPS over IPv4. It is not a general-purpose firewall for every TCP or UDP protocol. If you need zero outbound reach, use `locked-down-web`.
+</Aside>
+
+## Why This Matters for AI Coding Agents
+
+AI coding agents can:
+
+- install dependencies
+- fetch docs and packages
+- call external APIs
+- hit internal endpoints if the runtime can route to them
+
+For some teams that is fine. For others it is the main risk surface.
+
+SCC lets you choose the posture that matches the work instead of treating all projects the same.
+
+## Choosing the Right Policy
+
+### Use `open` when:
+
+- the codebase is low-risk
+- the team needs normal package and API access
+- speed matters more than outbound control
+
+### Use `web-egress-enforced` when:
+
+- the team needs web access but not arbitrary network reach
+- you want one reviewable allowlist
+- you want to block metadata endpoints and private ranges by default
+
+### Use `locked-down-web` when:
+
+- the work is sensitive
+- internet access is not required for the session
+- you want the simplest hard guarantee
+
+## Network Control and Team Governance
+
+The network posture lives in the same governance model as the rest of SCC.
+
+That means:
+
+- org admins define the default
+- teams can only move to an equally strict or stricter posture within allowed bounds
+- developers get the configured posture automatically when they start a session
+
+This is important operationally. It keeps network policy from drifting one machine at a time.
+
+## What Developers Need to Know
+
+Most developers do not need to know the Docker details. They only need to know:
+
+- `open` means ordinary outbound access
+- `web-egress-enforced` means controlled web access
+- `locked-down-web` means no network
+
+If they hit a restriction, `scc config explain` and the team policy should tell them why.
+
+## Related Runtime Controls
+
+Network policy is one layer of SCC's boundary model. The others are:
+
+- container isolation for filesystem and process scope
+- the built-in safety engine for destructive git and network tools
+- plugin and MCP governance at org and team level
+
+The controls are meant to work together, not replace each other.
+
+## Start With These Pages
+
+If network reach is your main concern, read in this order:
+
+1. [Security Model](/architecture/security-model/)
+2. [Architecture Overview](/architecture/overview/)
+3. [Why Sandbox AI Coding Agents](/use-cases/why-sandbox-ai-coding-agents/)
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="See the full trust boundary and enforcement model"
+  />
+  <LinkCard
+    title="Architecture Overview"
+    href="/architecture/overview/"
+    description="Understand the proxy sidecar, images, and runtime layout"
+  />
+  <LinkCard
+    title="Why Sandbox AI Coding Agents"
+    href="/use-cases/why-sandbox-ai-coding-agents/"
+    description="See the broader risk model around coding agents"
+  />
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="Install SCC and see how the runtime behaves in practice"
+  />
+</CardGrid>

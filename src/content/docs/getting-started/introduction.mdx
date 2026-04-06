@@ -1,12 +1,13 @@
 ---
 title: What is SCC?
-description: Introduction to SCC — Sandboxed Coding CLI for running AI coding agents in governed container sandboxes
+description: Introduction to SCC, a governed runtime for Claude Code and Codex with container sandboxes, network controls, team-managed profiles, and safer enterprise rollout
 sidebar:
   order: 1
 ---
 
 import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 import DrawioDiagram from '../../../components/DrawioDiagram.astro';
+import FAQSchema from '../../../components/FAQSchema.astro';
 
 **SCC (Sandboxed Coding CLI)** is a provider-neutral governed runtime for AI coding agents. It runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://openai.com/index/introducing-codex/) inside container sandboxes (Docker Engine, OrbStack, Colima, or Docker Desktop) with organization-managed team profiles, a built-in safety engine, and git worktree support.
 
@@ -14,12 +15,34 @@ import DrawioDiagram from '../../../components/DrawioDiagram.astro';
   SCC isolates agent execution in containers, enforces web egress through network topology, runs a fail-closed safety engine, and distributes team configuration through a central org config — developers get standardized setups without manual configuration, regardless of which agent they use.
 </Aside>
 
+<FAQSchema
+  faqs={[
+    {
+      question: 'What problem does SCC solve for teams using AI coding agents?',
+      answer:
+        'SCC gives teams one governed runtime for AI coding agents. It standardizes setup, contains filesystem access in a container, adds network controls, and applies team policy without asking every developer to assemble the same toolchain by hand.',
+    },
+    {
+      question: 'Can SCC run both Claude Code and Codex?',
+      answer:
+        'Yes. SCC supports Claude Code and Codex today. Organizations can allow one provider or both while keeping the same governance model, onboarding flow, and safety baseline.',
+    },
+    {
+      question: 'Is a container alone enough for safe AI coding?',
+      answer:
+        'No. Containers help with filesystem and process isolation, but they do not automatically limit outbound network reach. SCC adds network policies and topology-enforced web egress to reduce that risk.',
+    },
+  ]}
+/>
+
 ## Read This First
 
 You do not need to read every page to start using SCC.
 
 - If you want to **get running fast**, read [Quick Start](/getting-started/quick-start/), then [Core Concepts](/getting-started/core-concepts/), then [Daily Workflow](/guides/developer/daily-workflow/).
 - If you are **evaluating SCC for a team or organization**, read this page, then [Security Model](/architecture/security-model/), then [Architecture Overview](/architecture/overview/).
+- If your main concern is **rolling out AI coding safely across teams**, read [AI Coding Agent Governance](/use-cases/ai-coding-agent-governance/) after this page.
+- If your main concern is **what the agent can reach on your network**, read [Network Controls for AI Coding Agents](/use-cases/network-controls-for-ai-coding-agents/) after this page.
 - If you are **setting policy**, continue from there into the organization and team-leader guides.
 
 ## The Problem SCC Solves
@@ -132,5 +155,11 @@ scc worktree create ~/project feature-auth
   </Card>
   <Card title="Core Concepts" icon="open-book">
     Want to understand more? [Learn the key concepts →](/getting-started/core-concepts/)
+  </Card>
+  <Card title="Security Model" icon="shield">
+    Need the network and isolation details? [Review the security layers →](/architecture/security-model/)
+  </Card>
+  <Card title="Why Sandbox AI Coding Agents" icon="warning">
+    Evaluating the risk model? [See where containers help and where they do not →](/use-cases/why-sandbox-ai-coding-agents/)
   </Card>
 </CardGrid>

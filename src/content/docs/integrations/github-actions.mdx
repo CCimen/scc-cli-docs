@@ -1,6 +1,6 @@
 ---
 title: GitHub Actions Integration
-description: "Run SCC CLI in GitHub Actions: validate configurations, run sandboxed Claude Code sessions, and automate AI coding governance in your CI/CD pipeline."
+description: "Run SCC CLI in GitHub Actions to validate configuration, automate governed AI coding workflows, and launch sandboxed agent sessions in CI/CD."
 ---
 
 import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
@@ -9,7 +9,7 @@ import FAQSchema from '../../../components/FAQSchema.astro';
 <FAQSchema faqs={[
   { question: "Can I run SCC in GitHub Actions?", answer: "Yes. SCC supports non-interactive mode for CI environments. Use 'scc setup' with secrets for configuration, then 'scc start --dry-run' to validate or 'scc start' to run sandboxed sessions." },
   { question: "How do I pass SCC credentials in GitHub Actions?", answer: "Store your org config source and auth token as GitHub secrets (SCC_ORG_SOURCE, SCC_ORG_TOKEN). Pass them to 'scc setup' using the --auth env:SCC_ORG_TOKEN flag." },
-  { question: "Does SCC require Docker in GitHub Actions?", answer: "For validation (--dry-run), Docker is not required. For running actual Claude Code sessions, you need a runner with Docker access (ubuntu-latest has Docker pre-installed)." }
+  { question: "Does SCC require Docker in GitHub Actions?", answer: "For validation (--dry-run), Docker is not required. For running actual sandboxed Claude Code or Codex sessions, you need a runner with Docker access (ubuntu-latest has Docker pre-installed)." }
 ]} />
 
 SCC CLI integrates with GitHub Actions for automated configuration validation and AI coding governance.

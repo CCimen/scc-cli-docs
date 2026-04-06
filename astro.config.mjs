@@ -15,10 +15,16 @@ const structuredData = {
 	name: 'SCC CLI',
 	url: siteUrl,
 	description:
-		'Run Claude Code and Codex safely in container sandboxes with team-managed profiles, network controls, and guardrails',
+		'Governed runtime for AI coding agents such as Claude Code and Codex, with container sandboxes, network controls, team-managed profiles, and safer enterprise rollout',
 	applicationCategory: 'DeveloperApplication',
 	operatingSystem: 'macOS, Windows, Linux',
 	sameAs: socialProfiles,
+	featureList: [
+		'Run Claude Code and Codex in container sandboxes',
+		'Control outbound web access with network policies',
+		'Roll out team-managed configuration from one org config',
+		'Use built-in safety guardrails and worktree-based isolation',
+	],
 };
 
 // https://astro.build/config
@@ -34,7 +40,7 @@ export default defineConfig({
 		starlight({
 			title: 'SCC CLI',
 			description:
-				'Run Claude Code and Codex safely in container sandboxes with team-managed profiles, network controls, and guardrails',
+				'Governed runtime for AI coding agents such as Claude Code and Codex, with container sandboxes, network controls, team-managed profiles, and safer enterprise rollout',
 			logo: {
 				src: './src/assets/scc-logo.svg',
 				replacesTitle: false,
@@ -195,6 +201,14 @@ export default defineConfig({
 						{
 							slug: 'use-cases/why-sandbox-ai-coding-agents',
 							label: 'Why Sandbox AI Coding Agents',
+						},
+						{
+							slug: 'use-cases/ai-coding-agent-governance',
+							label: 'AI Coding Agent Governance',
+						},
+						{
+							slug: 'use-cases/network-controls-for-ai-coding-agents',
+							label: 'Network Controls for AI Coding Agents',
 						},
 						{
 							slug: 'use-cases/run-agents-in-containers',

@@ -1,0 +1,160 @@
+---
+title: AI Coding Agent Governance
+description: Govern Claude Code and Codex across teams with organization config, delegated team profiles, approved plugins, network policy, and simpler onboarding
+---
+
+import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FAQSchema from '../../../components/FAQSchema.astro';
+
+<FAQSchema faqs={[
+  { question: "What does AI coding agent governance mean?", answer: "It means deciding how coding agents are configured, which plugins and MCP servers they may use, what network posture they run with, and how those choices are rolled out across developers and teams." },
+  { question: "Can SCC govern both Claude Code and Codex?", answer: "Yes. SCC supports Claude Code and Codex today. Organizations can allow one provider or both while keeping the same policy model, onboarding flow, and baseline safety controls." },
+  { question: "Why not let every developer set up their own agent locally?", answer: "Local setup is fast for one person, but teams quickly run into drift. Plugins differ, network posture differs, onboarding becomes tribal knowledge, and it is hard to know what is actually enforced. SCC gives teams one rollout path instead." }
+]}/>
+
+Most teams do not struggle with AI coding because the model is weak. They struggle because every developer assembles a different runtime, a different plugin set, and a different safety posture.
+
+SCC gives teams one governed runtime for AI coding agents. It lets organizations standardize the environment, then delegate the right parts of maintenance to team leads without giving up core security boundaries.
+
+## What Governance Actually Covers
+
+Governance is not only about blocking risky behavior. It is also about making day-to-day use predictable.
+
+| Governance Surface | What SCC Controls |
+|--------------------|-------------------|
+| Provider policy | Allow Claude, Codex, or both |
+| Plugin policy | Approve, block, and distribute plugins |
+| MCP access | Control which servers teams may use |
+| Network posture | Set `open`, `web-egress-enforced`, or `locked-down-web` |
+| Team defaults | Give each team its own profile and defaults |
+| Project additions | Let repositories extend within allowed bounds |
+| Onboarding | Give developers one setup flow instead of tribal setup steps |
+
+## Why Teams Need This
+
+Without a shared runtime, teams usually end up with:
+
+- different plugin sets on every machine
+- ad hoc network access and safety settings
+- onboarding that depends on a teammate remembering the right commands
+- no clear boundary between org-level policy and team-level customization
+- more friction when one team prefers Claude and another prefers Codex
+
+SCC addresses those problems with one org config and a delegated profile model.
+
+## How SCC Splits Responsibility
+
+### Organization Admins
+
+Org admins define the hard boundaries:
+
+- blocked plugins
+- blocked MCP servers
+- stdio MCP policy
+- default network posture
+- default team-wide plugins
+
+These are the controls that should not vary from one team to the next.
+
+### Team Leads
+
+Team leads work inside those boundaries:
+
+- choose team-specific plugins
+- choose team-specific MCP servers
+- adjust team defaults
+- maintain team config through inline or federated setup
+
+That lets the people closest to the work shape the developer experience without rewriting the organization security model.
+
+### Developers
+
+Developers should not have to install and tune the full stack by hand.
+
+In the best case, they run:
+
+```bash
+scc setup
+scc
+```
+
+SCC then pulls the team-approved setup into the sandboxed environment and lets them choose the provider that fits the task if both are allowed.
+
+## Governance Without Provider Lock-In
+
+One of SCC's strongest properties is that governance does not have to be rebuilt every time a team changes provider preference.
+
+That matters in real organizations:
+
+- one team may prefer Claude for exploratory UI work
+- another may prefer Codex for backend-heavy work
+- some teams may want both available and decide per session
+
+SCC keeps the same governance model either way. Provider choice changes the adapter and image, not the org rollout model.
+
+<Aside type="tip">
+  If your goal is broad adoption inside an organization, this matters more than model preference alone. Teams can adopt the agent that fits their work without asking the platform team to redesign the whole control plane.
+</Aside>
+
+## What a Good Rollout Looks Like
+
+<CardGrid>
+  <Card title="1. One org config" icon="document">
+    Define the baseline once: providers, plugins, MCP policy, safety settings, and network posture.
+  </Card>
+  <Card title="2. Team-specific profiles" icon="setting">
+    Let each team add only what it needs within org rules.
+  </Card>
+  <Card title="3. Simple developer onboarding" icon="rocket">
+    Developers run `scc setup`, connect allowed providers, and start working.
+  </Card>
+  <Card title="4. Safer day-to-day operation" icon="shield">
+    Sessions run in sandboxes with the same baseline guardrails every time.
+  </Card>
+</CardGrid>
+
+## Where SCC Fits Best
+
+SCC is strongest when you need one or more of these:
+
+- multiple teams adopting AI coding at the same time
+- a platform or security function that wants one rollout model
+- delegated maintenance by team leads
+- support for both Claude Code and Codex without separate governance stacks
+- a controlled baseline for plugins, MCP, and network access
+
+If you are a solo developer, you may not need this level of structure. For teams, it quickly pays for itself.
+
+## Start With These Pages
+
+If this is the problem you are solving, read in this order:
+
+1. [What is SCC?](/getting-started/introduction/)
+2. [Security Model](/architecture/security-model/)
+3. [Organization Admin Overview](/guides/organization/overview/)
+4. [Delegation](/guides/organization/delegation/)
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Organization Admin Overview"
+    href="/guides/organization/overview/"
+    description="Set the baseline security and governance model"
+  />
+  <LinkCard
+    title="Delegation"
+    href="/guides/organization/delegation/"
+    description="Decide what teams can manage on their own"
+  />
+  <LinkCard
+    title="Quick Start"
+    href="/getting-started/quick-start/"
+    description="See what the developer onboarding flow looks like"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Review the enforcement layers behind the rollout model"
+  />
+</CardGrid>
