@@ -1,11 +1,35 @@
 ---
 title: Getting Help
-description: Support resources and filing issues
+description: Support resources, diagnostic commands, and filing issues
 sidebar:
   order: 5
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+## Diagnostic Commands
+
+SCC includes several diagnostic tools:
+
+```bash
+# Full health check (all providers)
+scc doctor
+
+# Check a specific provider
+scc doctor --provider codex
+
+# Inspect recent launch diagnostics
+scc support launch-audit
+
+# Inspect recent safety-check events
+scc support safety-audit
+
+# Check config sources and effective settings
+scc config explain
+
+# Verify plugins
+scc audit plugins
+```
 
 ## Create a Support Bundle
 
@@ -17,9 +41,11 @@ scc support bundle
 
 This creates a zip file with:
 - Configuration (secrets redacted)
-- Recent logs
+- Recent launch audit entries
+- Safety audit entries
 - System information
-- Docker status
+- Container runtime status
+- Provider readiness states
 
 <Aside type="note">
   Sensitive information like tokens and paths is automatically redacted.
@@ -33,18 +59,22 @@ Report bugs or request features:
 
 Include:
 1. SCC version (`scc --version`)
-2. OS and Docker version
-3. What you tried
-4. What happened
-5. Support bundle (if applicable)
+2. OS and container runtime (Docker Engine, OrbStack, Colima, or Docker Desktop)
+3. Provider (Claude Code, Codex, or both)
+4. What you tried
+5. What happened
+6. Support bundle (if applicable)
 
-## Self-Diagnosis
+## Self-Diagnosis Checklist
 
 Before opening an issue:
 
 ```bash
 # Full diagnostic
 scc doctor
+
+# Check a specific provider's readiness
+scc doctor --provider claude
 
 # Check config sources
 scc config explain
@@ -54,10 +84,18 @@ scc audit plugins
 
 # Check team config
 scc team validate <team>
+
+# Inspect launch failures
+scc support launch-audit
+
+# Inspect safety engine events
+scc support safety-audit
 ```
 
 ## Documentation
 
 - [CLI Reference](/reference/cli/overview/)
+- [Provider Commands](/reference/cli/provider/)
 - [Configuration](/reference/configuration/org-schema/)
 - [Governance](/guides/organization/overview/)
+- [Architecture](/architecture/overview/)

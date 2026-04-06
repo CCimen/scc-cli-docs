@@ -213,7 +213,7 @@ Organization-wide defaults applied to all teams.
     "allowed_mcp_servers": ["*"],
     "extra_marketplaces": ["internal"],
     "cache_ttl_hours": 24,
-    "network_policy": "unrestricted",
+    "network_policy": "open",
     "session": {
       "timeout_hours": 12,
       "auto_resume": true
@@ -230,7 +230,7 @@ Organization-wide defaults applied to all teams.
 | `allowed_mcp_servers` | string[] | MCP server patterns allowed by default |
 | `extra_marketplaces` | string[] | Additional marketplace keys to enable by default |
 | `cache_ttl_hours` | number | Cache TTL in hours for org config (1-168, default: 24) |
-| `network_policy` | string | Network posture policy (partial enforcement in v1) |
+| `network_policy` | string | Network egress policy: `open`, `web-egress-enforced`, or `locked-down-web` |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
 | `session.auto_resume` | boolean | Advisory only in v1 (accepted but not enforced) |
@@ -330,14 +330,14 @@ Team profile definitions.
 | `description` | string | Human-readable description |
 | `additional_plugins` | string[] | Plugins for this team |
 | `additional_mcp_servers` | array | MCP servers for this team |
-| `network_policy` | string | Network policy override (`unrestricted`, `corp-proxy-only`, `isolated`) |
+| `network_policy` | string | Network policy override (`open`, `web-egress-enforced`, `locked-down-web`) |
 | `delegation` | object | Project override settings |
 | `session` | object | Session settings |
 | `config_source` | object | External config (federated) |
 | `trust` | object | Trust grants (federated) |
 
 <Aside type="note">
-  Profile-level `network_policy` overrides the org default. It can only be **more restrictive** than the org default (e.g., `unrestricted` → `corp-proxy-only` is allowed, but `isolated` → `unrestricted` is not).
+  Profile-level `network_policy` overrides the org default. It can only be **more restrictive** than the org default (e.g., `open` → `web-egress-enforced` is allowed, but `locked-down-web` → `open` is not).
 </Aside>
 
 ### Trust Grants

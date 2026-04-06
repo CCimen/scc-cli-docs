@@ -1,6 +1,6 @@
 ---
 title: Architecture Overview
-description: "SCC architecture: Docker sandboxing, config inheritance, governance enforcement, and offline operation. How Claude Code isolation works under the hood."
+description: Provider-neutral runtime design, safety engine, and container architecture
 sidebar:
   order: 1
 ---
@@ -8,7 +8,7 @@ sidebar:
 import { Aside } from '@astrojs/starlight/components';
 import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
-SCC provides a secure, sandboxed environment for running Claude Code with organization-managed configurations.
+SCC is a **provider-neutral governed runtime** for AI coding agents. It separates shared infrastructure from provider-specific adapters, so the same governance, safety, and runtime surfaces work regardless of which agent you use.
 
 ## System Components
 
@@ -16,11 +16,143 @@ SCC provides a secure, sandboxed environment for running Claude Code with organi
 
 ## Key Design Principles
 
-1. **Security by Default**: Sandboxed execution, blocked dangerous patterns
-2. **Hierarchical Config**: Org → Team → Project inheritance
-3. **Governance**: Centralized policy with delegated customization
-4. **Offline Capable**: Cached configs for disconnected operation
+1. **Provider-neutral core**: Safety, egress, audit, and config are shared. Provider-specific surfaces (auth, settings format, container image) live in adapters.
+2. **Security by default**: Container isolation, fail-closed safety engine, topology-enforced web egress.
+3. **Hierarchical config**: Org → Team → Project inheritance with immutable security blocks.
+4. **Governance**: Centralized policy with delegated customization.
+5. **Offline capable**: Cached configs for disconnected operation.
 
 <Aside type="note">
   Configuration is fetched once and cached. Daily work doesn't require network access.
 </Aside>
+
+## Provider-Neutral Architecture
+
+SCC's core is provider-agnostic. The `ProviderRuntimeSpec` registry maps each provider to its runtime constants:
+
+| Provider | Image | Config Dir | Settings Path | Data Volume |
+|----------|-------|-----------|---------------|-------------|
+| Claude Code | `scc-agent-claude` | `.claude` | `.claude/settings.json` (home-scoped) | `docker-claude-sandbox-data` |
+| Codex | `scc-agent-codex` | `.codex` | `.codex/config.toml` (workspace-scoped) | `docker-codex-sandbox-data` |
+
+### How Providers Plug In
+
+Each provider implements the `AgentProvider` protocol:
+
+- **Capability metadata** — what the provider supports
+- **Auth check** — verify credential readiness (`auth_check()`)
+- **Launch spec** — provider-specific container configuration
+- **Bootstrap auth** — trigger browser sign-in when credentials are missing
+- **Settings rendering** — produce provider-native config files (`rendered_bytes`, not shared dicts)
+
+The `AgentRunner` protocol handles settings serialization in provider-native format — Claude uses JSON, Codex uses TOML. Renderers produce fragment dicts for caller-owned merge; they never write shared config files directly.
+
+### What's Shared vs Provider-Specific
+
+**Shared core** (every provider benefits):
+- Safety engine (shell tokenizer, git rules, network tool rules)
+- Web egress topology (internal Docker network + Squid proxy sidecar)
+- Durable audit sink (JSONL for launch and safety events)
+- Bundle resolver and renderer pipeline
+- Preflight readiness checks (image + auth)
+- Session management and workspace context
+
+**Provider-specific adapters:**
+- Container image and Dockerfile
+- Auth flow (browser sign-in URL, callback mechanism)
+- Settings serialization format
+- Config directory and scoping (home vs workspace)
+- Credential volume and persistence
+- Agent process argv
+
+### Adding a New Provider
+
+Adding a provider requires:
+1. One `ProviderRuntimeSpec` entry in the registry
+2. One `AgentProvider` adapter implementation
+3. One `AgentRunner` for settings rendering
+4. One Dockerfile in `images/scc-agent-<provider>/`
+
+The core, safety engine, egress, audit, and governance are untouched.
+
+<Aside type="note">
+  Support for additional providers (e.g., OpenCode) is planned. The architecture is designed for this — but Claude Code and Codex are the two currently shipped providers.
+</Aside>
+
+## Container Images
+
+SCC owns a layered image hierarchy:
+
+| Image | Purpose |
+|-------|---------|
+| `scc-base` | Safety wrappers, standalone safety evaluator, shared tooling |
+| `scc-agent-claude` | Claude Code agent (extends scc-base) |
+| `scc-agent-codex` | Codex agent (extends scc-base) |
+| `scc-egress-proxy` | Squid proxy sidecar for `web-egress-enforced` policy |
+
+**Why SCC owns images:** The safety evaluator and shell wrappers must be inside the container to intercept commands. SCC cannot rely on the agent's own plugin system for hard enforcement — wrappers are defense-in-depth that work even if the agent ignores hooks.
+
+**First-run build:** SCC auto-builds the provider image from bundled Dockerfiles on first start. Manual build:
+
+```bash
+docker build -t scc-agent-claude images/scc-agent-claude/
+docker build -t scc-agent-codex images/scc-agent-codex/
+```
+
+## OCI Runtime Path
+
+SCC uses a portable OCI runtime path that works with any Docker-compatible engine:
+
+| Runtime | Status |
+|---------|--------|
+| Docker Engine | ✅ Supported |
+| OrbStack | ✅ Supported |
+| Colima | ✅ Supported |
+| Docker Desktop | ✅ Supported |
+| Podman | 🔄 Planned (not fully validated) |
+
+SCC auto-detects the runtime via `docker info`. The `OciSandboxRuntime` adapter uses standard Docker CLI commands (`docker create`, `docker start`, `docker exec`) — no Docker Desktop-specific APIs.
+
+Each provider gets a persistent named volume for credential and data persistence. Container names are deterministic, derived from the workspace path and provider ID — running Claude and Codex in the same workspace produces separate, identity-isolated containers.
+
+## Safety Engine Architecture
+
+The built-in safety engine is a three-layer system:
+
+1. **Shell tokenizer** (`core/shell_tokenizer.py`) — parses command strings into individual commands, handling pipes, subshells, and compound operators
+2. **Git safety rules** (`core/git_safety_rules.py`) — analyzes git commands for destructive operations (force push, hard reset, branch force delete, etc.)
+3. **Network tool rules** (`core/network_tool_rules.py`) — analyzes network commands (curl, wget, ssh, scp, sftp, rsync)
+
+The engine is orchestrated by `DefaultSafetyEngine` which loads policy from org config (fail-closed: parse failure → default block). Safety verdicts are provider-neutral — both Claude and Codex adapters consume the same engine.
+
+**Runtime wrappers** in `images/scc-base/wrappers/bin/` intercept commands inside the container. Each wrapper calls the standalone `scc_safety_eval` package (stdlib-only, no external dependencies) before forwarding to the real binary.
+
+## Web Egress Topology
+
+When `network_policy` is `web-egress-enforced`:
+
+```
+┌──────────────┐   internal-only    ┌───────────────┐   bridge
+│ agent        │ ─────────────────▶ │ scc-proxy     │ ──────────▶ Internet
+│ container    │   scc-egress-{id}  │ (Squid 3128)  │   (default)
+└──────────────┘                    └───────────────┘
+```
+
+- The agent container is on an internal-only Docker network (no direct external access)
+- The Squid proxy sidecar is dual-homed: internal network + default bridge
+- The proxy enforces an ACL compiled from the team's allowed destinations
+- Even if the agent ignores `HTTP_PROXY` env vars, it physically cannot bypass the proxy
+
+<Aside type="caution">
+  Enforcement is HTTP/HTTPS over IPv4 only in v1. Raw TCP/UDP beyond HTTP(S) is not filtered.
+</Aside>
+
+## Launch Preflight
+
+All five launch paths (start command, wizard, worktree create, dashboard start, dashboard resume) use the same three-function preflight sequence:
+
+1. `resolve_launch_provider()` — determine which provider to use
+2. `collect_launch_readiness()` — check image availability and auth status
+3. `ensure_launch_ready()` — auto-build image or trigger auth bootstrap if needed
+
+This ensures consistent behavior regardless of how you start a session.

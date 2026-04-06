@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Get running with SCC CLI in 30 seconds
+description: Get running with SCC CLI in 30 seconds — connect providers, launch your first sandboxed session
 sidebar:
   order: 3
   badge:
@@ -11,7 +11,7 @@ sidebar:
 import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/components';
 
 <Aside>
-  **Prerequisites:** Python 3.10+, Docker Desktop 4.50+, Git 2.30+. See [Installation](/getting-started/installation/) for details.
+  **Prerequisites:** Python 3.10+, a container runtime (Docker Engine 20.10+, OrbStack, Colima, or Docker Desktop), Git 2.30+. See [Installation](/getting-started/installation/) for details.
 </Aside>
 
 ## 30-Second Setup
@@ -37,52 +37,84 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
      </TabItem>
    </Tabs>
 
-2. **Configure your organization** (if you have an org config URL)
+2. **Configure your organization and connect providers**
 
    ```bash
    scc setup
    ```
 
-   When prompted, paste your organization's config URL. If you don't have one, use `--standalone` mode:
-
-   ```bash
-   scc setup --standalone
-   ```
+   When prompted:
+   - Paste your organization's config URL (or use `--standalone` if you don't have one)
+   - **Connect providers** — authenticate Claude Code, Codex, or both via browser sign-in
+   - **Set provider preference** — choose `ask` (prompt every time), `claude`, or `codex`
 
    <Aside type="tip">
      Private org config? Use a token with `--auth env:SCC_ORG_TOKEN` (or `GITHUB_TOKEN` / `GITLAB_TOKEN`). GitLab URLs use the `PRIVATE-TOKEN` header automatically. See [Config Setup](/guides/organization/config-setup/) for hosting and auth examples.
    </Aside>
 
-3. **Launch Claude Code in your project**
+3. **Launch an agent session in your project**
 
    ```bash
    cd ~/your-project
    scc
    ```
 
-   Or specify the path directly:
+   Or specify the path and provider directly:
 
    ```bash
-   scc start ~/your-project
+   scc start --provider codex ~/your-project
    ```
 </Steps>
 
 <Aside type="tip">
-  If you install plugins inside the container, run `scc profile save` afterward to capture your personal setup. SCC will detect sandbox-only plugin changes and can import them into `.claude/settings.local.json` before saving.
+  The first time you start a session with a provider, SCC automatically builds the container image from bundled Dockerfiles. This takes a few minutes once — subsequent launches use the cached image.
 </Aside>
 
 ## What Happens When You Run `scc`
 
 1. **If no org config exists**, SCC asks whether to run setup or standalone mode
 2. **Auto-detects workspace** from git repository root or `.scc.yaml` location
-3. **If no workspace is detected**, SCC opens the Dashboard so you can start a session
-4. **Shows Quick Resume** (always includes “New session” as the default)
-5. **Prints brief context** (workspace root, entry directory, team) before launching
-6. **Starts Docker container** with your team's configuration
+3. **Resolves provider** — uses `--provider` flag, workspace last-used, global preference, or prompts if multiple providers are available
+4. **Checks readiness** — verifies provider image exists and auth is valid; auto-builds image or triggers browser sign-in if needed
+5. **If on a protected branch** (main/master), shows a speed bump and offers to create a feature branch
+6. **Shows Quick Resume** (always includes "New session" as the default)
+7. **Prints brief context** (workspace root, entry directory, team, provider) before launching
+8. **Starts a sandboxed container** with your team's configuration
 
 <Aside type="tip">
   **Safety guard:** SCC won't auto-launch from suspicious directories (home, `/tmp`). If you try `scc start ~/`, it will prompt for confirmation. In non-interactive mode, pass `--allow-suspicious-workspace` only if you explicitly intend to run there.
 </Aside>
+
+## Managing Providers
+
+```bash
+scc provider show          # Show current preference (ask, claude, or codex)
+scc provider set codex     # Default to Codex
+scc provider set ask       # Prompt every time
+scc start --provider claude  # Override for one session
+```
+
+SCC remembers the last-used provider per workspace — repeated launches default to what you used last time, unless you set a global preference or use `--provider`.
+
+## Session Lifecycle
+
+SCC manages the full lifecycle of agent sessions:
+
+```bash
+scc                        # Smart start (auto-detect, Quick Resume)
+scc start --resume         # Resume most recent session
+scc start --select         # Pick from recent sessions
+scc sessions               # List recent sessions
+scc list                   # List all running SCC containers
+scc stop                   # Stop a sandbox (interactive picker)
+scc stop --all             # Stop all sandboxes
+scc prune                  # Remove stopped containers
+```
+
+**Sandbox conflicts:** If a container already exists for your workspace and provider:
+- **Stale** (stopped) — automatically replaced
+- **Live** (running) — SCC prompts: keep, replace, or cancel
+- Use `scc start --fresh` to always create a new container
 
 ## Keyboard Shortcuts
 
@@ -93,7 +125,7 @@ When in the dashboard:
 | `↑↓` | Navigate list |
 | `Enter` | Open action menu (containers/sessions/worktrees) |
 | `Tab` | Switch to next tab |
-| `Shift+Tab` | Switch to previous tab (if supported) |
+| `Shift+Tab` | Switch to previous tab |
 | `n` | Start new session |
 | `t` | Switch team |
 | `r` | Refresh |
@@ -108,25 +140,38 @@ Run the diagnostic command to ensure everything is configured correctly:
 
 ```bash
 scc doctor
+scc doctor --provider codex   # Check a specific provider
 ```
 
 Expected output:
 ```
-✓ Docker: OK (version 27.0.0)
+✓ Container runtime: OK (docker 27.0.0)
 ✓ Git: OK (version 2.45.0)
 ✓ Python: OK (version 3.12.0)
 ✓ Config: OK
 ✓ Organization: Connected to "My Org"
 ✓ Team: backend
+✓ Claude Code: Launch-ready
+✓ Codex: Auth cache present (image needs building)
 ```
+
+**Provider readiness states:**
+
+| State | Meaning |
+|-------|---------|
+| **Launch-ready** | Auth and image both present — ready to start |
+| **Auth cache present** | Auth exists but image needs building (auto-built on first start) |
+| **Image available** | Image exists but auth is missing |
+| **Sign-in needed** | Neither auth nor image — run `scc setup` |
 
 ## Common First-Time Issues
 
 | Problem | Solution |
 |---------|----------|
-| "Cannot connect to Docker" | Start Docker Desktop and wait for it to initialize |
-| "Docker version too old" | Update to Docker Desktop 4.50+ |
+| "Cannot connect to container runtime" | Start Docker Engine, OrbStack, Colima, or Docker Desktop and wait for it to initialize |
+| "Provider image missing" | SCC auto-builds on first start. Manual: `docker build -t scc-agent-claude images/scc-agent-claude/` |
 | "Organization config fetch failed" | Check your org URL is correct and accessible |
+| "Codex auth callback failed" | Ensure port 1455 is free — Codex uses localhost:1455 for OAuth |
 
 See [Troubleshooting](/troubleshooting/) for more solutions.
 
@@ -134,7 +179,7 @@ See [Troubleshooting](/troubleshooting/) for more solutions.
 
 <CardGrid>
   <Card title="Core Concepts" icon="open-book">
-    Understand sessions, worktrees, and profiles. [Learn more →](/getting-started/core-concepts/)
+    Understand providers, sessions, worktrees, and profiles. [Learn more →](/getting-started/core-concepts/)
   </Card>
   <Card title="Personal Profiles" icon="user">
     Save your personal setup per project and sync across machines. [Read guide →](/guides/developer/personal-profiles/)

@@ -1,0 +1,121 @@
+---
+title: Provider Commands
+description: Manage agent provider selection and preferences
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+## scc provider show
+
+Show the currently selected agent provider preference.
+
+```bash
+scc provider show
+```
+
+**Output:** Prints the current preference — `ask`, `claude`, or `codex`.
+
+- `ask` — SCC prompts every time multiple providers are available
+- `claude` — default to Claude Code
+- `codex` — default to Codex
+
+---
+
+## scc provider set
+
+Set the global provider preference.
+
+```bash
+scc provider set <preference>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `preference` | Provider to set: `ask`, `claude`, or `codex` |
+
+**Examples:**
+
+<Tabs>
+  <TabItem label="Ask every time">
+  ```bash
+  scc provider set ask
+  ```
+  When both providers are connected and you run `scc start`, SCC prompts you to choose.
+  </TabItem>
+  <TabItem label="Prefer Claude">
+  ```bash
+  scc provider set claude
+  ```
+  SCC defaults to Claude Code without prompting.
+  </TabItem>
+  <TabItem label="Prefer Codex">
+  ```bash
+  scc provider set codex
+  ```
+  SCC defaults to Codex without prompting.
+  </TabItem>
+</Tabs>
+
+---
+
+## Provider Resolution
+
+When starting a session, SCC resolves the provider using this precedence:
+
+1. **`--provider` CLI flag** — highest priority, overrides everything
+2. **Workspace last-used** — SCC remembers which provider you used last in each workspace (stored in `.scc/config.local.json`, gitignored)
+3. **Global preference** — the value set by `scc provider set`
+4. **Interactive prompt** — when multiple providers are connected and no preference is set, SCC prompts
+
+```bash
+# Override for a single session
+scc start --provider codex ~/project
+
+# In non-interactive mode, --provider is required when multiple providers are available
+scc start --non-interactive --provider claude ~/project
+```
+
+<Aside type="note">
+  In non-interactive mode (CI/CD), SCC errors if multiple providers are available but no `--provider` flag is given. Always specify `--provider` in automation scripts.
+</Aside>
+
+---
+
+## Provider Readiness
+
+Each provider has independent readiness states:
+
+| State | Meaning |
+|-------|---------|
+| **Launch-ready** | Auth credentials and container image are both present |
+| **Auth cache present** | Auth exists but image needs building (auto-built on first start) |
+| **Image available** | Image exists but auth is missing or expired |
+| **Sign-in needed** | Neither auth nor image — connect via `scc setup` |
+
+Check readiness with:
+
+```bash
+scc doctor                    # Check all providers
+scc doctor --provider codex   # Check a specific provider
+```
+
+---
+
+## Connecting Providers
+
+Providers are connected during `scc setup`:
+
+```bash
+scc setup
+```
+
+During setup, SCC offers to connect both Claude Code and Codex. Each provider authenticates via its own browser sign-in flow:
+
+- **Claude Code** — Anthropic browser sign-in
+- **Codex** — OpenAI browser sign-in (uses localhost:1455 for OAuth callback)
+
+You can connect one or both. Connecting a second provider later is done by re-running `scc setup`.

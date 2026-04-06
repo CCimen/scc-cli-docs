@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: Diagnosing and fixing common issues
+description: Diagnosing and fixing common issues with SCC
 sidebar:
   order: 1
 ---
@@ -13,17 +13,19 @@ Run the diagnostic command:
 
 ```bash
 scc doctor
+scc doctor --provider codex   # Check a specific provider
 ```
 
 This checks:
-- Docker connectivity
+- Container runtime connectivity and version
 - Git availability
 - Configuration validity
-- Network access
-- Plugin status
+- Provider image availability
+- Provider auth readiness (three-tier: launch-ready / auth cache present / image available / sign-in needed)
+- Safety policy health
 
 <Aside type="tip">
-  `scc doctor` should be your first step when troubleshooting any issue.
+  `scc doctor` should be your first step when troubleshooting any issue. For launch-specific failures, also run `scc support launch-audit` to see recent launch diagnostics. For safety-related issues, run `scc support safety-audit`.
 </Aside>
 
 ## Common Problems
@@ -32,8 +34,8 @@ This checks:
   <Card title="Configuration Issues" icon="warning">
     Config not loading, stale settings. [Fix →](/troubleshooting/common-issues/)
   </Card>
-  <Card title="Docker Problems" icon="error">
-    Container won't start, connection errors. [Fix →](/troubleshooting/docker/)
+  <Card title="Container Runtime Problems" icon="error">
+    Container won't start, runtime not detected. [Fix →](/troubleshooting/docker/)
   </Card>
   <Card title="Federation Issues" icon="document">
     Team config not updating. [Fix →](/troubleshooting/federation/)
@@ -57,3 +59,31 @@ This checks:
 | Container stuck | `scc stop --all` |
 | Plugin issues | `scc audit plugins` |
 | Unknown state | `scc doctor` |
+| Provider image missing | `docker build -t scc-agent-<provider> images/scc-agent-<provider>/` |
+| Auth expired | Re-run `scc setup` or start a session (triggers browser sign-in) |
+| Launch failure details | `scc support launch-audit` |
+| Safety audit details | `scc support safety-audit` |
+
+## Provider Readiness Issues
+
+| State | What It Means | Fix |
+|-------|---------------|-----|
+| **Sign-in needed** | No auth or image for this provider | Run `scc setup` to connect |
+| **Image available** | Image built but auth missing/expired | Start a session — SCC triggers browser sign-in |
+| **Auth cache present** | Auth exists but image needs building | Start a session — SCC auto-builds the image |
+| **Launch-ready** | Everything is good | No action needed |
+
+### Codex Auth Callback Issues
+
+Codex uses `localhost:1455` for its OAuth callback. If auth fails:
+- Ensure port 1455 is free (no other process listening)
+- Try closing and reopening the browser
+- If localhost callback fails, Codex may offer device auth as a fallback
+
+## Sandbox Conflict Issues
+
+| Situation | Behavior |
+|-----------|----------|
+| Stale container (stopped) | Automatically replaced on next start |
+| Live container (running) | SCC prompts: keep / replace / cancel |
+| Want a fresh start | Use `scc start --fresh` to force a new container |

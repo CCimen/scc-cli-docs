@@ -1,6 +1,6 @@
 ---
 title: Core Concepts
-description: Understand sessions, sandboxes, profiles, and worktrees in SCC
+description: Understand providers, sessions, sandboxes, profiles, and worktrees in SCC
 sidebar:
   order: 4
 ---
@@ -10,11 +10,35 @@ import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
 Before diving deeper into SCC, it's helpful to understand the key concepts that make it work.
 
+## Providers
+
+A **provider** is an AI coding agent that SCC can run inside a governed sandbox. SCC currently supports two providers:
+
+- **Claude Code** — Anthropic's AI coding CLI
+- **Codex** — OpenAI's AI coding CLI
+
+SCC is provider-neutral: the same org config, team plugins, safety policies, and governance apply regardless of which agent you use. Each provider has its own container image, auth flow, settings format, and credential storage — SCC handles the differences through provider-specific adapters.
+
+```bash
+scc provider show          # See current preference
+scc provider set codex     # Default to Codex
+scc start --provider claude  # Override for one session
+```
+
+**Provider preference resolution:** `--provider` CLI flag > workspace last-used > global preference > prompt (when multiple providers are available).
+
+SCC remembers the last-used provider per workspace in `.scc/config.local.json` (gitignored), so repeated launches default to what you used last time.
+
+<Aside type="note">
+  Claude Code and Codex have different native plugin, rules, and hook surfaces. SCC unifies governance at the approval/bundle level — it does not pretend they share an identical plugin format. Each provider's native configuration is rendered by a provider-specific adapter.
+</Aside>
+
 ## Sessions
 
-A **session** is a running Claude Code environment inside a Docker container. Each session:
+A **session** is a running agent environment inside a container. Each session:
 
 - Is tied to a specific workspace (git repository)
+- Uses a specific provider (Claude Code or Codex)
 - Uses a specific team profile
 - Can be named for easy identification
 - Can be resumed after stopping
@@ -34,17 +58,38 @@ scc start --select
 
 <DrawioDiagram src="/diagrams/session-lifecycle.svg" alt="Session Lifecycle Flow" />
 
+The full operator lifecycle:
+
+```bash
+scc                    # Smart start (auto-detect, Quick Resume)
+scc sessions           # List recent sessions
+scc list               # List running containers
+scc status             # Show current state
+scc stop               # Stop a sandbox (interactive picker)
+scc stop --all         # Stop all sandboxes
+scc prune              # Remove stopped containers
+```
+
+### Sandbox Conflicts
+
+When you start a session and a container already exists for your workspace and provider:
+
+- **Stale sandbox** (stopped) — automatically replaced
+- **Live sandbox** (running) — SCC prompts: keep the existing session, replace it, or cancel
+- **Force new** — use `scc start --fresh` to always create a new container
+
 ## Sandboxes
 
-A **sandbox** is the Docker container that isolates Claude Code from your host system. The sandbox:
+A **sandbox** is the OCI container that isolates the agent from your host system. The sandbox:
 
-- Has access only to mounted directories (your project)
-- Cannot access sensitive files like `~/.ssh` or `~/.aws`
-- Uses your org's network policy as a runtime posture (partial enforcement in v1)
-- Uses a specific base Docker image
+- Has access only to mounted directories (your project workspace)
+- Cannot access sensitive host files like `~/.ssh` or `~/.aws`
+- Uses your org's network policy for egress control
+- Runs a specific provider container image (e.g., `scc-agent-claude` or `scc-agent-codex`)
+- Has a persistent volume for credential and data storage per provider
 
 <Aside type="note">
-  The term "sandbox" and "container" are often used interchangeably in SCC documentation. Technically, a sandbox is a container with specific security configurations.
+  SCC works with Docker Engine, OrbStack, Colima, or Docker Desktop. Docker Desktop is not required. SCC auto-detects the available runtime.
 </Aside>
 
 ## Team Profiles
@@ -53,9 +98,9 @@ A **team profile** defines the configuration for a group of users. Each profile 
 
 | Setting | Description |
 |---------|-------------|
-| `additional_plugins` | Extra plugins enabled for this team (added to org defaults) |
-| `additional_mcp_servers` | MCP servers available to Claude for this team |
-| `network_policy` | Network posture rules (unrestricted, corp-proxy-only, isolated) |
+| `plugins` | Agent plugins enabled for this team |
+| `mcp_servers` | MCP servers available to the agent |
+| `network_policy` | Network egress policy (`open`, `web-egress-enforced`, or `locked-down-web`) |
 | `session` | Timeout settings (auto_resume is advisory in v1) |
 
 Profiles are defined in your organization's config and can be:
@@ -78,7 +123,7 @@ scc team info <team-name>
 
 ## Personal Profiles
 
-A **personal profile** captures your own Claude Code preferences for a specific project. It sits between team config and workspace overrides so you can add your own plugins or MCP servers without changing org or repo settings, while still respecting org security blocks.
+A **personal profile** captures your own agent preferences for a specific project. It sits between team config and workspace overrides so you can add your own plugins or MCP servers without changing org or repo settings, while still respecting org security blocks.
 
 ```bash
 # Save current workspace settings as a personal profile
@@ -104,10 +149,11 @@ A **worktree** is a git feature that lets you check out multiple branches simult
 - Keep your main branch clean
 
 ```bash
-# Create a worktree for a new feature
+# Create a worktree and auto-start an agent session
 scc worktree create ~/project feature-auth
-# Creates: ~/project/.worktrees/feature-auth
-# On branch: scc/feature-auth
+
+# Create without starting a session
+scc worktree create ~/project feature-auth --no-start
 
 # List all worktrees
 scc worktree
@@ -118,6 +164,10 @@ scc worktree enter feature-auth
 # Switch between worktrees
 scc worktree switch feature-auth
 ```
+
+<Aside type="tip">
+  **Protected branch behavior:** When starting a session on `main` or `master`, SCC shows a visual speed bump warning and offers to create a feature branch. If you continue on the protected branch, git push hooks block direct pushes.
+</Aside>
 
 <Aside type="tip">
   Branch names with `/` are sanitized to `-` in worktree directory names. For example, `feature/auth` becomes `feature-auth`.
@@ -133,19 +183,34 @@ Order of precedence:
 
 **Organization → Team → Personal Profile → Workspace overrides**
 
+## Safety Engine
+
+SCC includes a **built-in safety engine** that runs inside every container:
+
+- **Git safety rules** — blocks destructive commands like `push --force`, `reset --hard`, `branch -D`
+- **Network tool interception** — wraps curl, wget, ssh, scp, sftp, rsync with policy checks
+- **Shell tokenizer** — parses compound commands to catch destructive operations in pipes or subshells
+- **Fail-closed** — if safety policy cannot be loaded, all guarded commands are blocked by default
+
+The optional **scc-safety-net** plugin provides additional coverage via agent-native hooks.
+
 ## Plugins
 
-**Plugins** extend Claude Code with additional capabilities. SCC manages plugins through:
+**Plugins** extend the agent with additional capabilities. SCC manages plugins through:
 
 - **Marketplaces**: Repositories of approved plugins
 - **Allowlists**: Patterns defining which plugins are permitted
 - **Blocklists**: Patterns defining which plugins are forbidden
 
-The most important official plugin is **scc-safety-net**, which blocks destructive git commands.
+The most important official plugin is **scc-safety-net**, which provides agent-native hook-based protection in addition to SCC's built-in safety engine.
+
+<Aside type="note">
+  Claude Code and Codex have different native plugin surfaces. SCC unifies plugin governance at the approval/bundle level and renders provider-native configuration through adapters. Plugins are not a one-to-one mapping between providers.
+</Aside>
 
 ## MCP Servers
 
-**MCP (Model Context Protocol) servers** provide Claude with access to external tools and data. Types include:
+**MCP (Model Context Protocol) servers** provide the agent with access to external tools and data. Types include:
 
 | Type | Description | Example |
 |------|-------------|---------|
@@ -161,12 +226,15 @@ The most important official plugin is **scc-safety-net**, which blocks destructi
 
 | Term | Definition |
 |------|------------|
-| **Session** | A running Claude Code environment in a container |
-| **Sandbox** | The Docker container providing isolation |
+| **Provider** | An AI coding agent that SCC can run (Claude Code, Codex) |
+| **Session** | A running agent environment in a container |
+| **Sandbox** | The OCI container providing isolation |
 | **Profile** | Team configuration (plugins, servers, policies) |
 | **Worktree** | Isolated git checkout for parallel development |
+| **Workspace** | The directory mounted into the sandbox |
 | **Marketplace** | Repository of approved plugins |
-| **Safety Net** | Plugin that blocks destructive git commands |
+| **Safety Engine** | SCC's built-in fail-closed command interception system |
+| **Safety Net** | Optional plugin for additional agent-native hook protection |
 
 ## Next Steps
 

@@ -1,32 +1,29 @@
 ---
 title: Glossary
-description: "SCC CLI glossary: sandbox, session, profile, worktree, safety net, federation, and more. All key terms for sandboxed Claude Code explained."
+description: Key terms and concepts in SCC
 sidebar:
   order: 10
 ---
 
 ## Core Concepts
 
-### Claude Code
-Anthropic's AI coding CLI. SCC CLI runs the official Claude Code inside Docker sandboxes with team-managed policies and profiles.
+### Provider
+An AI coding agent that SCC can run inside a governed sandbox. Currently supported: Claude Code (Anthropic) and Codex (OpenAI). The architecture is extensible to additional providers.
 
 ### Session
-A Claude Code work session running inside a Docker container. Sessions persist across restarts and can be resumed with `scc start --resume`.
-
-### Sandboxed Coding CLI
-A CLI that runs AI coding sessions inside an isolated environment (such as Docker) with controlled file, network, and policy access. SCC is a sandboxed coding CLI for Claude Code.
+A running agent environment inside a container. Sessions persist across restarts and can be resumed with `scc start --resume`. Each session is tied to a specific workspace, provider, and team profile.
 
 ### Sandbox
-The Docker container that isolates Claude Code from the host system. Sandboxes provide security through containerization while allowing workspace access.
+The OCI container that isolates the agent from the host system. Sandboxes provide security through containerization while allowing workspace access. Works with Docker Engine, OrbStack, Colima, or Docker Desktop.
 
 ### Profile (Team Profile)
 A configuration set for a specific team. Profiles define plugins, MCP servers, session settings, and delegation rules.
 
 ### Worktree
-A git worktree created for parallel development. Each worktree has its own working directory and can run independent Claude sessions.
+A git worktree created for parallel development. Each worktree has its own working directory and can run independent agent sessions.
 
 ### Workspace
-The directory mounted into the sandbox. Typically a git repository root where Claude Code operates.
+The directory mounted into the sandbox. Typically a git repository root where the agent operates.
 
 ## Configuration
 
@@ -45,10 +42,22 @@ Teams that store their configuration in external repositories, enabling independ
 ### Config Source
 The location of a federated team's configuration (GitHub, GitLab, HTTPS URL).
 
+### Provider Preference
+The global or per-workspace setting that determines which provider SCC uses by default. Values: `ask` (prompt), `claude`, or `codex`. Set with `scc provider set`.
+
 ## Security & Governance
+
+### Safety Engine
+SCC's built-in fail-closed command interception system. Includes a shell tokenizer, git safety rules, and network tool rules. Runs inside every container via shell wrappers. Provider-neutral.
+
+### Safety Net
+The `scc-safety-net` plugin that provides additional protection via agent-native hooks (Claude Code hooks, Codex rules). Complementary to the built-in safety engine.
 
 ### Security Block
 Glob patterns that absolutely prevent usage of certain plugins, MCP servers, or Docker images. Cannot be overridden.
+
+### Network Policy
+Egress control for the agent container. Values: `open` (unrestricted), `web-egress-enforced` (topology-enforced proxy), `locked-down-web` (no network).
 
 ### Delegation
 The system controlling which teams can add resources and whether projects can extend team configurations.
@@ -59,22 +68,30 @@ A time-bounded override for governance controls. Local overrides bypass delegati
 ### Trust Grant
 Permissions given to federated teams, controlling marketplace inheritance and additional marketplace definitions.
 
-### Safety Net
-The `scc-safety-net` plugin that blocks destructive git commands like `push --force` and `reset --hard`.
-
 ## Plugins & Tools
 
 ### Plugin
-An extension that adds capabilities to Claude Code. Installed from marketplaces.
+An extension that adds capabilities to the agent. Installed from marketplaces. Claude Code and Codex have different native plugin surfaces — SCC unifies governance at the approval/bundle level.
 
 ### Marketplace
 A repository containing plugins. Can be official, organization-internal, or team-specific.
 
 ### MCP Server (Model Context Protocol)
-External services that provide context or tools to Claude. Types: HTTP, SSE (Server-Sent Events), or stdio (local process).
+External services that provide context or tools to the agent. Types: HTTP, SSE (Server-Sent Events), or stdio (local process).
 
 ### Stdio MCP
 An MCP server running as a local process. Disabled by default due to elevated privileges.
+
+## Container Runtime
+
+### Container Image
+OCI images owned by SCC: `scc-base` (shared tooling), `scc-agent-claude`, `scc-agent-codex`, `scc-egress-proxy` (Squid proxy sidecar). Auto-built on first use.
+
+### Provider Runtime Spec
+A frozen dataclass mapping each provider to its runtime constants: image ref, config directory, settings path, data volume. Stored in `PROVIDER_REGISTRY`.
+
+### Launch Readiness
+Three-tier status for each provider: **launch-ready** (auth + image), **auth cache present** (auth only), **image available** (image only), **sign-in needed** (neither).
 
 ## Operations
 
@@ -90,6 +107,9 @@ Inspection of installed plugins and their status. Run with `scc audit plugins`.
 ### Prune
 Cleanup of stopped containers or stale worktree entries.
 
+### Support Bundle
+Diagnostic package containing config state, launch audit, and safety audit for troubleshooting. Generated with `scc support bundle`.
+
 ## Technical Terms
 
 ### TTL (Time To Live)
@@ -103,20 +123,3 @@ How long SCC caches remote configurations before re-fetching. Default: 24 hours.
 
 ### Exit Code
 Numeric code returned by commands indicating success or failure type. See [CLI Overview](/reference/cli/overview/).
-
-## AI Development Terms
-
-### AI Code Sandbox
-An isolated environment for running AI coding assistants safely. SCC provides an AI code sandbox using Docker containers, preventing AI from accessing files or systems outside the designated workspace.
-
-### Claude Code Guardrails
-Policy controls that prevent Claude Code from executing dangerous commands or accessing restricted resources. SCC implements guardrails through Docker isolation, Safety Net (git protection), plugin governance, and network policies. See [AI Coding Guardrails](/use-cases/ai-coding-guardrails/).
-
-### Docker Sandbox
-A container-based isolation environment for secure code execution. SCC uses Docker sandboxes to run Claude Code in an isolated environment where the AI can only access mounted directories and approved resources.
-
-### AI Coding Security
-Practices and tools for safe AI-assisted development. Includes isolation (sandboxing), access control (plugin governance), history protection (Safety Net), and configuration management (team profiles). SCC provides comprehensive AI coding security for Claude Code.
-
-### AI Coding Assistant Isolation
-Separating AI coding assistant execution from the host system to limit potential damage. SCC achieves isolation through Docker containers, controlled mounts, and policy enforcement.

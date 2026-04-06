@@ -246,7 +246,7 @@ plugins:
   - scc-safety-net (from: team/backend)
   - code-linter (from: project/.scc.yaml)
 
-network_policy: corp-proxy-only (from: org/defaults)
+network_policy: web-egress-enforced (from: org/defaults)
 ```
 
 ### Check Why Something is Blocked
@@ -277,7 +277,7 @@ The dashboard uses a tab-based interface with four sections:
 | Tab | Description |
 |-----|-------------|
 | **Status** | Quick actions, team info, container count |
-| **Containers** | Running Docker containers with action menus |
+| **Containers** | Running containers with action menus |
 | **Sessions** | Recent Claude sessions for resume |
 | **Worktrees** | Git worktrees with status indicators |
 

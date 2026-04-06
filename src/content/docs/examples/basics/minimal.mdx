@@ -34,7 +34,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
   },
   "defaults": {
     "allowed_plugins": ["*"],
-    "network_policy": "unrestricted"
+    "network_policy": "open"
   },
   "profiles": {
     "default": {
@@ -51,7 +51,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 | Plugins | `allowed_plugins: ["*"]` | All plugins allowed |
 | Security | Minimal blocks | No org-level blocks |
 | Teams | Single `default` profile | Simple, one-size-fits-all |
-| Network | `unrestricted` | No proxy requirements |
+| Network | `open` | No egress restriction |
 
 ## How to Use
 

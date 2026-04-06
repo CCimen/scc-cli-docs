@@ -1,13 +1,13 @@
 ---
 title: CLI Overview
-description: Global options, exit codes, and JSON output format
+description: Global options, exit codes, JSON output format, and command categories
 sidebar:
   order: 1
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Complete command reference for SCC (Sandboxed Claude CLI).
+Complete command reference for SCC (Sandboxed Coding CLI).
 
 ## Global Options
 
@@ -37,7 +37,7 @@ All SCC commands use consistent exit codes:
 ### Using Exit Codes in Scripts
 
 ```bash
-scc start --dry-run --non-interactive --team ci .
+scc start --dry-run --non-interactive --provider claude --team ci .
 exit_code=$?
 
 case $exit_code in
@@ -59,7 +59,7 @@ Commands with `--json` support output a standardized envelope:
   "kind": "CommandName",
   "metadata": {
     "generatedAt": "2025-12-23T10:00:00Z",
-    "cliVersion": "1.6.3"
+    "cliVersion": "1.7.3"
   },
   "status": {
     "ok": true,
@@ -94,6 +94,7 @@ fi
 | Category | Commands | Purpose |
 |----------|----------|---------|
 | [Essential](/reference/cli/essential/) | `setup`, `doctor`, `start`, `stop`, `status` | Core workflow |
+| [Provider](/reference/cli/provider/) | `provider show`, `provider set` | Provider management |
 | [Sessions](/reference/cli/sessions/) | `sessions`, `sessions prune`, `context` | Session management |
 | [Worktree](/reference/cli/worktree/) | `worktree *` | Parallel development |
 | [Team](/reference/cli/team/) | `team *` | Team profiles |
@@ -111,6 +112,7 @@ scc --help
 
 # Command-specific help
 scc start --help
+scc provider set --help
 scc worktree create --help
 
 # Debug mode for troubleshooting

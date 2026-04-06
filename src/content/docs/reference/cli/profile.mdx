@@ -7,7 +7,7 @@ sidebar:
 
 import { Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/components';
 
-Personal profiles let you save and re-apply your own Claude Code settings (plugins, MCP servers) per project. They're stored outside the repo and auto-applied on `scc start`.
+Personal profiles let you save and re-apply your own agent settings (plugins, MCP servers) per project. They're stored outside the repo and auto-applied on `scc start`.
 
 <Aside type="note">
   When SCC applies a profile, it enforces org security blocks and stdio MCP gating. Manual edits
@@ -277,7 +277,7 @@ Profiles are stored in your user config directory:
 
 Each profile contains:
 - `repo_id` — Identifier for the workspace (git remote or path)
-- `settings` — Claude Code settings (plugins, etc.)
+- `settings` — Agent settings (plugins, etc.)
 - `mcp` — MCP server configurations
 - `saved_at` — Timestamp of last save
 
