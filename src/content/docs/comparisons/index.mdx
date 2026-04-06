@@ -1,53 +1,55 @@
 ---
 title: Comparisons
-description: Compare SCC CLI's sandboxed approach to other ways of running Claude Code. Understand the tradeoffs for security, team management, and developer experience.
+description: Compare SCC CLI's sandboxed approach to other ways of running AI coding agents. Understand the tradeoffs for security, team management, and developer experience.
 sidebar:
   order: 1
 ---
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-SCC CLI takes a specific approach to running Claude Code: Docker-based sandboxing with centralized team governance. This section compares that approach to other common setups.
+SCC CLI takes a specific approach to running AI coding agents: container-based sandboxing with centralized team governance. This section compares that approach to other common setups.
 
 ## Comparison Guides
 
 <CardGrid>
   <LinkCard
-    title="SCC vs Local Claude Code"
+    title="SCC vs Local Agent"
     href="/comparisons/scc-vs-local-claude-code/"
-    description="Compare sandboxed execution to running Claude Code directly on your machine"
+    description="Compare sandboxed execution to running agents directly on your machine"
   />
   <LinkCard
     title="SCC vs Dev Containers"
     href="/comparisons/scc-vs-dev-containers/"
-    description="Compare SCC's Claude-specific governance to generic dev container workflows"
+    description="Compare SCC's agent-specific governance to generic dev container workflows"
   />
   <LinkCard
     title="SCC vs Manual Docker"
     href="/comparisons/scc-vs-docker-manual/"
-    description="Compare SCC's automated setup to manually configuring Docker for Claude Code"
+    description="Compare SCC's automated setup to manually configuring Docker for AI coding agents"
   />
 </CardGrid>
 
 ## What Makes SCC Different
 
-SCC is purpose-built for running Claude Code in teams. It combines:
+SCC is purpose-built for running AI coding agents in teams. It combines:
 
 | Capability | What SCC Provides |
 |------------|-------------------|
-| **Docker Isolation** | Every session runs in a container—AI cannot access host files outside mounted paths |
+| **Container Isolation** | Every session runs in an OCI container — the agent cannot access host files outside mounted paths |
+| **Multi-Provider** | Run Claude Code or Codex through the same governed pipeline; switch per session |
 | **Team Profiles** | Org admins define plugins, MCP servers, and policies; developers run `scc setup` once |
+| **Built-in Safety** | Fail-closed safety engine blocks destructive git commands and network tools |
+| **Network Enforcement** | Topology-enforced web egress via proxy sidecar, not just env vars |
 | **Git Worktrees** | Create isolated branches for each AI task without polluting main |
-| **Safety Net** | Block destructive git commands like `push --force` and `reset --hard` |
-| **Plugin Governance** | Approve or block plugins at the org level; teams cannot override security blocks |
+| **Plugin Governance** | Approve or block plugins at the org level; security blocks are absolute |
 
 ## Which Approach Fits Your Needs?
 
 | If you need... | Consider |
 |----------------|----------|
 | Maximum isolation and team governance | SCC CLI |
-| Simple local development (solo) | Local Claude Code |
-| Containerized IDE experience | Dev Containers + SCC or local Claude Code |
+| Simple local development (solo) | Local agent (Claude Code or Codex directly) |
+| Containerized IDE experience | Dev Containers + SCC or local agent |
 | Full control over Docker configuration | Manual Docker setup |
 
 ## Next Steps

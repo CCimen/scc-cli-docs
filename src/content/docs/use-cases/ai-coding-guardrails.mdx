@@ -8,11 +8,11 @@ import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
   { question: "What are AI coding guardrails?", answer: "AI coding guardrails are controls that limit what AI coding assistants can do. Examples include blocking destructive git commands, restricting plugin installation, controlling network access, and enforcing team-wide configuration standards." },
-  { question: "How does SCC implement guardrails for Claude Code?", answer: "SCC implements guardrails through: Docker isolation (filesystem boundaries), Safety Net plugin (blocks git push --force, reset --hard, etc.), plugin governance (org-approved plugins only), and team profiles (consistent configuration)." },
+  { question: "How does SCC implement guardrails for AI coding agents?", answer: "SCC implements guardrails through: container isolation (filesystem boundaries), a built-in fail-closed safety engine (blocks destructive git commands and network tools), plugin governance (org-approved plugins only), topology-enforced network egress, and team profiles (consistent configuration)." },
   { question: "Can developers bypass SCC guardrails?", answer: "Security blocks at the organization level cannot be bypassed. Team and project-level configurations respect org boundaries. Exceptions require explicit approval with time limits and audit trails." }
 ]} />
 
-AI coding assistants are powerful tools, but power needs boundaries. Guardrails help teams adopt AI safely by limiting potential damage from mistakes or unexpected behavior.
+AI coding agents are powerful tools, but power needs boundaries. Guardrails help teams adopt AI safely — whether they use Claude Code, Codex, or both — by limiting potential damage from mistakes or unexpected behavior.
 
 ## What Are Guardrails?
 
@@ -28,9 +28,9 @@ Guardrails are controls that constrain what AI coding assistants can do:
 
 ## SCC's Guardrail Layers
 
-### Layer 1: Docker Isolation
+### Layer 1: Container Isolation
 
-Every Claude Code session runs in a container:
+Every agent session runs in an OCI container:
 
 - AI sees only mounted directories
 - Host filesystem is inaccessible
@@ -42,9 +42,9 @@ scc start ~/project
 # Cannot reach ~/.ssh, ~/.aws, other directories
 ```
 
-### Layer 2: Safety Net Plugin
+### Layer 2: Built-in Safety Engine
 
-The `scc-safety-net` plugin blocks dangerous git commands:
+SCC's core safety engine blocks dangerous commands inside every container (fail-closed):
 
 | Blocked | Why |
 |---------|-----|
@@ -52,6 +52,8 @@ The `scc-safety-net` plugin blocks dangerous git commands:
 | `git reset --hard` | Discards uncommitted changes |
 | `git branch -D` | Force-deletes branches |
 | `git clean -fd` | Deletes untracked files |
+
+The optional **scc-safety-net** plugin adds agent-native hook coverage on top (currently Claude Code; Codex support planned):
 
 Installation is automatic with most org configurations:
 
@@ -65,7 +67,7 @@ Installation is automatic with most org configurations:
 
 ### Layer 3: Plugin Governance
 
-Organizations control which plugins are allowed:
+Organizations control which plugins are allowed across all providers:
 
 ```json
 {
@@ -90,18 +92,18 @@ Organizations control which plugins are allowed:
 
 ### Layer 4: Network Policies
 
-Control what external connections Claude Code can make:
+Control what external connections the agent can make:
 
 ```json
 {
   "defaults": {
-    "network_policy": "isolated"
+    "network_policy": "locked-down-web"
   }
 }
 ```
 
 <Aside type="note">
-  Network policy enforcement is partial in v1. SCC validates policy and warns, but full enforcement depends on Docker network configuration.
+  `web-egress-enforced` uses real network topology enforcement: the agent container runs on an internal-only Docker network with a Squid proxy sidecar as the sole gateway. `locked-down-web` uses `--network=none`. Enforcement is HTTP/HTTPS over IPv4 in v1; raw TCP/UDP is not filtered.
 </Aside>
 
 ### Layer 5: Team Profiles
@@ -172,7 +174,7 @@ Add team-specific settings:
     "security-team": {
       "description": "Stricter controls for security work",
       "additional_plugins": [],
-      "network_policy": "isolated"
+      "network_policy": "locked-down-web"
     }
   }
 }

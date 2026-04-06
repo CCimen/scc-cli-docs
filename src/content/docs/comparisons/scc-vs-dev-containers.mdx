@@ -1,6 +1,6 @@
 ---
 title: "SCC vs Dev Containers"
-description: "Compare SCC's Claude Code-specific sandboxing to generic dev container workflows. Learn when each approach fits your team's needs."
+description: "Compare SCC's agent-specific sandboxing to generic dev container workflows. Learn when each approach fits your team's needs."
 ---
 
 import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
@@ -8,17 +8,17 @@ import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
   { question: "Can I use SCC inside a dev container?", answer: "Yes. SCC requires Docker access, so your dev container needs Docker-in-Docker or access to the host Docker socket. SCC then creates its own containers for Claude Code sessions." },
-  { question: "What does SCC provide that dev containers don't?", answer: "SCC adds Claude Code-specific features: Safety Net (blocks destructive git commands), plugin governance (org-approved plugins only), team profiles (consistent configs), and git worktree management. Dev containers provide general containerized development environments." },
-  { question: "Should I use dev containers or SCC for AI coding?", answer: "They solve different problems. Dev containers standardize your development environment. SCC governs how Claude Code runs within that environment. Many teams use both together." }
+  { question: "What does SCC provide that dev containers don't?", answer: "SCC adds AI agent-specific features: built-in safety engine (blocks destructive git commands), plugin governance (org-approved plugins only), team profiles (consistent configs), multi-provider support (Claude Code, Codex), and git worktree management. Dev containers provide general containerized development environments." },
+  { question: "Should I use dev containers or SCC for AI coding?", answer: "They solve different problems. Dev containers standardize your development environment. SCC governs how AI coding agents run within that environment. Many teams use both together." }
 ]} />
 
-This guide compares SCC's purpose-built Claude Code sandboxing to using generic dev containers for AI-assisted development.
+This guide compares SCC's purpose-built AI agent sandboxing to using generic dev containers for AI-assisted development.
 
 ## Different Goals
 
 **Dev Containers** standardize your entire development environment—language runtimes, tools, extensions, and settings—in a reproducible container.
 
-**SCC** specifically governs how Claude Code runs: isolation, plugin control, git safety, and team policies. It focuses on the AI coding assistant, not your full dev environment.
+**SCC** specifically governs how AI coding agents (Claude Code, Codex) run: container isolation, built-in safety engine, plugin control, network enforcement, and team policies. It focuses on the AI agent, not your full dev environment.
 
 ## Quick Comparison
 

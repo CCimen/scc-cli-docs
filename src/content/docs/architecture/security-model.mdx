@@ -30,11 +30,11 @@ The engine runs via **shell wrappers** installed in `scc-base`. Each wrapper cal
 
 | Surface | Built-in Safety Engine | scc-safety-net Plugin |
 |---------|----------------------|----------------------|
-| Enforcement | Shell wrappers (defense-in-depth) | Agent-native hooks (Claude hooks, Codex rules) |
+| Enforcement | Shell wrappers (defense-in-depth) | Agent-native hooks |
 | Bypass resistance | Agent cannot bypass — wrappers intercept at the OS level | Agent could bypass if hooks are disabled |
 | Coverage | Git commands, network tools | Git commands (broader pattern matching) |
 | Policy source | Org config `security.safety_net` | Same org config |
-| Provider support | All providers (provider-neutral) | Claude Code (hooks), Codex (rules) |
+| Provider support | All providers (provider-neutral) | Claude Code today (Codex support planned) |
 
 **Use both:** The built-in engine provides hard enforcement. The plugin provides additional coverage via agent-native surfaces. They are complementary, not redundant.
 
