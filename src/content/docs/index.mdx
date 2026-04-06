@@ -1,10 +1,10 @@
 ---
 title: SCC CLI
-description: Run AI coding agents safely in container sandboxes with team-managed profiles and guardrails
+description: Documentation for running Claude Code and Codex in governed container sandboxes with network controls, team-managed profiles, and safer enterprise rollout
 template: splash
 hero:
   title: SCC CLI
-  tagline: Run AI coding agents (Claude Code, Codex) safely inside containers, with team-managed profiles and guardrails
+  tagline: Run Claude Code and Codex in governed container sandboxes with network controls, team-managed profiles, and built-in guardrails
   image:
     file: ../../assets/scc-logo.svg
   actions:
@@ -19,6 +19,27 @@ hero:
 ---
 
 import { Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQSchema from '../../components/FAQSchema.astro';
+
+<FAQSchema
+  faqs={[
+    {
+      question: 'What is SCC CLI?',
+      answer:
+        'SCC CLI is a governed runtime for AI coding agents such as Claude Code and Codex. It runs them inside container sandboxes with team-managed configuration, network controls, and built-in guardrails.',
+    },
+    {
+      question: 'Does running an agent in a container automatically protect my network?',
+      answer:
+        'No. A container protects the host filesystem boundary, but it does not automatically stop outbound network access. SCC adds network policies such as web-egress-enforced and locked-down-web for that.',
+    },
+    {
+      question: 'Can a team use both Claude Code and Codex with SCC?',
+      answer:
+        'Yes. Organizations can allow Claude, Codex, or both. Teams keep the same governance and network controls while developers choose the provider that fits the task.',
+    },
+  ]}
+/>
 
 ## Start Here
 
@@ -71,6 +92,43 @@ If you are evaluating SCC rather than using it day to day, start with [What is S
   />
 </CardGrid>
 
+## Popular Topics
+
+These pages answer the questions that usually bring new readers to SCC in the first place.
+
+<CardGrid>
+  <LinkCard
+    title="Why sandbox AI coding agents?"
+    href="/use-cases/why-sandbox-ai-coding-agents/"
+    description="Understand the real risks, where containers help, and where network controls matter"
+  />
+  <LinkCard
+    title="AI coding agent governance"
+    href="/use-cases/ai-coding-agent-governance/"
+    description="See how organizations roll out Claude, Codex, or both without losing control"
+  />
+  <LinkCard
+    title="Network controls for AI coding agents"
+    href="/use-cases/network-controls-for-ai-coding-agents/"
+    description="Understand why container isolation is not enough on its own"
+  />
+  <LinkCard
+    title="How SCC handles network access"
+    href="/architecture/security-model/"
+    description="See how open, web-egress-enforced, and locked-down-web differ in practice"
+  />
+  <LinkCard
+    title="Run agents in containers"
+    href="/use-cases/run-agents-in-containers/"
+    description="Understand the container model, first-run image builds, and runtime choices"
+  />
+  <LinkCard
+    title="Compare SCC with local agent use"
+    href="/comparisons/scc-vs-local-agent/"
+    description="See the tradeoffs between local convenience and governed team rollout"
+  />
+</CardGrid>
+
 ## Why SCC?
 
 <CardGrid stagger>
@@ -90,6 +148,8 @@ If you are evaluating SCC rather than using it day to day, start with [What is S
     Fail-closed wrappers block destructive git commands and intercept network tools inside every container, even if an agent-native plugin is missing or disabled.
   </Card>
 </CardGrid>
+
+If the main concern is what an agent can reach on your network, start with [Security Model](/architecture/security-model/) or [Why Sandbox AI Coding Agents](/use-cases/why-sandbox-ai-coding-agents/). Containers help, but they are not the whole boundary.
 
 ## Quick Start
 

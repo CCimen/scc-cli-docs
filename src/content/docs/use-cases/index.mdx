@@ -18,6 +18,16 @@ SCC CLI addresses specific challenges teams face when adopting AI coding agents.
     description="Understand the risks of unrestricted AI execution and how sandboxing mitigates them"
   />
   <LinkCard
+    title="AI Coding Agent Governance"
+    href="/use-cases/ai-coding-agent-governance/"
+    description="See how organizations roll out Claude, Codex, or both with delegated team ownership"
+  />
+  <LinkCard
+    title="Network Controls for AI Coding Agents"
+    href="/use-cases/network-controls-for-ai-coding-agents/"
+    description="Understand why containers are not enough and how SCC controls outbound reach"
+  />
+  <LinkCard
     title="Run Agents in Containers"
     href="/use-cases/run-agents-in-containers/"
     description="Run Claude, Codex, or both in container sandboxes for isolation and reproducibility"
@@ -36,7 +46,7 @@ Organizations adopting AI coding agents across multiple teams need:
 - Consistent configurations (team profiles across providers)
 - Security policies (plugin governance, network control)
 - Provider management (Claude Code, Codex, or both)
-- Audit capability (config explain, dry-run, launch-audit)
+- Diagnostics and audit surfaces (`scc config explain`, dry runs, `scc support launch-audit`)
 
 ### Security-Conscious Development
 Teams working with sensitive code want:
@@ -64,5 +74,10 @@ Developers running multiple AI experiments need:
     title="Core Concepts"
     href="/getting-started/core-concepts/"
     description="Understand providers, sessions, and safety"
+  />
+  <LinkCard
+    title="Security Model"
+    href="/architecture/security-model/"
+    description="Understand the network and isolation layers behind the use cases"
   />
 </CardGrid>
