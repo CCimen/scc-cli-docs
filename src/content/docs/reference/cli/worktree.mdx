@@ -67,7 +67,7 @@ scc worktree create <WORKSPACE> <NAME> [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-b`, `--base BRANCH` | Base branch (default: current) |
-| `--start` / `--no-start` | Start Claude after creating (default: `--start`) |
+| `--start` / `--no-start` | Start an agent session after creating the worktree (default: `--start`) |
 | `--install-deps` | Install dependencies after creating |
 
 **Examples:**
@@ -79,7 +79,7 @@ scc worktree create ~/project feature-auth
 # Create from specific branch
 scc worktree create ~/project bugfix-123 --base main
 
-# Create without starting Claude
+# Create without starting a session
 scc worktree create ~/project experiment --no-start
 ```
 

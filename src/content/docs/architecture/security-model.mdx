@@ -15,6 +15,8 @@ import { Aside } from '@astrojs/starlight/components';
 4. **Plugin Governance**: Only org-approved plugins execute
 5. **Git Protection**: Protected branch speed bumps and push-blocking hooks
 
+Container isolation is only one layer. A normal container can still make outbound network calls unless you control the network topology too. SCC documents these boundaries separately on purpose: filesystem/process isolation comes from the container; egress control comes from the network policy and proxy topology.
+
 ## Built-in Safety Engine
 
 SCC includes a provider-neutral safety engine that runs inside every container:
@@ -36,7 +38,7 @@ The engine runs via **shell wrappers** installed in `scc-base`. Each wrapper cal
 | Policy source | Org config `security.safety_net` | Same org config |
 | Provider support | All providers (provider-neutral) | Claude Code today (Codex support planned) |
 
-**Use both:** The built-in engine provides hard enforcement. The plugin provides additional coverage via agent-native surfaces. They are complementary, not redundant.
+**Use both when available:** The built-in engine provides cross-provider hard enforcement. The plugin provides additional coverage via agent-native surfaces where supported. They are complementary, not redundant.
 
 ## Network Policy Enforcement
 
@@ -50,6 +52,7 @@ Topology-based isolation with a Squid proxy sidecar:
 - Agent container runs on an internal-only Docker network (no direct external access)
 - Squid proxy sidecar is dual-homed: internal network + default bridge
 - Proxy enforces an ACL compiled from the team's allowed destinations
+- Default deny rules block IP literals, loopback, private CIDRs, link-local ranges, and cloud metadata endpoints before any allow rules
 - Even if the agent ignores `HTTP_PROXY` env vars, it physically cannot bypass the proxy
 
 <Aside type="caution">

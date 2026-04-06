@@ -14,7 +14,8 @@ const structuredData = {
 	'@type': 'SoftwareApplication',
 	name: 'SCC CLI',
 	url: siteUrl,
-	description: 'Run AI coding agents safely in container sandboxes with team-managed profiles and guardrails',
+	description:
+		'Run Claude Code and Codex safely in container sandboxes with team-managed profiles, network controls, and guardrails',
 	applicationCategory: 'DeveloperApplication',
 	operatingSystem: 'macOS, Windows, Linux',
 	sameAs: socialProfiles,
@@ -23,10 +24,17 @@ const structuredData = {
 // https://astro.build/config
 export default defineConfig({
 	site: siteUrl,
+	redirects: {
+		'/getting-started/claude-code-sandbox': '/getting-started/sandboxing-ai-coding-agents',
+		'/use-cases/why-sandbox-claude-code': '/use-cases/why-sandbox-ai-coding-agents',
+		'/use-cases/claude-code-in-docker': '/use-cases/run-agents-in-containers',
+		'/comparisons/scc-vs-local-claude-code': '/comparisons/scc-vs-local-agent',
+	},
 	integrations: [
 		starlight({
 			title: 'SCC CLI',
-			description: 'Run AI coding agents safely in container sandboxes with team-managed profiles and guardrails',
+			description:
+				'Run Claude Code and Codex safely in container sandboxes with team-managed profiles, network controls, and guardrails',
 			logo: {
 				src: './src/assets/scc-logo.svg',
 				replacesTitle: false,
@@ -91,24 +99,37 @@ export default defineConfig({
 				},
 			],
 			sidebar: [
-				// 1. Getting Started - Discovery & orientation
+				// 1. Start Here - shortest successful path for new users
+				{
+					label: 'Start Here',
+					collapsed: false,
+					items: [
+						{
+							slug: 'getting-started/quick-start',
+							badge: { text: 'Start', variant: 'success' },
+						},
+						{ slug: 'getting-started/core-concepts' },
+						{ slug: 'guides/developer/daily-workflow' },
+					],
+				},
+				// 2. Getting Started - orientation and evaluation
 				{
 					label: 'Getting Started',
 					items: [
 						{ slug: 'getting-started/introduction' },
-						{ slug: 'getting-started/claude-code-sandbox', label: 'Why Sandbox Agents?' },
+						{
+							slug: 'getting-started/sandboxing-ai-coding-agents',
+							label: 'Sandboxing AI Coding Agents',
+						},
 						{ slug: 'getting-started/installation' },
-						{ slug: 'getting-started/quick-start', badge: { text: 'Start', variant: 'success' } },
-						{ slug: 'getting-started/core-concepts' },
 					],
 				},
-				// 2. Developer Guide - Most common user type, get productive fast
+				// 3. Developer Guide - Most common user type, get productive fast
 				{
 					label: 'Developer Guide',
 					collapsed: false,
 					items: [
 						{ slug: 'guides/developer/onboarding' },
-						{ slug: 'guides/developer/daily-workflow' },
 						{ slug: 'guides/developer/sessions' },
 						{ slug: 'guides/developer/worktrees' },
 						{ slug: 'guides/developer/project-config' },
@@ -116,7 +137,7 @@ export default defineConfig({
 						{ slug: 'guides/developer/settings-tui' },
 					],
 				},
-				// 3. Plugins - Central feature, needed by devs and team leads
+				// 4. Plugins - Central feature, needed by devs and team leads
 				{
 					label: 'Plugins',
 					collapsed: true,
@@ -126,7 +147,7 @@ export default defineConfig({
 						{ slug: 'plugins/creating' },
 					],
 				},
-				// 4. Team Leader Guide - Configure what developers use
+				// 5. Team Leader Guide - Configure what developers use
 				{
 					label: 'Team Leader Guide',
 					collapsed: true,
@@ -138,7 +159,7 @@ export default defineConfig({
 						{ slug: 'guides/team-leader/ci-automation' },
 					],
 				},
-				// 5. Organization Admin - Highest-level governance
+				// 6. Organization Admin - Highest-level governance
 				{
 					label: 'Organization Admin',
 					collapsed: true,
@@ -152,7 +173,7 @@ export default defineConfig({
 						{ slug: 'guides/organization/exceptions' },
 					],
 				},
-				// 6. Wizard Guides - Config tools for leads/admins (after they know their role)
+				// 7. Wizard Guides - Config tools for leads/admins (after they know their role)
 				{
 					label: 'Wizard Guides',
 					collapsed: true,
@@ -165,29 +186,35 @@ export default defineConfig({
 						{ slug: 'guides/wizard/validate-wizard' },
 					],
 				},
-				// 7. Use Cases - Help evaluators find their scenario
+				// 8. Use Cases - Help evaluators find their scenario
 				{
 					label: 'Use Cases',
 					collapsed: true,
 					items: [
 						{ slug: 'use-cases', label: 'Overview' },
-						{ slug: 'use-cases/why-sandbox-claude-code' },
-						{ slug: 'use-cases/claude-code-in-docker' },
+						{
+							slug: 'use-cases/why-sandbox-ai-coding-agents',
+							label: 'Why Sandbox AI Coding Agents',
+						},
+						{
+							slug: 'use-cases/run-agents-in-containers',
+							label: 'Run Agents in Containers',
+						},
 						{ slug: 'use-cases/ai-coding-guardrails' },
 					],
 				},
-				// 8. Comparisons - Decision support after understanding SCC
+				// 9. Comparisons - Decision support after understanding SCC
 				{
 					label: 'Comparisons',
 					collapsed: true,
 					items: [
 						{ slug: 'comparisons', label: 'Overview' },
-						{ slug: 'comparisons/scc-vs-local-claude-code' },
+						{ slug: 'comparisons/scc-vs-local-agent' },
 						{ slug: 'comparisons/scc-vs-dev-containers' },
 						{ slug: 'comparisons/scc-vs-docker-manual' },
 					],
 				},
-				// 9. Integrations - CI/CD setup (advanced)
+				// 10. Integrations - CI/CD setup (advanced)
 				{
 					label: 'Integrations',
 					collapsed: true,
@@ -197,7 +224,7 @@ export default defineConfig({
 						{ slug: 'integrations/gitlab-ci' },
 					],
 				},
-				// 10. Examples - Reference configs by scenario
+				// 11. Examples - Reference configs by scenario
 				{
 					label: 'Examples',
 					collapsed: true,
@@ -242,7 +269,7 @@ export default defineConfig({
 						},
 					],
 				},
-				// 11. Configuration - Schema references for admins
+				// 12. Configuration - Schema references for admins
 				{
 					label: 'Configuration',
 					collapsed: true,

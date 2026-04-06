@@ -64,14 +64,14 @@ scc provider set <preference>
 
 ## Provider Resolution
 
-When starting a session, SCC resolves the provider using this precedence:
+When starting a session, SCC resolves the provider using this order:
 
 1. **`--provider` CLI flag** — highest priority, overrides everything
 2. **Resume provider** — when resuming a session, the original session's provider is used
-3. **Global preference `ask`** — if you set `scc provider set ask`, SCC skips workspace memory and always prompts when multiple providers are viable
-4. **Workspace last-used** — SCC remembers which provider you used last in each workspace (stored in `.scc/config.local.json`, gitignored). This only applies when the global preference is `claude`, `codex`, or unset — not `ask`.
+3. **Global preference `ask`** — if you set `scc provider set ask`, SCC prompts whenever multiple providers are viable
+4. **Workspace last-used context** — SCC remembers which provider you used last in each workspace (stored in `.scc/config.local.json`, gitignored) and uses that context to preselect a sensible default or reuse the only viable provider
 5. **Global preference** (`claude` or `codex`) — the value set by `scc provider set`
-6. **Interactive prompt** — when multiple providers are connected and no preference resolves, SCC prompts
+6. **Single viable provider** — if only one provider is allowed and ready, SCC uses it automatically
 
 ```bash
 # Override for a single session
@@ -83,6 +83,10 @@ scc start --non-interactive --provider claude ~/project
 
 <Aside type="note">
   In non-interactive mode (CI/CD), SCC errors if multiple providers are available but no `--provider` flag is given. Always specify `--provider` in automation scripts.
+</Aside>
+
+<Aside type="tip">
+  Teams can standardize on Claude, Codex, or both. The provider commands let developers switch quickly without changing the org or team governance model.
 </Aside>
 
 ---

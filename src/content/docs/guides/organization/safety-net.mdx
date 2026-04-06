@@ -24,7 +24,7 @@ The `scc-safety-net` plugin is the most important plugin for organizations. It b
 | `git stash clear` | Deletes all stashes permanently |
 
 <Aside type="danger">
-  These commands can cause irreversible data loss. The safety net prevents Claude from accidentally running them.
+  These commands can cause irreversible data loss. Today the plugin prevents Claude Code from accidentally running them. Codex support is planned; SCC's built-in safety engine already provides cross-provider baseline protection.
 </Aside>
 
 ## Enabling Safety Net
@@ -56,7 +56,7 @@ Or at the team level:
 ```
 
 <Aside type="tip">
-  Always enable `scc-safety-net` for all teams unless you have a specific reason not to.
+  Always enable `scc-safety-net` for Claude Code teams unless you have a specific reason not to. If your organization also uses Codex, keep the plugin enabled where it applies and rely on SCC's built-in safety engine for the cross-provider baseline until Codex plugin support lands.
 </Aside>
 
 ## How It Works

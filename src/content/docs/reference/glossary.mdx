@@ -14,7 +14,7 @@ An AI coding agent that SCC can run inside a governed sandbox. Currently support
 A running agent environment inside a container. Sessions persist across restarts and can be resumed with `scc start --resume`. Each session is tied to a specific workspace, provider, and team profile.
 
 ### Sandbox
-The OCI container that isolates the agent from the host system. Sandboxes provide security through containerization while allowing workspace access. Works with Docker Engine, OrbStack, Colima, or Docker Desktop.
+The OCI container that isolates the agent from the host system. Sandboxes provide filesystem and process isolation while allowing workspace access. Network access is controlled separately through `network_policy`. Works with Docker Engine, OrbStack, Colima, or Docker Desktop.
 
 ### Profile (Team Profile)
 A configuration set for a specific team. Profiles define plugins, MCP servers, session settings, and delegation rules.
@@ -43,7 +43,7 @@ Teams that store their configuration in external repositories, enabling independ
 The location of a federated team's configuration (GitHub, GitLab, HTTPS URL).
 
 ### Provider Preference
-The global or per-workspace setting that determines which provider SCC uses by default. Values: `ask` (prompt), `claude`, or `codex`. Set with `scc provider set`.
+The global or per-workspace setting that determines which provider SCC uses by default. Values: `ask` (prompt), `claude`, or `codex`. When `ask` is active, SCC still prompts if multiple providers are viable and uses workspace context only to preselect a sensible default. Set the global preference with `scc provider set`.
 
 ## Security & Governance
 

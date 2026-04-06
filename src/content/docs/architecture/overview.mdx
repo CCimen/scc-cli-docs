@@ -10,6 +10,10 @@ import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
 SCC is a **provider-neutral governed runtime** for AI coding agents. It separates shared infrastructure from provider-specific adapters, so the same governance, safety, and runtime surfaces work regardless of which agent you use.
 
+<Aside type="caution">
+  Container isolation is only one layer. A normal container can still reach network destinations your runtime allows. SCC treats filesystem/process isolation and outbound egress as separate controls so teams can decide whether a provider should run with open web access, topology-enforced web access, or no network at all.
+</Aside>
+
 ## System Components
 
 <DrawioDiagram src="/diagrams/system-components2.svg" alt="SCC Architecture Overview" />
@@ -34,6 +38,8 @@ SCC's core is provider-agnostic. The `ProviderRuntimeSpec` registry maps each pr
 |----------|-------|-----------|---------------|-------------|
 | Claude Code | `scc-agent-claude` | `.claude` | `.claude/settings.json` (home-scoped) | `docker-claude-sandbox-data` |
 | Codex | `scc-agent-codex` | `.codex` | `.codex/config.toml` (workspace-scoped) | `docker-codex-sandbox-data` |
+
+Organizations can allow one provider, the other, or both. Teams keep the same governance model, safety engine, network policy, and audit surfaces either way. Developers then choose the provider that fits the task, or keep SCC in `ask` mode and decide session by session.
 
 ### How Providers Plug In
 
@@ -95,8 +101,8 @@ SCC owns a layered image hierarchy:
 **First-run build:** SCC auto-builds the provider image from bundled Dockerfiles on first start. Manual build:
 
 ```bash
-docker build -t scc-agent-claude images/scc-agent-claude/
-docker build -t scc-agent-codex images/scc-agent-codex/
+docker build -t scc-agent-claude:latest images/scc-agent-claude/
+docker build -t scc-agent-codex:latest images/scc-agent-codex/
 ```
 
 ## OCI Runtime Path

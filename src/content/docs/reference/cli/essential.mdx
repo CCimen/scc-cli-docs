@@ -9,7 +9,7 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 ## scc setup
 
-Configure SCC with your organization settings.
+Configure SCC's org connection, connect Claude and/or Codex, and set your default startup behavior.
 
 ```bash
 scc setup [OPTIONS]
@@ -52,6 +52,10 @@ scc setup [OPTIONS]
 
 <Aside type="tip">
   Private org config? Use `--auth env:SCC_ORG_TOKEN` (or `GITHUB_TOKEN` / `GITLAB_TOKEN`). SCC uses `Authorization: Bearer` by default and `PRIVATE-TOKEN` for GitLab URLs.
+</Aside>
+
+<Aside type="note">
+  `scc setup` is where most developers connect providers for the first time. You can connect Claude, Codex, or both, then choose whether SCC should ask every time or prefer one provider by default.
 </Aside>
 
 ---
@@ -237,6 +241,10 @@ scc start [WORKSPACE] [OPTIONS]
   </TabItem>
 </Tabs>
 
+<Aside type="note">
+  If your organization allows both Claude and Codex, `scc start` follows your saved preference. When that preference is `ask`, SCC still prompts before launch and uses workspace context only to preselect a sensible default. If the chosen provider image or auth cache is missing, SCC auto-builds or starts the browser sign-in flow before launching.
+</Aside>
+
 **Keyboard shortcuts in interactive mode:**
 
 | Key | Action |
@@ -277,7 +285,7 @@ scc stop [CONTAINER] [OPTIONS]
 scc stop
 
 # Stop specific container
-scc stop claude-my-project-abc123
+scc stop scc-oci-b07ada0ef812
 
 # Stop all sandboxes
 scc stop --all

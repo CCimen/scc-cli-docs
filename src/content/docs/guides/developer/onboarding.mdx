@@ -24,7 +24,7 @@ When you run `scc setup` and select your team profile, you automatically receive
     Organization security policies applied automatically—no action needed.
   </Card>
   <Card title="Command Guardrails" icon="warning">
-    Safety-net protection against destructive git commands (if enabled).
+    Built-in command guardrails for destructive git and network tools, plus optional safety-net plugin coverage where supported.
   </Card>
 </CardGrid>
 
@@ -106,7 +106,7 @@ To see what your team profile includes:
 
 ```bash
 # List teams
-scc team
+scc team list
 
 # Show current team settings
 scc team info <team-name>
@@ -125,7 +125,7 @@ If you work on multiple teams:
 
 ```bash
 # List available teams
-scc team
+scc team list
 
 # Switch to a different team interactively
 scc team switch

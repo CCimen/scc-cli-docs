@@ -43,8 +43,8 @@ SCC auto-builds provider images on first use. If the build failed or the image w
 docker images | grep scc-agent
 
 # Manually build the missing image
-docker build -t scc-agent-claude images/scc-agent-claude/
-docker build -t scc-agent-codex images/scc-agent-codex/
+docker build -t scc-agent-claude:latest images/scc-agent-claude/
+docker build -t scc-agent-codex:latest images/scc-agent-codex/
 ```
 
 `scc doctor --provider claude` (or `--provider codex`) shows the exact build command if the image is missing.
@@ -116,7 +116,7 @@ Codex uses `localhost:1455` for its OAuth callback. If auth fails:
 | **Launch-ready** | Auth + image present | Ready to go |
 | **Auth cache present** | Auth OK, image missing | SCC auto-builds on start |
 | **Image available** | Image OK, auth missing | SCC triggers sign-in on start |
-| **Sign-in needed** | Nothing present | Run `scc setup` |
+| **Sign-in needed** | Nothing present | Run `scc setup` or start a session and let SCC bootstrap auth |
 
 ## Network Policy Issues
 

@@ -14,6 +14,10 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
   **Prerequisites:** Python 3.10+, a container runtime (Docker Engine 20.10+, OrbStack, Colima, or Docker Desktop), Git 2.30+. See [Installation](/getting-started/installation/) for details.
 </Aside>
 
+<Aside type="tip">
+  If you only read three pages, make it these: this page, [Core Concepts](/getting-started/core-concepts/), and [Daily Workflow](/guides/developer/daily-workflow/). That is enough for most developers to install SCC, understand the model, and use it day to day.
+</Aside>
+
 ## 30-Second Setup
 
 <Steps>
@@ -47,6 +51,7 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
    - Paste your organization's config URL (or use `--standalone` if you don't have one)
    - **Connect providers** — authenticate Claude Code, Codex, or both via browser sign-in
    - **Set provider preference** — choose `ask` (prompt every time), `claude`, or `codex`
+   - If your org allows both providers, choose the one that best fits the task or keep both available
 
    <Aside type="tip">
      Private org config? Use a token with `--auth env:SCC_ORG_TOKEN` (or `GITHUB_TOKEN` / `GITLAB_TOKEN`). GitLab URLs use the `PRIVATE-TOKEN` header automatically. See [Config Setup](/guides/organization/config-setup/) for hosting and auth examples.
@@ -74,8 +79,8 @@ import { Steps, Tabs, TabItem, Aside, Card, CardGrid } from '@astrojs/starlight/
 
 1. **If no org config exists**, SCC asks whether to run setup or standalone mode
 2. **Auto-detects workspace** from git repository root or `.scc.yaml` location
-3. **Resolves provider** — uses `--provider` flag, workspace last-used, global preference, or prompts if multiple providers are available
-4. **Checks readiness** — verifies provider image exists and auth is valid; auto-builds image or triggers browser sign-in if needed
+3. **Resolves provider** — uses `--provider` first, keeps the original provider when resuming, then applies your saved preference and workspace context before prompting if multiple providers are still viable
+4. **Checks readiness** — verifies provider image availability and provider auth cache; auto-builds the image or triggers browser sign-in if needed
 5. **If on a protected branch** (main/master), shows a speed bump and offers to create a feature branch
 6. **Shows Quick Resume** (always includes "New session" as the default)
 7. **Prints brief context** (workspace root, entry directory, team, provider) before launching
@@ -95,6 +100,8 @@ scc start --provider claude  # Override for one session
 ```
 
 SCC remembers the last-used provider per workspace — repeated launches default to what you used last time, unless you set a global preference or use `--provider`.
+
+If you set `scc provider set ask`, SCC still prompts when both providers are viable. It uses workspace context to preselect a sensible default so switching stays quick without silently forcing a provider.
 
 ## Session Lifecycle
 
@@ -164,12 +171,16 @@ Expected output:
 | **Image available** | Image exists but auth is missing |
 | **Sign-in needed** | Neither auth nor image — run `scc setup` |
 
+<Aside type="caution">
+  A container alone does not limit outbound network access. If your team is worried about agents reaching internal or external services, use `web-egress-enforced` or `locked-down-web` — not just a default container runtime.
+</Aside>
+
 ## Common First-Time Issues
 
 | Problem | Solution |
 |---------|----------|
 | "Cannot connect to container runtime" | Start Docker Engine, OrbStack, Colima, or Docker Desktop and wait for it to initialize |
-| "Provider image missing" | SCC auto-builds on first start. Manual: `docker build -t scc-agent-claude images/scc-agent-claude/` |
+| "Provider image missing" | SCC auto-builds on first start. Manual: `docker build -t scc-agent-<provider>:latest images/scc-agent-<provider>/` |
 | "Organization config fetch failed" | Check your org URL is correct and accessible |
 | "Codex auth callback failed" | Ensure port 1455 is free — Codex uses localhost:1455 for OAuth |
 
