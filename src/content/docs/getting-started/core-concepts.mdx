@@ -25,9 +25,15 @@ scc provider set codex     # Default to Codex
 scc start --provider claude  # Override for one session
 ```
 
-**Provider preference resolution:** `--provider` CLI flag > workspace last-used > global preference > prompt (when multiple providers are available).
+**Provider preference resolution:**
+1. `--provider` CLI flag (highest priority)
+2. Resume provider (when resuming a session)
+3. If global preference is `ask` → always prompt (skips workspace memory)
+4. Workspace last-used (from `.scc/config.local.json`, gitignored)
+5. Global preference (`claude` or `codex`)
+6. Interactive prompt (when multiple providers are available)
 
-SCC remembers the last-used provider per workspace in `.scc/config.local.json` (gitignored), so repeated launches default to what you used last time.
+SCC remembers the last-used provider per workspace, so repeated launches default to what you used last time — unless you set `scc provider set ask`, which always prompts.
 
 <Aside type="note">
   Claude Code and Codex have different native plugin, rules, and hook surfaces. SCC unifies governance at the approval/bundle level — it does not pretend they share an identical plugin format. Each provider's native configuration is rendered by a provider-specific adapter.
@@ -192,7 +198,19 @@ SCC includes a **built-in safety engine** that runs inside every container:
 - **Shell tokenizer** — parses compound commands to catch destructive operations in pipes or subshells
 - **Fail-closed** — if safety policy cannot be loaded, all guarded commands are blocked by default
 
-The optional **scc-safety-net** plugin provides additional coverage via agent-native hooks.
+The optional **scc-safety-net** plugin provides additional coverage via agent-native hooks (currently Claude Code; Codex support planned).
+
+## Network Policy
+
+SCC controls what network access the agent has inside the container:
+
+| Policy | Effect |
+|--------|--------|
+| `open` | No restriction — unrestricted egress (default) |
+| `web-egress-enforced` | Topology-enforced proxy: agent runs on an internal-only network and can only reach the internet through a Squid proxy sidecar with an ACL. Even if the agent ignores proxy env vars, it physically cannot bypass the proxy. |
+| `locked-down-web` | `--network=none` — no external network access at all |
+
+Network policy is configured at the org or team level in the org config JSON. See [Security Model](/architecture/security-model/) for details on how topology enforcement works.
 
 ## Plugins
 

@@ -51,7 +51,7 @@ The global or per-workspace setting that determines which provider SCC uses by d
 SCC's built-in fail-closed command interception system. Includes a shell tokenizer, git safety rules, and network tool rules. Runs inside every container via shell wrappers. Provider-neutral.
 
 ### Safety Net
-The `scc-safety-net` plugin that provides additional protection via agent-native hooks (Claude Code hooks, Codex rules). Complementary to the built-in safety engine.
+The `scc-safety-net` plugin that provides additional protection via agent-native hooks. Currently supports Claude Code; Codex support is planned. Complementary to the built-in safety engine.
 
 ### Security Block
 Glob patterns that absolutely prevent usage of certain plugins, MCP servers, or Docker images. Cannot be overridden.

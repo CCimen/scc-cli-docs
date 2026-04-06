@@ -67,9 +67,11 @@ scc provider set <preference>
 When starting a session, SCC resolves the provider using this precedence:
 
 1. **`--provider` CLI flag** — highest priority, overrides everything
-2. **Workspace last-used** — SCC remembers which provider you used last in each workspace (stored in `.scc/config.local.json`, gitignored)
-3. **Global preference** — the value set by `scc provider set`
-4. **Interactive prompt** — when multiple providers are connected and no preference is set, SCC prompts
+2. **Resume provider** — when resuming a session, the original session's provider is used
+3. **Global preference `ask`** — if you set `scc provider set ask`, SCC skips workspace memory and always prompts when multiple providers are viable
+4. **Workspace last-used** — SCC remembers which provider you used last in each workspace (stored in `.scc/config.local.json`, gitignored). This only applies when the global preference is `claude`, `codex`, or unset — not `ask`.
+5. **Global preference** (`claude` or `codex`) — the value set by `scc provider set`
+6. **Interactive prompt** — when multiple providers are connected and no preference resolves, SCC prompts
 
 ```bash
 # Override for a single session

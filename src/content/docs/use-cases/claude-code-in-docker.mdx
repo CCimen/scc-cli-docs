@@ -1,72 +1,36 @@
 ---
-title: Run Claude Code in Docker
-description: "How to run Claude Code in Docker containers using SCC CLI. Get Docker isolation, reproducible environments, and team-managed configurations."
+title: Run AI Coding Agents in Containers
+description: "How to run Claude Code and Codex in container sandboxes using SCC CLI. Container isolation, reproducible environments, and team-managed configurations."
 ---
 
 import { Aside, Card, CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
 import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
-  { question: "How do I run Claude Code in Docker?", answer: "Install SCC CLI with 'uv tool install scc-cli', run 'scc setup' to configure, then 'scc start ~/your-project' to launch Claude Code in a Docker container with your project mounted." },
-  { question: "What Docker version do I need for Claude Code?", answer: "SCC requires Docker Desktop 4.50 or later. Docker Engine must be running. SCC uses Docker's sandbox features for secure isolation." },
-  { question: "Can I run Claude Code in Docker without SCC?", answer: "Yes, you can manually create Docker containers and run Claude Code inside. SCC automates this and adds governance features (team profiles, plugin control, git safety). See our comparison guide for details." }
+  { question: "How do I run AI coding agents in containers?", answer: "Install SCC CLI with 'uv tool install scc-cli', run 'scc setup' to configure and connect providers, then 'scc start ~/your-project' to launch your chosen agent in a container sandbox." },
+  { question: "What container runtime do I need?", answer: "SCC works with Docker Engine 20.10+, OrbStack, Colima, or Docker Desktop. Docker Desktop is not required. SCC auto-detects the available runtime." },
+  { question: "Can I run agents in containers without SCC?", answer: "You can manually create containers and run agents inside. SCC automates this and adds governance features: team profiles, plugin control, a built-in safety engine, provider management, and network topology enforcement." }
 ]} />
 
-Running Claude Code in Docker provides isolation, reproducibility, and team consistency. SCC CLI makes this straightforward.
+Running AI coding agents in containers provides isolation, reproducibility, and team consistency. SCC makes this straightforward for both Claude Code and Codex.
 
-## Why Docker for Claude Code
+## Why Containers for AI Coding
 
 | Benefit | What It Means |
 |---------|---------------|
-| **Isolation** | AI execution separated from host system |
+| **Isolation** | Agent execution separated from host system |
 | **Reproducibility** | Same environment across all team members |
 | **Clean state** | Each session starts fresh (or can resume) |
 | **Controlled access** | Only mounted directories are visible |
+| **Provider choice** | Run Claude Code or Codex through the same governed pipeline |
 
 ## Prerequisites
 
-<Tabs>
-  <TabItem label="macOS">
-  ```bash
-  # Docker Desktop 4.50+
-  brew install --cask docker
+- **Python 3.10+**
+- **Container runtime** — Docker Engine 20.10+, OrbStack, Colima, or Docker Desktop
+- **Git 2.30+**
 
-  # Start Docker Desktop and ensure engine is running
-
-  # Python 3.10+
-  brew install python@3.12
-
-  # Git 2.30+
-  brew install git
-  ```
-  </TabItem>
-  <TabItem label="Windows">
-  ```powershell
-  # Docker Desktop 4.50+
-  winget install Docker.DockerDesktop
-
-  # Start Docker Desktop and ensure engine is running
-
-  # Python 3.10+
-  winget install Python.Python.3.12
-
-  # Git 2.30+
-  winget install Git.Git
-  ```
-  </TabItem>
-  <TabItem label="Linux">
-  ```bash
-  # Docker Engine or Docker Desktop
-  # Follow Docker's official installation guide for your distro
-
-  # Python 3.10+
-  sudo apt install python3.12  # Debian/Ubuntu
-
-  # Git 2.30+
-  sudo apt install git
-  ```
-  </TabItem>
-</Tabs>
+SCC auto-detects the available runtime. Docker Desktop is **not** required.
 
 ## Quick Start
 
@@ -74,24 +38,27 @@ Running Claude Code in Docker provides isolation, reproducibility, and team cons
 # Install SCC CLI
 uv tool install scc-cli
 
-# Configure SCC (one-time setup)
+# Configure and connect providers (one-time)
 scc setup
 
-# Start Claude Code in Docker
+# Start an agent in a container
 scc start ~/your-project
-```
 
-That's it. Claude Code now runs inside a Docker container with your project mounted.
+# Or specify a provider explicitly
+scc start --provider codex ~/your-project
+```
 
 ## How It Works
 
 When you run `scc start`, SCC:
 
-1. **Creates a container** based on configured image
-2. **Mounts your workspace** at a controlled path
-3. **Applies team configuration** (plugins, policies)
-4. **Starts Claude Code** inside the container
-5. **Manages the session** (resume, stop, cleanup)
+1. **Resolves provider** — CLI flag, workspace last-used, global preference, or prompts
+2. **Checks readiness** — verifies container image and auth (auto-builds image on first run)
+3. **Creates a container** from the provider-specific image (e.g., `scc-agent-claude` or `scc-agent-codex`)
+4. **Mounts your workspace** at a controlled path
+5. **Applies team configuration** — plugins, MCP servers, network policy, safety policy
+6. **Starts the agent** inside the container
+7. **Manages the session** — resume, stop, cleanup
 
 ```
 ┌─────────────────────────────────────┐
@@ -101,134 +68,79 @@ When you run `scc start`, SCC:
 │       │                             │
 │       ▼ (mounted read-write)        │
 │  ┌─────────────────────────────┐    │
-│  │     Docker Container        │    │
+│  │    Container Sandbox        │    │
 │  │  /workspace/your-project    │    │
 │  │                             │    │
-│  │  Claude Code runs here      │    │
+│  │  Agent (Claude/Codex)       │    │
 │  │  + Team plugins             │    │
-│  │  + Safety Net               │    │
-│  │  + Network policies         │    │
+│  │  + Built-in safety engine   │    │
+│  │  + Network policy           │    │
 │  └─────────────────────────────┘    │
 └─────────────────────────────────────┘
 ```
 
-## Configuration Options
+## Container Images
 
-### Workspace Mounting
+SCC owns provider-specific images built from bundled Dockerfiles:
 
-By default, SCC mounts the directory you specify:
+| Image | Purpose |
+|-------|---------|
+| `scc-base` | Shared base with safety wrappers and evaluator |
+| `scc-agent-claude` | Claude Code agent (extends scc-base) |
+| `scc-agent-codex` | Codex agent (extends scc-base) |
+| `scc-egress-proxy` | Squid proxy sidecar for `web-egress-enforced` |
 
-```bash
-scc start ~/projects/my-app  # Mounts ~/projects/my-app
-```
-
-### Team Profiles
-
-If your organization has profiles configured:
-
-```bash
-scc start --team backend ~/project  # Use backend team profile
-scc start --team frontend ~/project  # Use frontend team profile
-```
-
-### Session Management
+**First-run build:** SCC auto-builds the image on first start (~2–3 min). Manual build:
 
 ```bash
-# List active sessions
-scc session list
-
-# Resume a previous session
-scc start --resume ~/project
-
-# Stop a session
-scc session stop <session-id>
+docker build -t scc-agent-claude images/scc-agent-claude/
+docker build -t scc-agent-codex images/scc-agent-codex/
 ```
 
-## Docker Requirements
-
-SCC requires:
-
-- **Docker Desktop 4.50+** (macOS, Windows) or Docker Engine (Linux)
-- **Docker Engine running** when you use SCC
-- **Sufficient disk space** for container images
-
-<Aside type="tip">
-  SCC caches container images after first use. Subsequent starts are faster.
-</Aside>
-
-## Verifying Docker Setup
+## Session Management
 
 ```bash
-# Check Docker is running
-docker info
-
-# Check Docker version
-docker --version
-
-# Verify SCC can access Docker
-scc doctor
+scc sessions             # List recent sessions
+scc list                 # List running containers
+scc start --resume       # Resume most recent session
+scc start --select       # Pick from recent sessions
+scc stop                 # Stop a sandbox (interactive picker)
+scc stop --all           # Stop all sandboxes
+scc prune                # Remove stopped containers
 ```
 
-## Troubleshooting
-
-### Docker Not Running
-
-```
-Error: Cannot connect to Docker daemon
-```
-
-Start Docker Desktop or Docker Engine, then retry.
-
-### Permission Issues
-
-```
-Error: Permission denied while trying to connect to Docker daemon
-```
-
-On Linux, add your user to the docker group:
-
-```bash
-sudo usermod -aG docker $USER
-# Log out and back in
-```
-
-### Image Pull Failures
-
-```
-Error: Failed to pull image
-```
-
-Check network connectivity and Docker Hub access. For air-gapped environments, pre-pull images or configure a local registry.
-
-## Advanced Usage
-
-### Dry Run
-
-Preview what would happen without actually starting:
-
-```bash
-scc start --dry-run ~/project
-```
-
-### JSON Output
-
-Get machine-readable output for scripting:
-
-```bash
-scc start --dry-run --json ~/project
-```
-
-### Custom Network Policy
+## Network Policy
 
 Network policies are configured at the org/team level:
 
 ```json
 {
   "defaults": {
-    "network_policy": "isolated"
+    "network_policy": "web-egress-enforced"
   }
 }
 ```
+
+| Policy | Effect |
+|--------|--------|
+| `open` | No restriction — unrestricted egress |
+| `web-egress-enforced` | Topology-enforced proxy sidecar (HTTP/HTTPS, IPv4) |
+| `locked-down-web` | `--network=none` — no external access |
+
+## Verifying Setup
+
+```bash
+scc doctor                      # Full health check
+scc doctor --provider codex     # Check specific provider
+```
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| "Cannot connect to container runtime" | Start Docker Engine, OrbStack, Colima, or Docker Desktop |
+| "Provider image missing" | SCC auto-builds on first start. Manual: `docker build -t scc-agent-<provider> images/scc-agent-<provider>/` |
+| Permission denied on Linux | `sudo usermod -aG docker $USER` then log out/in |
 
 ## Next Steps
 
@@ -236,16 +148,16 @@ Network policies are configured at the org/team level:
   <LinkCard
     title="Quick Start"
     href="/getting-started/quick-start/"
-    description="Complete installation guide"
+    description="Complete setup guide"
   />
   <LinkCard
     title="Security Model"
     href="/architecture/security-model/"
-    description="Understand isolation layers"
+    description="Isolation layers, safety engine, network enforcement"
   />
   <LinkCard
-    title="Troubleshooting Docker"
+    title="Troubleshooting"
     href="/troubleshooting/docker/"
-    description="Solve Docker-related issues"
+    description="Solve container runtime issues"
   />
 </CardGrid>

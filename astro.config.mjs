@@ -14,7 +14,7 @@ const structuredData = {
 	'@type': 'SoftwareApplication',
 	name: 'SCC CLI',
 	url: siteUrl,
-	description: 'Run Claude Code safely in Docker sandboxes with team-managed profiles and guardrails',
+	description: 'Run AI coding agents safely in container sandboxes with team-managed profiles and guardrails',
 	applicationCategory: 'DeveloperApplication',
 	operatingSystem: 'macOS, Windows, Linux',
 	sameAs: socialProfiles,
@@ -26,7 +26,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'SCC CLI',
-			description: 'Run Claude Code safely in Docker sandboxes with team-managed profiles and guardrails',
+			description: 'Run AI coding agents safely in container sandboxes with team-managed profiles and guardrails',
 			logo: {
 				src: './src/assets/scc-logo.svg',
 				replacesTitle: false,
@@ -96,7 +96,7 @@ export default defineConfig({
 					label: 'Getting Started',
 					items: [
 						{ slug: 'getting-started/introduction' },
-						{ slug: 'getting-started/claude-code-sandbox', label: 'Claude Code Sandbox' },
+						{ slug: 'getting-started/claude-code-sandbox', label: 'Why Sandbox Agents?' },
 						{ slug: 'getting-started/installation' },
 						{ slug: 'getting-started/quick-start', badge: { text: 'Start', variant: 'success' } },
 						{ slug: 'getting-started/core-concepts' },
@@ -271,6 +271,7 @@ export default defineConfig({
 					items: [
 						{ slug: 'reference/cli/overview' },
 						{ slug: 'reference/cli/essential' },
+						{ slug: 'reference/cli/provider' },
 						{ slug: 'reference/cli/sessions' },
 						{ slug: 'reference/cli/worktree' },
 						{ slug: 'reference/cli/team' },

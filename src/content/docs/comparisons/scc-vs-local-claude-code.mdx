@@ -1,29 +1,31 @@
 ---
-title: "SCC vs Local Claude Code"
-description: "Compare running Claude Code in SCC's Docker sandbox versus directly on your local machine. Security isolation, team governance, and workflow differences explained."
+title: "SCC vs Running Agents Locally"
+description: "Compare running AI coding agents in SCC's container sandbox versus directly on your local machine. Security isolation, team governance, and workflow differences explained."
 ---
 
 import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
-  { question: "What is the difference between SCC and Claude Code?", answer: "Claude Code is Anthropic's AI coding CLI. SCC runs Claude Code inside Docker containers with team-managed policies, git safety rails, and plugin governance. SCC doesn't replace Claude Code—it wraps it in a sandboxed, governed environment." },
-  { question: "Is SCC safer than running Claude Code locally?", answer: "SCC adds Docker isolation (AI cannot access host files outside mounted paths), git safety rails (blocks destructive commands like push --force), and plugin governance (org-approved plugins only). These reduce risk compared to unrestricted local execution." },
-  { question: "Do I need SCC if I'm a solo developer?", answer: "Solo developers can use Claude Code directly. SCC is most valuable for teams that need consistent configurations, security policies, and governance. However, solo developers who want Docker isolation or git protection may still benefit from SCC." }
+  { question: "What is the difference between SCC and Claude Code or Codex?", answer: "Claude Code and Codex are AI coding CLIs. SCC runs them inside container sandboxes with team-managed policies, a built-in safety engine, and plugin governance. SCC doesn't replace your agent — it wraps it in a governed environment." },
+  { question: "Is SCC safer than running agents locally?", answer: "SCC adds container isolation (agent cannot access host files outside mounted paths), a fail-closed safety engine (blocks destructive commands), topology-enforced network egress, and plugin governance (org-approved plugins only). These reduce risk compared to unrestricted local execution." },
+  { question: "Do I need SCC if I'm a solo developer?", answer: "Solo developers can use agents directly. SCC is most valuable for teams that need consistent configurations, security policies, and governance. However, solo developers who want container isolation or git protection may still benefit from SCC." }
 ]} />
 
-This guide compares running Claude Code through SCC's Docker sandbox versus running it directly on your local machine.
+This guide compares running AI coding agents (Claude Code, Codex) through SCC's container sandbox versus running them directly on your local machine.
 
 ## Quick Comparison
 
 | Aspect | SCC CLI | Local Claude Code |
 |--------|---------|-------------------|
-| **Execution environment** | Docker container | Your host machine |
+| **Execution environment** | OCI container (Docker Engine, OrbStack, Colima, etc.) | Your host machine |
 | **File access** | Only mounted paths | Full filesystem |
-| **Git protection** | Safety Net blocks destructive commands | Relies on Claude's built-in behavior |
-| **Configuration** | Centralized org/team profiles | Per-user `~/.claude/` settings |
+| **Git protection** | Built-in safety engine + optional safety-net plugin | Relies on agent's built-in behavior |
+| **Network control** | Topology-enforced egress or full lockdown | No restriction |
+| **Configuration** | Centralized org/team profiles | Per-user local settings |
 | **Plugin control** | Org-approved plugins only | Any plugin |
-| **Setup** | `scc setup` + `scc start` | `claude` directly |
+| **Provider choice** | Claude Code or Codex through same pipeline | Single agent |
+| **Setup** | `scc setup` + `scc start` | Agent CLI directly |
 
 ## What SCC Adds
 

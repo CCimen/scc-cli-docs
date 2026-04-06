@@ -1,35 +1,35 @@
 ---
-title: Why Sandbox Claude Code
-description: "Understand why sandboxing Claude Code matters: security risks of unrestricted AI execution, how Docker isolation protects your system, and when sandboxing is essential."
+title: Why Sandbox AI Coding Agents
+description: "Understand why sandboxing AI coding agents matters: security risks of unrestricted execution, how container isolation protects your system, and when sandboxing is essential."
 ---
 
 import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
-  { question: "Why should I sandbox Claude Code?", answer: "Claude Code executes commands on your system. Sandboxing limits what it can access—only mounted directories, controlled network access, and approved plugins. This reduces risk from AI mistakes or unexpected behavior." },
-  { question: "What risks does sandboxing Claude Code prevent?", answer: "Sandboxing prevents: accidental file deletion outside your project, unintended git operations (force push, reset --hard), access to sensitive files (~/.ssh, ~/.aws), and installation of unapproved plugins or tools." },
-  { question: "Is Claude Code dangerous without a sandbox?", answer: "Claude Code is designed to be helpful and follows safety guidelines. However, AI can make mistakes. Sandboxing adds defense-in-depth—even if Claude makes an error, the blast radius is limited to the sandbox." }
+  { question: "Why should I sandbox AI coding agents?", answer: "AI coding agents execute commands on your system. Sandboxing limits what they can access — only mounted directories, controlled network access, and approved plugins. This reduces risk from mistakes or unexpected behavior." },
+  { question: "What risks does sandboxing prevent?", answer: "Sandboxing prevents: accidental file deletion outside your project, unintended git operations (force push, reset --hard), access to sensitive files (~/.ssh, ~/.aws), and installation of unapproved plugins or tools." },
+  { question: "Is it dangerous to run AI coding agents without a sandbox?", answer: "AI coding agents are designed to be helpful and follow safety guidelines. However, any system that executes commands can make mistakes. Sandboxing adds defense-in-depth — even if the agent makes an error, the blast radius is limited to the sandbox." }
 ]} />
 
-AI coding assistants like Claude Code execute real commands on real systems. This guide explains why sandboxing matters and when it's essential.
+AI coding agents like Claude Code and Codex execute real commands on real systems. This guide explains why sandboxing matters and when it's essential.
 
 ## The Reality of AI Code Execution
 
-Claude Code is powerful because it can:
+AI coding agents are powerful because they can:
 - Read and write files in your project
 - Execute shell commands
 - Run git operations
 - Install dependencies
 - Make API calls
 
-This power comes with responsibility. While Claude Code is designed to be helpful and careful, any system that executes commands can cause unintended effects.
+This power comes with responsibility. While agents are designed to be helpful and careful, any system that executes commands can cause unintended effects.
 
 ## Risks Without Sandboxing
 
 ### Filesystem Access
 
-Without isolation, Claude Code can access any file your user account can access:
+Without isolation, the agent can access any file your user account can access:
 
 | Accessible | Risk |
 |------------|------|
@@ -38,7 +38,7 @@ Without isolation, Claude Code can access any file your user account can access:
 | `~/.config/` | Application configurations |
 | Other projects | Cross-project contamination |
 
-With SCC, Claude Code only sees the workspace you explicitly mount.
+With SCC, the agent only sees the workspace you explicitly mount.
 
 ### Git History Damage
 
@@ -51,22 +51,22 @@ AI coding sessions involve experimentation. Without guardrails:
 | `git branch -D` | Force-deletes branches without merge check |
 | `git clean -fd` | Deletes untracked files permanently |
 
-SCC's Safety Net plugin blocks these commands by default.
+SCC's built-in safety engine blocks these commands by default (fail-closed). The optional scc-safety-net plugin provides additional coverage via agent-native hooks.
 
 ### Configuration Drift
 
-When each developer configures Claude Code independently:
+When each developer configures their AI agent independently:
 - Plugins vary across the team
 - Settings differ between machines
 - Behavior is inconsistent and hard to debug
 
-SCC provides team profiles that ensure consistent configuration.
+SCC provides team profiles that ensure consistent configuration across all developers and providers.
 
-## How Sandboxing Helps
+## How SCC Sandboxes Agents
 
-### Docker Isolation
+### Container Isolation
 
-SCC runs Claude Code inside Docker containers:
+SCC runs agents inside OCI containers using any Docker-compatible runtime (Docker Engine, OrbStack, Colima, or Docker Desktop):
 
 ```
 ┌─────────────────────────────────┐
@@ -75,85 +75,76 @@ SCC runs Claude Code inside Docker containers:
 │           ▲                     │
 │           │ (blocked)           │
 │  ┌────────┴────────────────┐    │
-│  │    Docker Container     │    │
+│  │   Container Sandbox     │    │
 │  │  /workspace (mounted)   │    │
-│  │  Claude Code runs here  │    │
+│  │  Agent runs here        │    │
 │  └─────────────────────────┘    │
 └─────────────────────────────────┘
 ```
 
-Claude Code can only access `/workspace`—your mounted project directory.
+The agent can only access `/workspace` — your mounted project directory.
 
-### Controlled Environment
+### Built-in Safety Engine
 
-SCC provides layers of control:
+SCC includes a fail-closed safety engine inside every container:
+- **Shell tokenizer** — parses compound commands to catch destructive operations
+- **Git safety rules** — blocks force push, hard reset, branch force delete, etc.
+- **Network tool interception** — wraps curl, wget, ssh, scp, sftp, rsync
+- **Fail-closed** — if policy cannot be loaded, all guarded commands are blocked
 
-1. **What files**: Only mounted paths are visible
-2. **What plugins**: Only org-approved plugins run
-3. **What git ops**: Safety Net filters dangerous commands
-4. **What network**: Network policies control outbound access
+### Network Topology Enforcement
+
+When `network_policy` is `web-egress-enforced`:
+- The agent container runs on an internal-only Docker network
+- A Squid proxy sidecar is the sole gateway to the internet
+- The proxy enforces an ACL for HTTP/HTTPS traffic
+- The agent physically cannot bypass the proxy — this is topology enforcement, not just env vars
 
 ### Blast Radius Reduction
-
-If something goes wrong, damage is contained:
 
 | Without Sandbox | With SCC |
 |-----------------|----------|
 | Could affect entire system | Limited to mounted workspace |
-| Could damage git history | Safety Net blocks destructive commands |
+| Could damage git history | Safety engine blocks destructive commands |
 | Could install anything | Only approved plugins |
 | Inconsistent recovery | Worktrees provide clean rollback |
 
 ## When Sandboxing Is Essential
 
 ### Enterprise Environments
-
-- Multiple teams sharing AI tools
+- Multiple teams sharing AI tools across providers
 - Compliance requirements
 - Need for audit trails
 - Consistent security posture
 
 ### Sensitive Codebases
-
 - Financial or healthcare systems
 - Code with embedded secrets
 - Production infrastructure
 
 ### Team Adoption
-
 - Onboarding new developers
-- Standardizing AI tool usage
+- Standardizing AI tool usage across Claude Code and Codex
 - Reducing support burden from inconsistent setups
 
 ## When Sandboxing May Be Optional
 
 ### Solo Development
-Individual developers with:
-- Full system backups
-- Git remotes as backup
-- Understanding of risks
+Individual developers with full system backups, git remotes, and understanding of the risks.
 
 ### Quick Experiments
-One-off tests where:
-- No sensitive data involved
-- Results are disposable
-- Speed matters more than safety
+One-off tests where no sensitive data is involved and results are disposable.
 
 <Aside type="note">
   Even in these cases, sandboxing provides peace of mind. SCC's overhead is minimal once set up.
 </Aside>
 
-## Getting Started with Sandboxing
+## Getting Started
 
 ```bash
-# Install SCC
-uv tool install scc-cli
-
-# Configure (one time)
-scc setup
-
-# Run sandboxed
-scc start ~/your-project
+uv tool install scc-cli    # Install
+scc setup                  # Configure org, connect providers
+scc start ~/your-project   # Launch sandboxed
 ```
 
 ## Next Steps
@@ -167,11 +158,11 @@ scc start ~/your-project
   <LinkCard
     title="Security Model"
     href="/architecture/security-model/"
-    description="Understand SCC's isolation layers"
+    description="Deep dive into isolation layers, safety engine, and network enforcement"
   />
   <LinkCard
-    title="Safety Net Plugin"
-    href="/plugins/safety-net/"
-    description="Learn about git protection"
+    title="Architecture"
+    href="/architecture/overview/"
+    description="Provider-neutral design and container images"
   />
 </CardGrid>
