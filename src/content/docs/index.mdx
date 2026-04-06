@@ -1,10 +1,10 @@
 ---
 title: SCC CLI
-description: Sandboxed coding CLI for Claude Code in Docker, with team-managed profiles and guardrails
+description: Run AI coding agents safely in container sandboxes with team-managed profiles and guardrails
 template: splash
 hero:
   title: SCC CLI
-  tagline: Sandbox Claude Code in Docker with a team-managed coding CLI and guardrails
+  tagline: Run AI coding agents (Claude Code, Codex) safely inside containers, with team-managed profiles and guardrails
   image:
     file: ../../assets/scc-logo.svg
   actions:
@@ -18,7 +18,7 @@ hero:
       variant: minimal
 ---
 
-import { Aside, Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 ## Find Your Path
 
@@ -45,56 +45,22 @@ import { Aside, Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/
   />
 </CardGrid>
 
-## Sandbox Claude Code
-
-If you are searching for a Claude Code sandbox or a sandboxed coding CLI, start here.
-
-<CardGrid>
-  <LinkCard
-    title="Claude Code Sandbox"
-    href="/getting-started/claude-code-sandbox/"
-    description="How SCC CLI isolates Claude Code in Docker with guardrails and team policies"
-  />
-  <LinkCard
-    title="Security Model"
-    href="/architecture/security-model/"
-    description="Understand isolation boundaries, policies, and threat assumptions"
-  />
-  <LinkCard
-    title="Why Sandbox Claude Code"
-    href="/use-cases/why-sandbox-claude-code/"
-    description="Understand the risks and how sandboxing mitigates them"
-  />
-  <LinkCard
-    title="See How SCC Compares"
-    href="/comparisons/"
-    description="Compare SCC to local execution, dev containers, and manual Docker"
-  />
-</CardGrid>
-
 ## Why SCC?
 
 <CardGrid stagger>
-  <Card title="Isolated Execution" icon="shield">
-    Code runs in Docker sandboxes. Your host system stays protected from AI-generated commands.
+  <Card title="Multi-Provider Runtime" icon="rocket">
+    Run Claude Code or Codex through the same governed pipeline. Switch providers per session or per workspace — your config, plugins, and policies carry over.
+  </Card>
+  <Card title="Container Isolation" icon="shield">
+    Code runs in OCI container sandboxes. Your host system stays protected from AI-generated commands. Works with Docker Engine, OrbStack, Colima, or Docker Desktop.
   </Card>
   <Card title="Standardized Configs" icon="setting">
     Organization-managed profiles distributed via a single URL. No manual setup for developers.
   </Card>
-  <Card title="Git Guardrails" icon="warning">
-    Block destructive commands like `push --force` and `reset --hard` automatically with safety-net policies.
-  </Card>
-  <Card title="Parallel Development" icon="rocket">
-    Isolated git worktrees per feature branch. Multiple Claude sessions without conflicts.
+  <Card title="Built-in Safety Engine" icon="warning">
+    Fail-closed safety engine blocks destructive git commands and intercepts network tools inside the container. Topology-enforced web egress with proxy sidecar for HTTP/HTTPS control.
   </Card>
 </CardGrid>
-
-<Aside type="note" title="v1 scope">
-  v1 focuses on sandboxing, governance, and explainability. `network_policy` is
-  partial enforcement, plugin-bundled MCPs are out of scope, and SCC is not a
-  DLP or endpoint security product. See the [v1 scope](/release/v1-scope/) for
-  details.
-</Aside>
 
 ## Quick Start
 
@@ -128,7 +94,7 @@ If you are searching for a Claude Code sandbox or a sandboxed coding CLI, start 
 3. **Configure and launch**
 
    ```bash
-   scc setup    # Paste your org config URL
+   scc setup    # Paste your org config URL, connect providers
    scc start    # Launch in current directory
    ```
 </Steps>
@@ -142,6 +108,7 @@ If you are searching for a Claude Code sandbox or a sandboxed coding CLI, start 
 | Team-specific plugins | ✅ Approves | ✅ Chooses | — |
 | Project-local config (.scc.yaml) | ✅ Can restrict | ✅ Can restrict | ✅ Extends |
 | Safety-net policy | ✅ Sets | ❌ Cannot override | ❌ Cannot override |
+| Provider choice | ✅ Sets allowed list | — | ✅ Chooses from allowed |
 
 <LinkCard
   title="Learn more about governance"

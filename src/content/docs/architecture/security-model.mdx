@@ -1,16 +1,63 @@
 ---
 title: Security Model
-description: "SCC security model: Docker isolation, trust boundaries, policy enforcement, and permission layers. How sandboxed Claude Code protects your system."
+description: Trust boundaries, safety engine, network enforcement, and isolation layers
 sidebar:
   order: 3
 ---
 
+import { Aside } from '@astrojs/starlight/components';
+
 ## Isolation Layers
 
-1. **Docker Container**: Claude Code runs isolated from host
-2. **Network Policy**: Control container network posture (partial enforcement in v1)
-3. **Plugin Governance**: Only approved plugins execute
-4. **Git Protection**: Safety net blocks destructive commands
+1. **OCI Container**: Agent runs isolated from host in a standard container (Docker Engine, OrbStack, Colima, or Docker Desktop)
+2. **Network Topology**: Enforced web egress through proxy sidecar on an internal-only network (`web-egress-enforced`), or full network isolation (`locked-down-web`)
+3. **Built-in Safety Engine**: Fail-closed command interception for git and network tools inside the container
+4. **Plugin Governance**: Only org-approved plugins execute
+5. **Git Protection**: Protected branch speed bumps and push-blocking hooks
+
+## Built-in Safety Engine
+
+SCC includes a provider-neutral safety engine that runs inside every container:
+
+- **Shell tokenizer** — parses compound commands (pipes, subshells, `&&`/`||` chains) into individual commands for analysis
+- **Git safety rules** — blocks destructive git operations: `push --force`, `reset --hard`, `branch -D`, `clean -fd`, `stash drop/clear`, `checkout` (path mode), `restore` (worktree), `reflog expire`, `gc --prune`
+- **Network tool rules** — intercepts explicit network tools: `curl`, `wget`, `ssh`, `scp`, `sftp`, `rsync`
+- **Fail-closed** — if safety policy cannot be loaded from org config, all guarded commands are blocked by default
+
+The engine runs via **shell wrappers** installed in `scc-base`. Each wrapper calls a standalone safety evaluator (stdlib-only Python, no external dependencies) before forwarding to the real binary.
+
+### Safety Engine vs scc-safety-net Plugin
+
+| Surface | Built-in Safety Engine | scc-safety-net Plugin |
+|---------|----------------------|----------------------|
+| Enforcement | Shell wrappers (defense-in-depth) | Agent-native hooks (Claude hooks, Codex rules) |
+| Bypass resistance | Agent cannot bypass — wrappers intercept at the OS level | Agent could bypass if hooks are disabled |
+| Coverage | Git commands, network tools | Git commands (broader pattern matching) |
+| Policy source | Org config `security.safety_net` | Same org config |
+| Provider support | All providers (provider-neutral) | Claude Code (hooks), Codex (rules) |
+
+**Use both:** The built-in engine provides hard enforcement. The plugin provides additional coverage via agent-native surfaces. They are complementary, not redundant.
+
+## Network Policy Enforcement
+
+SCC supports three network policies:
+
+### `open`
+No egress restriction. The agent container has unrestricted network access. This is the default.
+
+### `web-egress-enforced`
+Topology-based isolation with a Squid proxy sidecar:
+- Agent container runs on an internal-only Docker network (no direct external access)
+- Squid proxy sidecar is dual-homed: internal network + default bridge
+- Proxy enforces an ACL compiled from the team's allowed destinations
+- Even if the agent ignores `HTTP_PROXY` env vars, it physically cannot bypass the proxy
+
+<Aside type="caution">
+  Enforcement is HTTP/HTTPS over IPv4 only in v1. Raw TCP/UDP beyond HTTP(S) is not filtered by the proxy.
+</Aside>
+
+### `locked-down-web`
+The container runs with `--network=none`. No external network access at all.
 
 ## Enforcement States
 
@@ -23,7 +70,7 @@ SCC uses these enforcement states in docs and CLI output:
 
 ## Permissions Mode
 
-SCC launches Claude Code with permission prompts skipped by default inside the sandbox.
+SCC launches agents with permission prompts skipped by default inside the sandbox.
 This reduces friction but does not provide data loss prevention.
 You can re-enable prompts inside Claude if you want stricter confirmation.
 
@@ -42,6 +89,19 @@ Patterns in `security.blocked_*` are absolute:
 - Cannot be overridden by teams
 - Cannot be overridden by projects
 - Cannot be overridden by exceptions
+
+## Provider Plugin Model
+
+Claude Code and Codex have different native plugin, rules, and hook surfaces:
+
+- **Claude Code**: Plugins via `settings.json`, hooks for command interception, marketplace integration
+- **Codex**: Rules via `config.toml`, hooks via `.codex/hooks/`, AGENTS.md layering
+
+SCC unifies governance at the **approval/bundle level** — it does not pretend they share an identical format. The bundle resolver produces a provider-neutral render plan, and provider-specific renderers project it into each provider's native configuration surfaces.
+
+<Aside type="note">
+  Blocking a plugin at the org level blocks it across all providers. But the native rendering differs: a blocked Claude plugin is removed from `settings.json`; a blocked Codex rule is removed from `config.toml`. The governance intent is the same; the enforcement mechanism is provider-specific.
+</Aside>
 
 ## Exceptions
 

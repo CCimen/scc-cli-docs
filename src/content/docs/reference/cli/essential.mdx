@@ -110,7 +110,7 @@ scc init [PATH] [OPTIONS]
 
 ## scc doctor
 
-Run health checks to diagnose issues.
+Run health checks to diagnose issues. Includes provider image and auth readiness checks.
 
 ```bash
 scc doctor [WORKSPACE] [OPTIONS]
@@ -127,14 +127,18 @@ scc doctor [WORKSPACE] [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-q`, `--quick` | Quick status only |
+| `--provider PROVIDER` | Check readiness for a specific provider (claude or codex) |
 | `--json` | Output as JSON |
 | `--pretty` | Pretty-print JSON output |
 
 **Examples:**
 
 ```bash
-# Full health check
+# Full health check (all providers)
 scc doctor
+
+# Check a specific provider
+scc doctor --provider codex
 
 # Quick status
 scc doctor --quick
@@ -147,14 +151,14 @@ scc doctor --json
 ```
 
 <Aside type="tip">
-  Run `scc doctor` first when troubleshooting any issues. It checks Docker, Git, config, and more.
+  Run `scc doctor` first when troubleshooting any issues. It checks the container runtime, Git, config, provider image availability, and auth readiness. If a provider image is missing, doctor shows the exact build command.
 </Aside>
 
 ---
 
 ## scc start
 
-Launch Claude Code in a sandboxed Docker container.
+Launch an AI coding agent in a sandboxed container.
 
 ```bash
 scc start [WORKSPACE] [OPTIONS]
@@ -170,11 +174,12 @@ scc start [WORKSPACE] [OPTIONS]
 
 | Option | Description |
 |--------|-------------|
+| `--provider PROVIDER` | Agent provider override (`claude` or `codex`) |
 | `-t`, `--team TEAM` | Team profile for this session |
 | `--session NAME` | Session name for identification |
 | `-r`, `--resume` | Resume most recent session |
 | `-s`, `--select` | Interactive picker for sessions |
-| `--fresh` | Force new container |
+| `--fresh` | Force new container (replace existing) |
 | `-w`, `--worktree NAME` | Create worktree before starting |
 | `--install-deps` | Install dependencies first |
 | `--offline` | Use cached config only |
@@ -212,13 +217,22 @@ scc start [WORKSPACE] [OPTIONS]
   scc start --team security ~/project
   ```
   </TabItem>
+  <TabItem label="Provider">
+  ```bash
+  # Start with a specific provider
+  scc start --provider codex ~/project
+
+  # Codex session with a specific team
+  scc start --provider codex --team backend ~/project
+  ```
+  </TabItem>
   <TabItem label="CI/CD">
   ```bash
-  # Non-interactive for automation
-  scc start --non-interactive --team backend ~/project
+  # Non-interactive for automation (--provider required when both are available)
+  scc start --non-interactive --provider claude --team backend ~/project
 
   # Preview configuration
-  scc start --dry-run --json
+  scc start --dry-run --json --provider codex
   ```
   </TabItem>
 </Tabs>
@@ -236,7 +250,7 @@ scc start [WORKSPACE] [OPTIONS]
 
 ## scc stop
 
-Stop running Claude Code sandbox(es).
+Stop running agent sandbox(es).
 
 ```bash
 scc stop [CONTAINER] [OPTIONS]

@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: "Install SCC CLI on macOS, Windows, or Linux. Prerequisites: Docker Desktop 4.50+, Python 3.10+, Git. Get sandboxed Claude Code running in minutes."
+description: Install SCC CLI and its prerequisites — container runtime, Python, and Git
 sidebar:
   order: 2
 ---
@@ -15,11 +15,25 @@ Before installing SCC, ensure you have:
 |-------------|-----------------|---------------|
 | Python | 3.10+ | `python --version` |
 | uv (recommended) | Latest | `uv --version` |
-| Docker Desktop | 4.50+ | `docker --version` |
+| Container runtime | Docker Engine 20.10+ | `docker --version` |
 | Git | 2.30+ | `git --version` |
 
+### Container Runtime
+
+SCC requires a Docker-compatible container runtime. Any of these work:
+
+| Runtime | Platform | Notes |
+|---------|----------|-------|
+| [Docker Engine](https://docs.docker.com/engine/) | Linux, macOS, Windows | Standard Docker daemon |
+| [OrbStack](https://orbstack.dev/) | macOS | Fast, lightweight Docker alternative |
+| [Colima](https://github.com/abiosoft/colima) | macOS, Linux | Open-source Docker runtime |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | macOS, Windows, Linux | Full GUI experience |
+| [Podman](https://podman.io/) | Linux, macOS | 🔄 Planned — not yet fully validated |
+
+SCC auto-detects the available runtime. **Docker Desktop is not required.**
+
 <Aside type="caution">
-  **Docker Desktop 4.50+ is required** because SCC uses the Docker sandbox feature for isolation. Earlier versions won't work. **Docker Desktop must be running** (with Docker Engine active) before using SCC.
+  **A container runtime must be installed and running** before using SCC. Ensure the daemon is active (`docker info` should succeed).
 </Aside>
 
 ### Installing uv
@@ -74,8 +88,6 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
    scc --version
    ```
 
-   You should see output like `scc-cli 1.6.3`
-
 2. **Run diagnostics**
 
    ```bash
@@ -83,12 +95,21 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
    ```
 
    This checks:
-   - Docker is running and accessible
-   - Docker version meets requirements
+   - Container runtime is running and accessible
+   - Runtime version meets requirements
    - Git is configured
    - Config directories exist
+   - Provider image availability and auth readiness
 
-3. **Review any warnings**
+3. **Check a specific provider**
+
+   ```bash
+   scc doctor --provider codex
+   ```
+
+   If a provider image is missing, doctor shows the exact build command.
+
+4. **Review any warnings**
 
    If `scc doctor` shows issues, address them before proceeding.
 </Steps>
@@ -97,12 +118,13 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
 
 <Tabs syncKey="os">
   <TabItem label="macOS">
-  - Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/)
-  - Ensure Docker Desktop is running (check menu bar icon)
+  - Install Docker Engine (via OrbStack or Colima) or Docker Desktop
+  - OrbStack is recommended for speed and low resource usage
+  - Ensure the daemon is running (`docker info`)
   - No additional configuration needed
   </TabItem>
   <TabItem label="Linux">
-  - Docker Desktop or Docker Engine works
+  - Docker Engine is the standard choice
   - Ensure your user is in the `docker` group:
     ```bash
     sudo usermod -aG docker $USER
@@ -124,6 +146,26 @@ If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.as
   </Aside>
   </TabItem>
 </Tabs>
+
+## Container Images
+
+SCC builds provider-specific container images on first use:
+
+| Image | Purpose |
+|-------|---------|
+| `scc-agent-claude` | Claude Code agent with safety wrappers |
+| `scc-agent-codex` | Codex agent with safety wrappers |
+| `scc-base` | Shared base image with safety evaluator |
+| `scc-egress-proxy` | Squid proxy for `web-egress-enforced` policy |
+
+The first `scc start` with a provider triggers an automatic image build (takes a few minutes). Subsequent launches use the cached image.
+
+**Manual build** (if needed):
+
+```bash
+docker build -t scc-agent-claude images/scc-agent-claude/
+docker build -t scc-agent-codex images/scc-agent-codex/
+```
 
 ## Updating SCC
 

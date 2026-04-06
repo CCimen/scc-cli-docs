@@ -98,6 +98,18 @@ additional_mcp_servers:
   MCP servers must pass org security blocks and `defaults.allowed_mcp_servers` (if set). Plugin-bundled MCP servers are not inspected.
 </Aside>
 
+When developers open this project with `scc`, it will use the security team's configuration regardless of their default team.
+
+### Entry Directory
+
+Specify a different entry point:
+
+```yaml
+entry_directory: ./packages/frontend
+```
+
+The agent will start in this directory instead of the project root.
+
 ## Example Configurations
 
 ### Monorepo Frontend Package
@@ -174,7 +186,7 @@ session:
   timeout_hours: 4        (from: project/.scc.yaml)  ← Project override
   auto_resume: true       (from: team/backend, advisory)
 
-network_policy: corp-proxy-only (from: org/defaults)
+network_policy: web-egress-enforced (from: org/defaults)
 ```
 
 ## What You Cannot Override

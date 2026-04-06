@@ -103,7 +103,7 @@ cat ~/.claude/plugins/installed_plugins.json
 ls -la ~/.claude/plugins/
 ```
 
-**Fix:** Install plugins through your organization config or Claude Code.
+**Fix:** Install plugins through your organization config or your agent (Claude Code / Codex).
 
 ---
 
@@ -208,7 +208,7 @@ scc config explain --json | jq '.data.blocked_items'
 
 ## Plugin Not Loading in Container
 
-**Symptom:** Plugin installed but not available in Claude Code session.
+**Symptom:** Plugin installed but not available in the agent session.
 
 **Check effective config:**
 
@@ -248,7 +248,7 @@ scc config explain --field denied
 
 ## Plugin Registry Location
 
-Claude Code stores plugin information at:
+Claude Code stores plugin information at (Codex uses `.codex/config.toml` instead):
 
 ```
 ~/.claude/
@@ -263,5 +263,5 @@ Claude Code stores plugin information at:
 ```
 
 <Aside type="note">
-  SCC doesn't download or cache plugins directly — Claude Code handles plugin installation. SCC only reads the registry to audit and validate against governance.
+  SCC doesn't download or cache plugins directly — the agent (Claude Code or Codex) handles plugin installation. SCC only reads the registry to audit and validate against governance.
 </Aside>

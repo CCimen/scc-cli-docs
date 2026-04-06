@@ -1,22 +1,53 @@
 ---
-title: Docker Issues
-description: "Fix Docker issues with SCC CLI: container startup problems, image pulls, permissions, and cleanup. Troubleshoot your Claude Code sandbox."
+title: Container Runtime Issues
+description: Troubleshooting container runtime, image build, and provider readiness problems
 sidebar:
   order: 3
 ---
 
-## Docker Not Running
+import { Aside } from '@astrojs/starlight/components';
 
-**Symptoms:** "Cannot connect to Docker daemon" or "Docker Desktop is not running"
+## Container Runtime Not Running
+
+**Symptoms:** "Cannot connect to Docker daemon" or container runtime not detected by `scc doctor`
 
 **Fix:**
+
 ```bash
-# macOS
-open -a Docker
+# macOS — start your runtime
+open -a OrbStack          # If using OrbStack
+colima start              # If using Colima
+open -a Docker            # If using Docker Desktop
 
 # Linux
 sudo systemctl start docker
+
+# Verify
+docker info
 ```
+
+SCC works with Docker Engine, OrbStack, Colima, or Docker Desktop. It auto-detects the available runtime — Docker Desktop is not required.
+
+<Aside type="note">
+  Podman support is planned but not yet fully validated. If you're using Podman and encounter issues, consider switching to Docker Engine or OrbStack.
+</Aside>
+
+## Provider Image Missing
+
+**Symptoms:** `scc doctor` shows "Image not found" for a provider, or `scc start` fails with an image error
+
+SCC auto-builds provider images on first use. If the build failed or the image was removed:
+
+```bash
+# Check which images exist
+docker images | grep scc-agent
+
+# Manually build the missing image
+docker build -t scc-agent-claude images/scc-agent-claude/
+docker build -t scc-agent-codex images/scc-agent-codex/
+```
+
+`scc doctor --provider claude` (or `--provider codex`) shows the exact build command if the image is missing.
 
 ## Container Won't Start
 
@@ -29,35 +60,83 @@ docker system prune -f
 scc start --fresh
 ```
 
-## Image Pull Failed
+## Sandbox Conflict
 
-**Symptoms:** "Failed to pull image"
+**Symptoms:** "A sandbox already exists for this workspace"
 
-**Causes:**
-- Network issues
-- Image blocked by policy
-- Registry unavailable
+| Situation | What happens |
+|-----------|-------------|
+| Stale (stopped) | Automatically replaced |
+| Live (running) | SCC prompts: keep / replace / cancel |
+| Force new | Use `scc start --fresh` |
+
+## Permission Denied
+
+**Symptoms:** Docker permission errors on Linux
 
 **Fix:**
 ```bash
-docker pull <image> # Test manually
+sudo usermod -aG docker $USER
+# Log out and back in for changes to take effect
 ```
 
 ## Container Cleanup
 
 Remove old containers:
 ```bash
-scc prune
-# or
-docker container prune
+scc prune              # Remove stopped SCC containers
+scc stop --all         # Stop all running SCC containers
+docker container prune # Remove all stopped Docker containers
 ```
 
-## Permission Denied
+## Provider Auth Issues
 
-**Symptoms:** Docker permission errors
+**Symptoms:** "Auth missing" or "Sign-in needed" in `scc doctor` output
 
-**Fix (Linux):**
+**Fix:**
 ```bash
-sudo usermod -aG docker $USER
-# Log out and back in
+# Re-run setup to reconnect providers
+scc setup
+
+# Or just start a session — SCC triggers browser sign-in automatically
+scc start
 ```
+
+### Codex Auth Callback Failed
+
+Codex uses `localhost:1455` for its OAuth callback. If auth fails:
+- Ensure port 1455 is free: `lsof -i :1455`
+- Kill any process using the port and retry
+- Try closing and reopening the browser
+
+### Auth Readiness States
+
+| State | Meaning | Action |
+|-------|---------|--------|
+| **Launch-ready** | Auth + image present | Ready to go |
+| **Auth cache present** | Auth OK, image missing | SCC auto-builds on start |
+| **Image available** | Image OK, auth missing | SCC triggers sign-in on start |
+| **Sign-in needed** | Nothing present | Run `scc setup` |
+
+## Network Policy Issues
+
+### web-egress-enforced not working
+
+The `web-egress-enforced` policy creates an internal Docker network with a Squid proxy sidecar. If requests fail:
+
+```bash
+# Check if proxy container is running
+docker ps | grep scc-proxy
+
+# Check the egress proxy image
+docker images | grep scc-egress-proxy
+```
+
+If the proxy image is missing, rebuild it:
+```bash
+docker build -t scc-egress-proxy images/scc-egress-proxy/
+```
+
+<Aside type="caution">
+  `web-egress-enforced` filters HTTP/HTTPS traffic over IPv4 only. Raw TCP/UDP beyond HTTP(S) is not filtered in v1.
+</Aside>

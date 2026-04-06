@@ -61,7 +61,7 @@ Or at the team level:
 
 ## How It Works
 
-The safety net plugin uses Claude Code hooks to intercept bash commands before execution:
+The safety net plugin uses agent-native hooks (Claude Code hooks, Codex rules) to intercept bash commands before execution. Note that SCC also includes a **built-in safety engine** with shell wrappers that provides defense-in-depth protection independent of the plugin:
 
 1. Claude attempts to run a git command
 2. The hook inspects the command

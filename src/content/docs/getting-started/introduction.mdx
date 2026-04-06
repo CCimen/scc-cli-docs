@@ -1,6 +1,6 @@
 ---
 title: What is SCC?
-description: Introduction to SCC CLI - sandboxed coding CLI for running Claude Code in Docker containers
+description: Introduction to SCC — Sandboxed Coding CLI for running AI coding agents in governed container sandboxes
 sidebar:
   order: 1
 ---
@@ -8,21 +8,19 @@ sidebar:
 import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
-**SCC (Sandboxed Claude CLI)** is a sandboxed coding CLI that runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic's AI coding CLI) inside Docker containers with organization-managed team profiles and git worktree support.
+**SCC (Sandboxed Coding CLI)** is a provider-neutral governed runtime for AI coding agents. It runs [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Codex](https://openai.com/index/introducing-codex/) inside container sandboxes (Docker Engine, OrbStack, Colima, or Docker Desktop) with organization-managed team profiles, a built-in safety engine, and git worktree support.
 
 <Aside type="tip">
-  SCC isolates AI execution in containers, enforces branch safety, and prevents destructive git commands. Organizations distribute plugins through a central config—developers get standardized setups without manual configuration.
+  SCC isolates agent execution in containers, enforces web egress through network topology, runs a fail-closed safety engine, and distributes team configuration through a central org config — developers get standardized setups without manual configuration, regardless of which agent they use.
 </Aside>
-
-Looking for a step-by-step guide? See [Sandbox Claude Code](/getting-started/claude-code-sandbox/) for a focused walkthrough.
 
 ## The Problem SCC Solves
 
-When teams use AI coding assistants, several challenges emerge:
+When teams use AI coding agents, several challenges emerge:
 
 <CardGrid>
   <Card title="Security Risk" icon="warning">
-    AI can execute arbitrary commands on your host machine, including destructive ones like `rm -rf` or `git push --force`.
+    AI agents can execute arbitrary commands on your host machine, including destructive ones like `rm -rf` or `git push --force`.
   </Card>
   <Card title="Configuration Drift" icon="setting">
     Each developer sets up their environment differently, leading to inconsistent behavior and hard-to-reproduce issues.
@@ -30,28 +28,55 @@ When teams use AI coding assistants, several challenges emerge:
   <Card title="Plugin Chaos" icon="puzzle">
     Without governance, developers install random plugins that may conflict or introduce security vulnerabilities.
   </Card>
-  <Card title="Branch Pollution" icon="github">
-    AI experiments can pollute your main branch with commits that break the build or introduce bugs.
+  <Card title="Provider Lock-in" icon="github">
+    Teams want to evaluate or switch between AI coding agents without rebuilding their governance, config, and plugin infrastructure.
   </Card>
 </CardGrid>
 
 ## How SCC Helps
 
-### Docker Isolation
+### Provider-Neutral Runtime
 
-Every Claude Code session runs inside a Docker container. The AI can only access files you explicitly mount, and it cannot affect your host system directly.
+SCC supports multiple AI coding agents through a provider-neutral architecture. Claude Code and Codex are first-class providers today. The architecture is extensible — adding a new provider means adding one adapter, not changing the core.
 
-<DrawioDiagram src="/diagrams/docker-sandbox-isolation.svg" alt="Docker Sandbox Isolation" />
+```bash
+scc provider show          # See current preference
+scc provider set codex     # Switch default provider
+scc start --provider claude ~/project  # Override for one session
+```
+
+Your org config, team plugins, safety policies, and governance carry over regardless of which provider you use.
+
+### Container Isolation
+
+Every agent session runs inside an OCI container. The agent can only access files you explicitly mount, and it cannot affect your host system directly.
+
+<DrawioDiagram src="/diagrams/docker-sandbox-isolation.svg" alt="Container Sandbox Isolation" />
+
+### Built-in Safety Engine
+
+SCC includes a fail-closed safety engine that runs inside every container:
+
+- **Git safety rules** — blocks `push --force`, `reset --hard`, `branch -D`, `clean -fd`, and other destructive git commands
+- **Network tool interception** — wraps curl, wget, ssh, scp, sftp, and rsync with policy checks
+- **Shell tokenizer** — parses compound commands to catch destructive operations hidden in pipes or subshells
+- **Fail-closed** — if safety policy cannot be loaded, all guarded commands are blocked by default
+
+The optional **scc-safety-net** plugin provides additional coverage via agent-native hooks (Claude Code hooks, Codex rules).
 
 ### Centralized Configuration
 
 Organization admins define a single JSON config that specifies:
 - Which plugins are allowed/blocked
 - Which MCP servers teams can use
-- Security policies (network posture, base images)
+- Security policies (network posture, safety-net action)
 - Team-specific profiles
 
 Developers just run `scc setup` once and they're ready.
+
+### Topology-Enforced Web Egress
+
+When `network_policy` is set to `web-egress-enforced`, SCC creates an internal-only Docker network. The agent container can only reach the internet through a Squid proxy sidecar that enforces an ACL. This is real network topology enforcement — even if the agent ignores proxy environment variables, it physically cannot bypass the proxy.
 
 ### Git Worktree Integration
 
@@ -60,31 +85,21 @@ SCC uses git worktrees to create isolated branches for each task:
 ```bash
 scc worktree create ~/project feature-auth
 # Creates isolated branch scc/feature-auth
-# Claude experiments here without touching main
+# Auto-starts an agent session in the worktree
 ```
-
-### Safety Net Plugin
-
-The official `scc-safety-net` plugin blocks dangerous git commands:
-
-- `git push --force`
-- `git reset --hard`
-- `git branch -D` (force delete)
-- `git clean -fd`
-- `git checkout/restore` (potential data loss)
 
 ## Who Uses SCC?
 
 | Role | What SCC Provides |
 |------|-------------------|
-| **Developers** | Instant setup, protected main branch, isolated experiments |
+| **Developers** | Instant setup, protected main branch, isolated experiments, provider choice |
 | **Team Leaders** | Approved plugin sets, consistent configs across the team |
-| **Org Admins** | Security policies, blocked plugins, audit trails |
+| **Org Admins** | Security policies, blocked plugins, audit trails, provider governance |
 
 ## Requirements
 
 - **Python 3.10+**
-- **Docker Desktop 4.50+** (requires sandbox support) — must be running with Docker Engine active
+- **Container runtime** — Docker Engine 20.10+, OrbStack, Colima, or Docker Desktop (Podman support is planned but not yet fully validated)
 - **Git 2.30+**
 - **uv** (recommended for installation)
 

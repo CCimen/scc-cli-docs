@@ -127,7 +127,7 @@ Output:
   "kind": "StartDryRun",
   "metadata": {
     "generatedAt": "2024-01-15T10:30:00Z",
-    "cliVersion": "1.6.3"
+    "cliVersion": "1.7.3"
   },
   "status": {
     "ok": true,
@@ -145,7 +145,7 @@ Output:
       { "name": "java-analyzer@internal", "source": "resolved" }
     ],
     "blocked_items": [],
-    "network_policy": "corp-proxy-only",
+    "network_policy": "web-egress-enforced",
     "ready_to_start": true,
     "resolution_reason": "Git repository detected at: /home/runner/project"
   }
@@ -207,7 +207,7 @@ Create a minimal CI profile:
         "timeout_hours": 1,
         "auto_resume": false
       },
-      "network_policy": "isolated"
+      "network_policy": "locked-down-web"
     }
   }
 }
