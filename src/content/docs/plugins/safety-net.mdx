@@ -5,7 +5,9 @@ sidebar:
   order: 2
 ---
 
-The `scc-safety-net` plugin is the most important plugin for organizations.
+The `scc-safety-net` plugin adds agent-native git protection on top of SCC's built-in safety engine.
+
+Today the plugin is aimed at **Claude Code**. **Codex support is planned**. If your team uses Codex today, you still get SCC's built-in cross-provider safety engine inside the container.
 
 ## What It Blocks
 
@@ -34,5 +36,11 @@ Policy modes:
 - `block` - Commands blocked (default)
 - `warn` - Commands allowed with warning
 - `allow` - Protection disabled
+
+## Current Scope
+
+- **Shipped today**: Claude Code hook-based protection
+- **Planned next**: Codex-native support
+- **Always available**: SCC's built-in safety engine, which already protects both Claude and Codex at the wrapper/runtime layer
 
 See [Safety Net Guide](/guides/organization/safety-net/) for details.

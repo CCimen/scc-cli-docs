@@ -16,7 +16,7 @@ This guide compares running AI coding agents (Claude Code, Codex) through SCC's 
 
 ## Quick Comparison
 
-| Aspect | SCC CLI | Local Claude Code |
+| Aspect | SCC CLI | Local Agent |
 |--------|---------|-------------------|
 | **Execution environment** | OCI container (Docker Engine, OrbStack, Colima, etc.) | Your host machine |
 | **File access** | Only mounted paths | Full filesystem |
@@ -29,18 +29,18 @@ This guide compares running AI coding agents (Claude Code, Codex) through SCC's 
 
 ## What SCC Adds
 
-### Docker Isolation
+### Container Isolation
 
-With SCC, Claude Code runs inside a Docker container. The AI can only access files in paths you explicitly mount—typically your project directory.
+With SCC, the agent runs inside an OCI container. The AI can only access files in paths you explicitly mount, typically your project directory.
 
 ```bash
 # SCC mounts only the workspace
 scc start ~/my-project
-# Claude Code sees /home/user/my-project inside container
+# The agent sees /home/user/my-project inside container
 # Cannot access ~/.ssh, ~/.aws, or other host paths
 ```
 
-Running Claude Code locally gives it access to your full filesystem (within the permissions of your user account).
+Running an agent locally gives it access to your full filesystem within the permissions of your user account.
 
 ### Git Safety Rails
 
@@ -53,20 +53,20 @@ SCC's Safety Net plugin blocks commands that can cause data loss:
 | `git branch -D` | Force-deletes branches |
 | `git clean -fd` | Deletes untracked files |
 
-Local Claude Code relies on its own judgment and your confirmation prompts.
+Local agents rely on their own judgment and your confirmation prompts.
 
 ### Team-Managed Configuration
 
 SCC lets organizations define:
 
 - **Approved plugins**: Only whitelisted plugins can run
-- **MCP servers**: Control which external services Claude can access
+- **MCP servers**: Control which external services the agent can access
 - **Security policies**: Network posture, blocked patterns
 - **Team profiles**: Consistent defaults across developers
 
 Developers run `scc setup` once to inherit all team settings.
 
-With local Claude Code, each developer manages their own `~/.claude/` configuration independently.
+With local agent setups, each developer manages their own provider configuration independently.
 
 ### Git Worktree Integration
 
@@ -84,28 +84,28 @@ This keeps AI work isolated from your main development branch.
 
 ### Choose SCC When
 
-- Your team needs consistent Claude Code configurations
-- You want Docker isolation between AI and host system
+- Your team needs consistent agent configurations
+- You want container isolation between AI and host system
 - You need to prevent destructive git operations
 - Org admins must control which plugins are allowed
 - Multiple developers need standardized setups
 
-### Choose Local Claude Code When
+### Choose Local Agent When
 
 - You're a solo developer with simple needs
 - You need maximum speed (no container startup)
-- You trust Claude Code's built-in safety measures
+- You trust your agent's built-in safety measures
 - You don't need team-wide governance
 
 ## Hybrid Approach
 
 Some teams use both:
 
-- **Local Claude Code** for quick, trusted tasks
+- **Local agent execution** for quick, trusted tasks
 - **SCC** for experimental work or when working with sensitive code
 
 <Aside type="tip">
-  SCC doesn't modify how Claude Code itself works. The AI behavior is identical—SCC just controls the environment it runs in.
+  SCC doesn't replace the agent. Claude Code and Codex still behave like themselves inside the container — SCC controls the environment, policy, and runtime around them.
 </Aside>
 
 ## Next Steps
@@ -122,8 +122,8 @@ Some teams use both:
     description="Understand SCC's isolation layers"
   />
   <LinkCard
-    title="Why Sandbox Claude Code"
-    href="/use-cases/why-sandbox-claude-code/"
+    title="Why Sandbox AI Coding Agents"
+    href="/use-cases/why-sandbox-ai-coding-agents/"
     description="Detailed reasons for sandboxing"
   />
 </CardGrid>

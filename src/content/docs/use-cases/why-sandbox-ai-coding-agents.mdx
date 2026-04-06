@@ -1,15 +1,15 @@
 ---
 title: Why Sandbox AI Coding Agents
-description: "Understand why sandboxing AI coding agents matters: security risks of unrestricted execution, how container isolation protects your system, and when sandboxing is essential."
+description: "Understand why sandboxing AI coding agents matters: security risks of unrestricted execution, where containers help, where they do not, and how SCC reduces blast radius."
 ---
 
 import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
-  { question: "Why should I sandbox AI coding agents?", answer: "AI coding agents execute commands on your system. Sandboxing limits what they can access — only mounted directories, controlled network access, and approved plugins. This reduces risk from mistakes or unexpected behavior." },
-  { question: "What risks does sandboxing prevent?", answer: "Sandboxing prevents: accidental file deletion outside your project, unintended git operations (force push, reset --hard), access to sensitive files (~/.ssh, ~/.aws), and installation of unapproved plugins or tools." },
-  { question: "Is it dangerous to run AI coding agents without a sandbox?", answer: "AI coding agents are designed to be helpful and follow safety guidelines. However, any system that executes commands can make mistakes. Sandboxing adds defense-in-depth — even if the agent makes an error, the blast radius is limited to the sandbox." }
+  { question: "Why should I sandbox AI coding agents?", answer: "AI coding agents execute commands on your system. Sandboxing limits filesystem access, applies team policy consistently, and can also control outbound network access. This reduces the blast radius when an agent makes a mistake." },
+  { question: "What risks does sandboxing prevent?", answer: "Sandboxing helps reduce accidental file deletion outside your project, destructive git operations, access to sensitive files (~/.ssh, ~/.aws), unapproved plugins, and uncontrolled outbound network access." },
+  { question: "Is a container alone enough?", answer: "No. A container helps with filesystem isolation, but it does not automatically stop outbound network access. SCC adds network policies, a built-in safety engine, and team governance on top." }
 ]} />
 
 AI coding agents like Claude Code and Codex execute real commands on real systems. This guide explains why sandboxing matters and when it's essential.
@@ -92,13 +92,30 @@ SCC includes a fail-closed safety engine inside every container:
 - **Network tool interception** — wraps curl, wget, ssh, scp, sftp, rsync
 - **Fail-closed** — if policy cannot be loaded, all guarded commands are blocked
 
+The optional `scc-safety-net` plugin adds extra agent-native coverage where supported. Today that plugin is Claude-focused; Codex support is planned.
+
 ### Network Topology Enforcement
 
 When `network_policy` is `web-egress-enforced`:
 - The agent container runs on an internal-only Docker network
 - A Squid proxy sidecar is the sole gateway to the internet
 - The proxy enforces an ACL for HTTP/HTTPS traffic
+- Default deny rules block loopback, private CIDRs, link-local ranges, and cloud metadata endpoints before any allow rules
 - The agent physically cannot bypass the proxy — this is topology enforcement, not just env vars
+
+<Aside type="caution">
+  A container is not a network boundary by itself. If you care about what the agent can reach on your network, focus on `web-egress-enforced` or `locked-down-web`, not just "runs in a container."
+</Aside>
+
+### Provider Choice Without Rebuilding Governance
+
+Different teams adopt AI coding tools differently. One team may prefer Claude for exploratory work. Another may prefer Codex for backend-heavy tasks. SCC lets organizations allow Claude, Codex, or both without rebuilding the governance model for each provider.
+
+That means:
+- one org config and policy model
+- one onboarding flow
+- one set of network and safety controls
+- freedom to choose the provider that fits the task
 
 ### Blast Radius Reduction
 

@@ -14,7 +14,7 @@ SCC CLI takes a specific approach to running AI coding agents: container-based s
 <CardGrid>
   <LinkCard
     title="SCC vs Local Agent"
-    href="/comparisons/scc-vs-local-claude-code/"
+    href="/comparisons/scc-vs-local-agent/"
     description="Compare sandboxed execution to running agents directly on your machine"
   />
   <LinkCard
@@ -36,7 +36,7 @@ SCC is purpose-built for running AI coding agents in teams. It combines:
 | Capability | What SCC Provides |
 |------------|-------------------|
 | **Container Isolation** | Every session runs in an OCI container — the agent cannot access host files outside mounted paths |
-| **Multi-Provider** | Run Claude Code or Codex through the same governed pipeline; switch per session |
+| **Multi-Provider** | Run Claude Code, Codex, or both through the same governed pipeline; switch per session |
 | **Team Profiles** | Org admins define plugins, MCP servers, and policies; developers run `scc setup` once |
 | **Built-in Safety** | Fail-closed safety engine blocks destructive git commands and network tools |
 | **Network Enforcement** | Topology-enforced web egress via proxy sidecar, not just env vars |

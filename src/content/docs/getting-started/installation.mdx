@@ -36,6 +36,10 @@ SCC auto-detects the available runtime. **Docker Desktop is not required.**
   **A container runtime must be installed and running** before using SCC. Ensure the daemon is active (`docker info` should succeed).
 </Aside>
 
+<Aside type="note">
+  Installing a container runtime gives SCC a sandbox boundary, but it does not automatically restrict outbound traffic from agent sessions. Network control is configured separately through SCC's `network_policy` settings.
+</Aside>
+
 ### Installing uv
 
 If you don't have `uv` installed yet, get it from [astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/):
@@ -163,8 +167,8 @@ The first `scc start` with a provider triggers an automatic image build (takes a
 **Manual build** (if needed):
 
 ```bash
-docker build -t scc-agent-claude images/scc-agent-claude/
-docker build -t scc-agent-codex images/scc-agent-codex/
+docker build -t scc-agent-claude:latest images/scc-agent-claude/
+docker build -t scc-agent-codex:latest images/scc-agent-codex/
 ```
 
 ## Updating SCC

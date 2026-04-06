@@ -59,7 +59,7 @@ This checks:
 | Container stuck | `scc stop --all` |
 | Plugin issues | `scc audit plugins` |
 | Unknown state | `scc doctor` |
-| Provider image missing | `docker build -t scc-agent-<provider> images/scc-agent-<provider>/` |
+| Provider image missing | `docker build -t scc-agent-<provider>:latest images/scc-agent-<provider>/` |
 | Auth expired | Re-run `scc setup` or start a session (triggers browser sign-in) |
 | Launch failure details | `scc support launch-audit` |
 | Safety audit details | `scc support safety-audit` |

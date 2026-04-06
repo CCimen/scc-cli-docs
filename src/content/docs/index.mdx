@@ -20,6 +20,32 @@ hero:
 
 import { Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
+## Start Here
+
+Most readers do **not** need to browse the whole docs tree.
+
+If you just want to get productive quickly, follow this path:
+
+<CardGrid>
+  <LinkCard
+    title="1. Quick Start"
+    href="/getting-started/quick-start/"
+    description="Install SCC, connect Claude and/or Codex, and launch your first sandboxed session"
+  />
+  <LinkCard
+    title="2. Core Concepts"
+    href="/getting-started/core-concepts/"
+    description="Understand providers, sessions, profiles, worktrees, and network policy"
+  />
+  <LinkCard
+    title="3. Daily Workflow"
+    href="/guides/developer/daily-workflow/"
+    description="Learn the commands you will actually use every day: start, resume, stop, list, and worktrees"
+  />
+</CardGrid>
+
+If you are evaluating SCC rather than using it day to day, start with [What is SCC?](/getting-started/introduction/), then read [Security Model](/architecture/security-model/) and [Architecture Overview](/architecture/overview/).
+
 ## Find Your Path
 
 <CardGrid>
@@ -49,16 +75,19 @@ import { Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlig
 
 <CardGrid stagger>
   <Card title="Multi-Provider Runtime" icon="rocket">
-    Run Claude Code or Codex through the same governed pipeline. Switch providers per session or per workspace — your config, plugins, and policies carry over.
+    Teams can standardize on Claude, Codex, or both. Developers can choose the agent that fits the task while keeping the same governance, profiles, and audit surface.
   </Card>
   <Card title="Container Isolation" icon="shield">
-    Code runs in OCI container sandboxes. Your host system stays protected from AI-generated commands. Works with Docker Engine, OrbStack, Colima, or Docker Desktop.
+    Code runs in OCI container sandboxes. The agent only sees the mounted workspace instead of your full host filesystem.
+  </Card>
+  <Card title="Network Egress Control" icon="globe">
+    Containers alone do not stop an agent from reaching the network. SCC can leave egress open, force HTTP/HTTPS through a proxy sidecar, or disable network access entirely.
   </Card>
   <Card title="Standardized Configs" icon="setting">
     Organization-managed profiles distributed via a single URL. No manual setup for developers.
   </Card>
   <Card title="Built-in Safety Engine" icon="warning">
-    Fail-closed safety engine blocks destructive git commands and intercepts network tools inside the container. Topology-enforced web egress with proxy sidecar for HTTP/HTTPS control.
+    Fail-closed wrappers block destructive git commands and intercept network tools inside every container, even if an agent-native plugin is missing or disabled.
   </Card>
 </CardGrid>
 
@@ -98,6 +127,8 @@ import { Card, CardGrid, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlig
    scc start    # Launch in current directory
    ```
 </Steps>
+
+SCC setup can connect Claude, Codex, or both. If your organization allows both, developers can keep a default or ask each time and choose the right provider per task.
 
 ## Who Controls What
 

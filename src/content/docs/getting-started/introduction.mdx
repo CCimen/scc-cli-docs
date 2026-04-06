@@ -14,6 +14,14 @@ import DrawioDiagram from '../../../components/DrawioDiagram.astro';
   SCC isolates agent execution in containers, enforces web egress through network topology, runs a fail-closed safety engine, and distributes team configuration through a central org config — developers get standardized setups without manual configuration, regardless of which agent they use.
 </Aside>
 
+## Read This First
+
+You do not need to read every page to start using SCC.
+
+- If you want to **get running fast**, read [Quick Start](/getting-started/quick-start/), then [Core Concepts](/getting-started/core-concepts/), then [Daily Workflow](/guides/developer/daily-workflow/).
+- If you are **evaluating SCC for a team or organization**, read this page, then [Security Model](/architecture/security-model/), then [Architecture Overview](/architecture/overview/).
+- If you are **setting policy**, continue from there into the organization and team-leader guides.
+
 ## The Problem SCC Solves
 
 When teams use AI coding agents, several challenges emerge:
@@ -45,13 +53,26 @@ scc provider set codex     # Switch default provider
 scc start --provider claude ~/project  # Override for one session
 ```
 
-Your org config, team plugins, safety policies, and governance carry over regardless of which provider you use.
+Your org config, team plugins, safety policies, and governance carry over regardless of which provider you use. Teams can standardize on one provider, allow both, or mix them by workflow. That makes SCC easier to adopt in organizations where one team prefers Claude for exploratory work and another prefers Codex for backend-heavy tasks.
 
 ### Container Isolation
 
 Every agent session runs inside an OCI container. The agent can only access files you explicitly mount, and it cannot affect your host system directly.
 
 <DrawioDiagram src="/diagrams/docker-sandbox-isolation.svg" alt="Container Sandbox Isolation" />
+
+### Containers Are Necessary, Not Sufficient
+
+Container isolation protects the host filesystem boundary, but it does not automatically solve network risk. A normal container can still reach the internet or internal services that your runtime can route to.
+
+SCC separates those concerns clearly:
+
+- **Container isolation** limits filesystem and process scope
+- **`open`** keeps normal outbound network access
+- **`web-egress-enforced`** routes HTTP/HTTPS through a Squid proxy sidecar on an internal-only network
+- **`locked-down-web`** disables network access entirely with `--network=none`
+
+That distinction matters when teams worry about agents reaching internal APIs, metadata endpoints, or services outside the current workspace.
 
 ### Built-in Safety Engine
 
@@ -76,7 +97,7 @@ Developers just run `scc setup` once and they're ready.
 
 ### Topology-Enforced Web Egress
 
-When `network_policy` is set to `web-egress-enforced`, SCC creates an internal-only Docker network. The agent container can only reach the internet through a Squid proxy sidecar that enforces an ACL. This is real network topology enforcement — even if the agent ignores proxy environment variables, it physically cannot bypass the proxy.
+When `network_policy` is set to `web-egress-enforced`, SCC creates an internal-only Docker network. The agent container can only reach the internet through a Squid proxy sidecar that enforces an ACL. This is real network topology enforcement — even if the agent ignores proxy environment variables, it physically cannot bypass the proxy. The compiled ACL also denies loopback, private CIDRs, link-local ranges, and cloud metadata endpoints before any allow rules are applied.
 
 ### Git Worktree Integration
 

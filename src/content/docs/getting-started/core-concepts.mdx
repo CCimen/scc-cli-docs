@@ -28,12 +28,16 @@ scc start --provider claude  # Override for one session
 **Provider preference resolution:**
 1. `--provider` CLI flag (highest priority)
 2. Resume provider (when resuming a session)
-3. If global preference is `ask` → always prompt (skips workspace memory)
-4. Workspace last-used (from `.scc/config.local.json`, gitignored)
-5. Global preference (`claude` or `codex`)
-6. Interactive prompt (when multiple providers are available)
+3. If global preference is `ask`, SCC still prompts when multiple providers are viable
+4. Workspace last-used helps SCC preselect or reuse the provider that worked last in this repo
+5. Global preference (`claude` or `codex`) applies when `ask` is not set
+6. If only one provider is viable, SCC uses it automatically
 
-SCC remembers the last-used provider per workspace, so repeated launches default to what you used last time — unless you set `scc provider set ask`, which always prompts.
+SCC remembers the last-used provider per workspace, so repeated launches feel natural. If you set `scc provider set ask`, SCC still prompts when both providers are allowed, but it uses workspace context to start from a sensible default instead of forcing you to choose from scratch every time.
+
+<Aside type="tip">
+  Organizations can allow Claude, Codex, or both. That makes it practical for one team to standardize on a single provider while another keeps both available and chooses per task.
+</Aside>
 
 <Aside type="note">
   Claude Code and Codex have different native plugin, rules, and hook surfaces. SCC unifies governance at the approval/bundle level — it does not pretend they share an identical plugin format. Each provider's native configuration is rendered by a provider-specific adapter.
@@ -98,6 +102,10 @@ A **sandbox** is the OCI container that isolates the agent from your host system
   SCC works with Docker Engine, OrbStack, Colima, or Docker Desktop. Docker Desktop is not required. SCC auto-detects the available runtime.
 </Aside>
 
+<Aside type="caution">
+  Container isolation protects the host filesystem, but it does not automatically restrict outbound network access. Use `web-egress-enforced` or `locked-down-web` when you need stronger network controls.
+</Aside>
+
 ## Team Profiles
 
 A **team profile** defines the configuration for a group of users. Each profile includes:
@@ -115,7 +123,7 @@ Profiles are defined in your organization's config and can be:
 
 ```bash
 # List available teams/profiles
-scc team
+scc team list
 
 # Switch to a different team
 scc team switch
@@ -220,7 +228,7 @@ Network policy is configured at the org or team level in the org config JSON. Se
 - **Allowlists**: Patterns defining which plugins are permitted
 - **Blocklists**: Patterns defining which plugins are forbidden
 
-The most important official plugin is **scc-safety-net**, which provides agent-native hook-based protection in addition to SCC's built-in safety engine.
+The most important official plugin is **scc-safety-net**, which provides agent-native hook-based protection in addition to SCC's built-in safety engine. Today that plugin is Claude-focused; Codex support is planned, while the built-in engine already protects both providers.
 
 <Aside type="note">
   Claude Code and Codex have different native plugin surfaces. SCC unifies plugin governance at the approval/bundle level and renders provider-native configuration through adapters. Plugins are not a one-to-one mapping between providers.

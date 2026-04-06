@@ -1,6 +1,6 @@
 ---
-title: Why Sandbox AI Coding Agents?
-description: "Why sandboxing AI coding agents matters: security risks, container isolation, and how SCC provides a governed runtime for Claude Code and Codex."
+title: Sandbox AI Coding Agents with SCC CLI
+description: "What a sandboxed AI coding workflow actually looks like in SCC: container isolation, network controls, provider choice, and team-managed safety."
 sidebar:
   order: 5
 ---
@@ -59,6 +59,16 @@ SCC creates an OCI container, mounts your workspace, applies team configuration,
 ## Network enforcement
 
 When `network_policy` is set to `web-egress-enforced`, SCC creates an internal-only Docker network. The agent container can only reach the internet through a Squid proxy sidecar that enforces an ACL. This is real network topology enforcement — even if the agent ignores proxy environment variables, it physically cannot bypass the proxy.
+
+That distinction matters because "runs in a container" is not the same thing as "cannot reach the network." SCC treats those as separate controls.
+
+## Why provider choice matters
+
+SCC is not just about sandboxing one agent. It lets organizations allow Claude, Codex, or both under the same governance model.
+
+- Teams can standardize on the provider that fits their workflow
+- Developers can switch providers per session when policy allows it
+- Setup, safety policy, network controls, and audit surfaces stay consistent
 
 ## FAQ
 

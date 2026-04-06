@@ -14,6 +14,12 @@ import FAQSchema from '../../../components/FAQSchema.astro';
 
 Running AI coding agents in containers provides isolation, reproducibility, and team consistency. SCC makes this straightforward for both Claude Code and Codex.
 
+Some teams standardize on one provider. Others allow both and choose the agent that fits the task. SCC keeps the runtime, safety, and governance model consistent either way.
+
+<Aside type="tip">
+  If you are new to SCC, do not start with every architecture page. Read [Quick Start](/getting-started/quick-start/), then [Core Concepts](/getting-started/core-concepts/), then come back here if you want the container and runtime details.
+</Aside>
+
 ## Why Containers for AI Coding
 
 | Benefit | What It Means |
@@ -52,7 +58,7 @@ scc start --provider codex ~/your-project
 
 When you run `scc start`, SCC:
 
-1. **Resolves provider** — CLI flag, workspace last-used, global preference, or prompts
+1. **Resolves provider** — CLI flag first, resumed session provider when applicable, then saved preference and workspace context before prompting if multiple providers are still viable
 2. **Checks readiness** — verifies container image and auth (auto-builds image on first run)
 3. **Creates a container** from the provider-specific image (e.g., `scc-agent-claude` or `scc-agent-codex`)
 4. **Mounts your workspace** at a controlled path
@@ -93,8 +99,8 @@ SCC owns provider-specific images built from bundled Dockerfiles:
 **First-run build:** SCC auto-builds the image on first start (~2–3 min). Manual build:
 
 ```bash
-docker build -t scc-agent-claude images/scc-agent-claude/
-docker build -t scc-agent-codex images/scc-agent-codex/
+docker build -t scc-agent-claude:latest images/scc-agent-claude/
+docker build -t scc-agent-codex:latest images/scc-agent-codex/
 ```
 
 ## Session Management
@@ -127,6 +133,8 @@ Network policies are configured at the org/team level:
 | `web-egress-enforced` | Topology-enforced proxy sidecar (HTTP/HTTPS, IPv4) |
 | `locked-down-web` | `--network=none` — no external access |
 
+`web-egress-enforced` is the important middle ground for many teams: the agent still gets controlled web access, but it cannot bypass the proxy because the container itself is on an internal-only network.
+
 ## Verifying Setup
 
 ```bash
@@ -139,7 +147,7 @@ scc doctor --provider codex     # Check specific provider
 | Problem | Solution |
 |---------|----------|
 | "Cannot connect to container runtime" | Start Docker Engine, OrbStack, Colima, or Docker Desktop |
-| "Provider image missing" | SCC auto-builds on first start. Manual: `docker build -t scc-agent-<provider> images/scc-agent-<provider>/` |
+| "Provider image missing" | SCC auto-builds on first start. Manual: `docker build -t scc-agent-<provider>:latest images/scc-agent-<provider>/` |
 | Permission denied on Linux | `sudo usermod -aG docker $USER` then log out/in |
 
 ## Next Steps
