@@ -66,7 +66,7 @@ SCC provides team profiles that ensure consistent configuration across all devel
 
 ### Container Isolation
 
-SCC runs agents inside OCI containers using any Docker-compatible runtime (Docker Engine, OrbStack, Colima, or Docker Desktop):
+SCC runs agents inside OCI containers through the Docker CLI using Docker Engine, OrbStack, Colima, or Docker Desktop:
 
 ```
 ┌─────────────────────────────────┐
@@ -92,7 +92,7 @@ SCC includes a fail-closed safety engine inside every container:
 - **Network tool interception** — wraps curl, wget, ssh, scp, sftp, rsync
 - **Fail-closed** — if policy cannot be loaded, all guarded commands are blocked
 
-The optional `scc-safety-net` plugin adds extra agent-native coverage where supported. Today that plugin is Claude-focused; Codex support is planned.
+The optional `scc-safety-net` plugin adds extra agent-native coverage where supported. SCC's built-in safety engine remains the provider-neutral baseline.
 
 ### Network Topology Enforcement
 

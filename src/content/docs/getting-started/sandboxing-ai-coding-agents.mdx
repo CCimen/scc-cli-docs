@@ -10,7 +10,7 @@ import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
   { question: "What is SCC CLI?", answer: "SCC CLI is a governed runtime for AI coding agents. It runs Claude Code and Codex inside container sandboxes with team-managed profiles, a built-in safety engine, and network egress control." },
-  { question: "Can I sandbox AI coding agents without Docker?", answer: "SCC uses OCI containers for isolation. Any Docker-compatible runtime works: Docker Engine, OrbStack, Colima, or Docker Desktop." },
+  { question: "Can I sandbox AI coding agents without Docker?", answer: "SCC uses OCI containers for isolation through the Docker CLI. Validated v1 runtimes are Docker Engine, OrbStack, Colima, and Docker Desktop. Podman is not validated in v1." },
   { question: "Does SCC replace Claude Code or Codex?", answer: "No. SCC wraps your chosen agent in a governed sandbox. The agent runs normally inside the container — SCC adds isolation, safety, and team configuration on top." }
 ]} />
 
@@ -76,7 +76,7 @@ SCC is not just about sandboxing one agent. It lets organizations allow Claude, 
 SCC CLI is a governed runtime for AI coding agents. It runs Claude Code and Codex inside container sandboxes with team-managed profiles, a built-in safety engine, and network egress control.
 
 ### Can I sandbox AI coding agents without Docker?
-SCC uses OCI containers for isolation. Any Docker-compatible runtime works: Docker Engine, OrbStack, Colima, or Docker Desktop. Podman support is planned but not yet fully validated.
+SCC uses OCI containers for isolation through the Docker CLI. Validated v1 runtimes are Docker Engine, OrbStack, Colima, and Docker Desktop. Podman is not validated in v1.
 
 ### Does SCC replace Claude Code or Codex?
 No. SCC wraps your chosen agent in a governed sandbox. The agent runs normally inside the container — SCC adds isolation, safety, and team configuration on top.

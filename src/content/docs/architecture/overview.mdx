@@ -107,7 +107,7 @@ docker build -t scc-agent-codex:latest images/scc-agent-codex/
 
 ## OCI Runtime Path
 
-SCC uses a portable OCI runtime path that works with any Docker-compatible engine:
+SCC uses a portable OCI runtime path through the Docker CLI. Validated v1 runtimes are:
 
 | Runtime | Status |
 |---------|--------|
@@ -115,7 +115,7 @@ SCC uses a portable OCI runtime path that works with any Docker-compatible engin
 | OrbStack | ✅ Supported |
 | Colima | ✅ Supported |
 | Docker Desktop | ✅ Supported |
-| Podman | 🔄 Planned (not fully validated) |
+| Podman | Not validated in v1 |
 
 SCC auto-detects the runtime via `docker info`. The `OciSandboxRuntime` adapter uses standard Docker CLI commands (`docker create`, `docker start`, `docker exec`) — no Docker Desktop-specific APIs.
 
