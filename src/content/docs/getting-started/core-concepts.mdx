@@ -218,7 +218,7 @@ SCC controls what network access the agent has inside the container:
 | `web-egress-enforced` | Topology-enforced proxy: agent runs on an internal-only network and can only reach the internet through a Squid proxy sidecar with an ACL. Even if the agent ignores proxy env vars, it physically cannot bypass the proxy. |
 | `locked-down-web` | `--network=none` — no external network access at all |
 
-Network policy is configured at the org or team level in the org config JSON. See [Security Model](/architecture/security-model/) for details on how topology enforcement works.
+Network policy is configured at the org or team level in the org config JSON. Projects can tighten the inherited policy in `.scc.yaml`, but cannot loosen it. See [Security Model](/architecture/security-model/) for details on how topology enforcement works.
 
 ## Plugins
 

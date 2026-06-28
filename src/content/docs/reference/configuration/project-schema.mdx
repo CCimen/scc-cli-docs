@@ -22,17 +22,20 @@ my-project/
 
 ## Requirements
 
-For `.scc.yaml` to take effect:
+For project additions and session overrides in `.scc.yaml` to take effect:
 1. Org enables project delegation (`delegation.projects.inherit_team_delegation: true`)
 2. Team has `delegation.allow_project_overrides: true`
 3. Resources must not match security blocks
 4. Plugins must match `defaults.allowed_plugins` (if specified)
+
+Project `network_policy` is different from plugin and MCP additions: it can only tighten the effective org/team policy. Looser team or project values are ignored and reported as "Ignored Policy Changes".
 
 ## Top-Level Structure
 
 ```yaml
 additional_plugins: []
 additional_mcp_servers: []
+network_policy: web-egress-enforced
 session: {}
 ```
 
@@ -94,6 +97,23 @@ Requires:
 - Command path to match `security.allowed_stdio_prefixes`
 - MCP server must match `defaults.allowed_mcp_servers` (if specified)
 
+## network_policy
+
+Optional project-level network restriction.
+
+```yaml
+network_policy: locked-down-web
+```
+
+Allowed values:
+- `open`
+- `web-egress-enforced`
+- `locked-down-web`
+
+Projects can only keep or tighten the effective org/team policy. For example, a project can change `open` to `web-egress-enforced` or `locked-down-web`, but a project cannot change `locked-down-web` to `open`.
+
+Unknown project values fail project-config validation. Looser values are ignored and appear in `scc config explain --field network` under "Ignored Policy Changes".
+
 ## session
 
 Session settings for this project.
@@ -138,6 +158,8 @@ additional_mcp_servers:
 session:
   timeout_hours: 8
   auto_resume: true
+
+network_policy: locked-down-web
 ```
 
 <Aside type="note">
@@ -187,3 +209,13 @@ scc config explain --field blocked
 ```
 
 Look for a "Blocked Items" entry showing the `security.blocked_plugins` pattern.
+
+### "Network policy ignored"
+
+Run:
+
+```bash
+scc config explain --field network
+```
+
+Look for an "Ignored Policy Changes" entry. Teams and projects can only keep or tighten the inherited `network_policy`.

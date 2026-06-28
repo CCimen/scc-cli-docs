@@ -171,6 +171,7 @@ export default defineConfig({
 					collapsed: true,
 					items: [
 						{ slug: 'guides/organization/overview' },
+						{ slug: 'guides/organization/enterprise-pilot' },
 						{ slug: 'guides/organization/config-setup' },
 						{ slug: 'guides/organization/security-policies' },
 						{ slug: 'guides/organization/delegation' },
