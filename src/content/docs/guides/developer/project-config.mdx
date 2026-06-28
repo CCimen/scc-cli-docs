@@ -47,6 +47,9 @@ additional_mcp_servers:
 # Override session settings
 session:
   timeout_hours: 4
+
+# Optional: tighten the effective org/team network policy
+network_policy: locked-down-web
 ```
 
 <Aside type="note">
@@ -98,17 +101,15 @@ additional_mcp_servers:
   MCP servers must pass org security blocks and `defaults.allowed_mcp_servers` (if set). Plugin-bundled MCP servers are not inspected.
 </Aside>
 
-When developers open this project with `scc`, it will use the security team's configuration regardless of their default team.
+### Network Policy
 
-### Entry Directory
-
-Specify a different entry point:
+Tighten network access for this project:
 
 ```yaml
-entry_directory: ./packages/frontend
+network_policy: locked-down-web
 ```
 
-The agent will start in this directory instead of the project root.
+Teams and projects can only keep or tighten the inherited network policy. Project values that loosen the effective org/team policy are ignored and shown under "Ignored Policy Changes" in `scc config explain`.
 
 ## Example Configurations
 
@@ -186,7 +187,7 @@ session:
   timeout_hours: 4        (from: project/.scc.yaml)  ← Project override
   auto_resume: true       (from: team/backend, advisory)
 
-network_policy: web-egress-enforced (from: org/defaults)
+network_policy: locked-down-web (from: project/.scc.yaml)  ← Project restriction
 ```
 
 ## What You Cannot Override
@@ -195,7 +196,8 @@ Project config cannot:
 
 - Remove team default plugins
 - Unblock organization-blocked plugins
-- Override network policy (projects cannot set it; teams can only tighten org defaults)
+- Loosen network policy (projects can only tighten the effective org/team policy)
+- Select a team; use `scc team switch` or `scc start --team`
 - Bypass security settings
 
 <Aside type="danger">
@@ -232,6 +234,14 @@ Your team's delegation rules don't permit that plugin. Check with your team lead
 
 ```bash
 scc config explain --field denied
+```
+
+### "Network policy ignored"
+
+Your team or project config tried to loosen an inherited network policy. Use a stricter value or remove the looser `network_policy` key.
+
+```bash
+scc config explain --field network
 ```
 
 ### "Team not found"

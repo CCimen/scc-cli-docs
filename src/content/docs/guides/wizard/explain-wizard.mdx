@@ -169,11 +169,11 @@ Effective config (what actually runs)
 | `additional_mcp_servers` | Accumulate |
 | `security.blocked_*` | Immutable, all layers |
 | `session.timeout_hours` | Last-wins |
-| `network_policy` | Org defaults with stricter-only team overrides |
+| `network_policy` | Inherited policy with stricter-only team/project overrides |
 | `cache_ttl_hours` | Org defaults only |
 
 <Aside type="caution">
-Team-level `network_policy` can only be **more restrictive** than org defaults. Looser values are ignored. `session.auto_resume` is advisory only in v1.
+Team and project `network_policy` values can only be **as restrictive or more restrictive** than the inherited policy. Looser values are ignored and surfaced by `scc config explain --field network` under "Ignored Policy Changes". `session.auto_resume` is advisory only in v1.
 </Aside>
 
 ## Common Questions
