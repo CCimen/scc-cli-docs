@@ -62,6 +62,10 @@ Requirements:
 
 MCP servers for this project.
 
+If `type` is omitted, SCC treats the server as `sse`. Network MCP servers
+(`http` or `sse`) are blocked when the effective `network_policy` is
+`locked-down-web`.
+
 ```yaml
 additional_mcp_servers:
   - name: project-api
@@ -96,7 +100,6 @@ Requires:
 - Org to set `security.allow_stdio_mcp: true`
 - Command path to match `security.allowed_stdio_prefixes`
 - MCP server must match `defaults.allowed_mcp_servers` (if specified)
-- `type` defaults to `sse` when omitted. Network MCP servers (`http` or `sse`) are blocked when the effective `network_policy` is `locked-down-web`.
 
 ## network_policy
 
