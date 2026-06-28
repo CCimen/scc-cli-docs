@@ -60,7 +60,7 @@ scc config edit
 
 ### scc config explain
 
-Shows the effective configuration with source tracking, enforcement status, and warnings:
+Shows the effective configuration with source tracking, enforcement status, ignored policy changes, and warnings:
 
 ```
 Enforcement Status
@@ -86,10 +86,11 @@ scc config explain --json
 ```
 
 JSON includes `data.blocked_items` and `data.denied_additions` for automation.
+It also includes `data.ignored_policy_changes` for team or project policy values that were rejected because they would loosen inherited controls.
 
 ### scc config validate
 
-Validates project config (`.scc.yaml`) against team/org policy gates and reports blocked or denied additions.
+Validates project config (`.scc.yaml`) against team/org policy gates and reports blocked additions, denied additions, and ignored project policy values.
 
 ```bash
 scc config validate --team backend

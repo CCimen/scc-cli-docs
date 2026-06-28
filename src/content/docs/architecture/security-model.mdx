@@ -88,10 +88,11 @@ You can re-enable prompts inside Claude if you want stricter confirmation.
 
 ## Security Blocks
 
-Patterns in `security.blocked_*` are absolute:
-- Cannot be overridden by teams
-- Cannot be overridden by projects
-- Cannot be overridden by exceptions
+Patterns in `security.blocked_*` are organization-level blocks:
+- Cannot be overridden directly by teams
+- Cannot be overridden directly by projects
+- Cannot be overridden by local/user overrides
+- Can be overridden only by audited, time-bounded policy exceptions
 
 ## Provider Plugin Model
 

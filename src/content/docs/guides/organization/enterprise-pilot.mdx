@@ -1,0 +1,129 @@
+---
+title: Enterprise Pilot Blueprint
+description: A minimal governed rollout path for teams adopting SCC
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Use this blueprint when you want to pilot SCC with one or two teams before a wider rollout.
+
+SCC v1 is the governed runtime layer for AI coding agents. It standardizes how agents run, which plugins and MCP servers are allowed, how project configuration is inherited, and how developers can inspect the effective configuration.
+
+## Pilot Scope
+
+Start with:
+
+- one organization config;
+- one or two team profiles;
+- one real project per team;
+- Claude Code and/or Codex as the approved providers;
+- one network policy baseline;
+- one documented exception process.
+
+Do not start the pilot by designing a new project registry, identity platform, or plugin marketplace workflow. SCC already treats the current project as the repository/worktree being launched.
+
+## Baseline Controls
+
+| Surface | Pilot decision |
+|---------|----------------|
+| Providers | Choose which teams can use Claude Code, Codex, or both |
+| Plugins | Approve marketplaces and default plugins in org config |
+| MCP servers | Allow only declared org/team/project MCP servers |
+| Network policy | Set the org default, then let teams/projects tighten only |
+| Project config | Allow `.scc.yaml` only for teams that can support it |
+| Exceptions | Use time-bounded local or policy exceptions |
+
+<Aside type="note">
+  Teams and projects can tighten inherited `network_policy`, but cannot loosen it. Looser values are ignored and shown by `scc config explain` under "Ignored Policy Changes".
+</Aside>
+
+## Rollout Steps
+
+1. Create the org config.
+
+   ```bash
+   scc org init
+   scc org validate org-config.json
+   ```
+
+2. Select a pilot team and verify its effective config.
+
+   ```bash
+   scc team switch backend
+   scc config explain
+   scc config explain --json
+   ```
+
+3. Add one project `.scc.yaml` only if the team needs project-specific additions.
+
+   ```bash
+   scc config validate
+   scc config explain --field denied
+   scc config explain --field network
+   ```
+
+4. Run a dry launch before asking developers to use the profile.
+
+   ```bash
+   scc start --dry-run --non-interactive ~/project
+   ```
+
+5. Capture troubleshooting artifacts during the pilot.
+
+   ```bash
+   scc support bundle
+   scc support launch-audit
+   scc support safety-audit
+   ```
+
+## Project Switching Model
+
+In v1, project identity is the repository/worktree path that SCC launches, plus the selected team and provider. Quick resume uses that work context rather than a separate project registry.
+
+For developers, the workflow is:
+
+```bash
+scc team switch backend
+cd ~/project-a
+scc start
+
+scc team switch platform
+cd ~/project-b
+scc start --provider codex
+```
+
+Use `.scc.yaml` for project-specific additions, not for team selection. If a developer needs to change teams for a project, use `scc team switch` or `scc start --team`.
+
+## Audit Checks
+
+For a pilot review, collect:
+
+- `scc config explain --json` for each pilot team/project;
+- `scc start --dry-run --json --non-interactive <project>` for each provider;
+- `scc support bundle` after representative launches;
+- the org config and any project `.scc.yaml` files reviewed in the pilot.
+
+Use these artifacts to answer:
+
+- Which provider ran?
+- Which team profile applied?
+- Which plugins and MCP servers were active?
+- Which additions were blocked, denied, or ignored?
+- Which network policy was effective?
+
+## Not in v1
+
+These are roadmap items, not pilot prerequisites:
+
+- SSO;
+- SCIM;
+- centralized SBOM export;
+- CycloneDX inventory generation;
+- devcontainer-to-SCC container attachment;
+- a central project registry.
+
+<Aside type="caution">
+  Do not promise these roadmap items as implemented controls in a pilot. Present SCC v1 as the governed runtime and configuration layer, then add identity, inventory, and deeper platform integrations once the runtime rollout is stable.
+</Aside>

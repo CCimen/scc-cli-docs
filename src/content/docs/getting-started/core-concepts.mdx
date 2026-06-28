@@ -206,7 +206,7 @@ SCC includes a **built-in safety engine** that runs inside every container:
 - **Shell tokenizer** — parses compound commands to catch destructive operations in pipes or subshells
 - **Fail-closed** — if safety policy cannot be loaded, all guarded commands are blocked by default
 
-The optional **scc-safety-net** plugin provides additional coverage via agent-native hooks (currently Claude Code; Codex support planned).
+The optional **scc-safety-net** plugin provides additional agent-native hook coverage where supported; SCC's built-in safety engine is the provider-neutral enforcement baseline.
 
 ## Network Policy
 
@@ -218,7 +218,7 @@ SCC controls what network access the agent has inside the container:
 | `web-egress-enforced` | Topology-enforced proxy: agent runs on an internal-only network and can only reach the internet through a Squid proxy sidecar with an ACL. Even if the agent ignores proxy env vars, it physically cannot bypass the proxy. |
 | `locked-down-web` | `--network=none` — no external network access at all |
 
-Network policy is configured at the org or team level in the org config JSON. See [Security Model](/architecture/security-model/) for details on how topology enforcement works.
+Network policy is configured at the org or team level in the org config JSON. Projects can tighten the inherited policy in `.scc.yaml`, but cannot loosen it. See [Security Model](/architecture/security-model/) for details on how topology enforcement works.
 
 ## Plugins
 
@@ -228,7 +228,7 @@ Network policy is configured at the org or team level in the org config JSON. Se
 - **Allowlists**: Patterns defining which plugins are permitted
 - **Blocklists**: Patterns defining which plugins are forbidden
 
-The most important official plugin is **scc-safety-net**, which provides agent-native hook-based protection in addition to SCC's built-in safety engine. Today that plugin is Claude-focused; Codex support is planned, while the built-in engine already protects both providers.
+The most important official plugin is **scc-safety-net**, which adds agent-native hook-based git protection where supported. SCC's built-in safety engine remains the cross-provider baseline.
 
 <Aside type="note">
   Claude Code and Codex have different native plugin surfaces. SCC unifies plugin governance at the approval/bundle level and renders provider-native configuration through adapters. Plugins are not a one-to-one mapping between providers.

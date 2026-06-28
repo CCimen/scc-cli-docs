@@ -24,7 +24,7 @@ The `scc-safety-net` plugin is the most important plugin for organizations. It b
 | `git stash clear` | Deletes all stashes permanently |
 
 <Aside type="danger">
-  These commands can cause irreversible data loss. Today the plugin prevents Claude Code from accidentally running them. Codex support is planned; SCC's built-in safety engine already provides cross-provider baseline protection.
+  These commands can cause irreversible data loss. SCC's built-in safety engine provides cross-provider baseline protection; the plugin adds Claude Code agent-native hooks on top.
 </Aside>
 
 ## Enabling Safety Net
@@ -56,12 +56,12 @@ Or at the team level:
 ```
 
 <Aside type="tip">
-  Always enable `scc-safety-net` for Claude Code teams unless you have a specific reason not to. If your organization also uses Codex, keep the plugin enabled where it applies and rely on SCC's built-in safety engine for the cross-provider baseline until Codex plugin support lands.
+  Always enable `scc-safety-net` for Claude Code teams unless you have a specific reason not to. If your organization also uses Codex, keep the plugin enabled where it applies and rely on SCC's built-in safety engine for the cross-provider baseline.
 </Aside>
 
 ## How It Works
 
-The safety net plugin uses agent-native hooks to intercept bash commands before execution. Currently the plugin supports **Claude Code** via Claude hooks; **Codex support is planned** for the near future. Note that SCC also includes a **built-in safety engine** with shell wrappers that provides defense-in-depth protection for all providers, independent of the plugin:
+The safety net plugin uses agent-native hooks to intercept bash commands before execution. It supports **Claude Code** via Claude hooks. SCC also includes a **built-in safety engine** with shell wrappers that provides defense-in-depth protection for all providers, independent of the plugin:
 
 1. Claude attempts to run a git command
 2. The hook inspects the command

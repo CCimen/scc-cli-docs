@@ -25,12 +25,13 @@ These options are available on all commands:
 
 ## Exit Codes
 
-All SCC commands use consistent exit codes:
+All SCC commands use consistent exit codes.
+Human output and `--json` output use the same table.
 
 | Code | Constant | Meaning |
 |------|----------|---------|
 | 0 | `EXIT_SUCCESS` | Operation completed successfully |
-| 1 | `EXIT_ERROR` | General/unexpected error |
+| 1 | `EXIT_NOT_FOUND` | Target not found |
 | 2 | `EXIT_USAGE` | Invalid usage/arguments |
 | 3 | `EXIT_CONFIG` | Configuration or network error |
 | 4 | `EXIT_TOOL` | External tool failed (git, docker) |

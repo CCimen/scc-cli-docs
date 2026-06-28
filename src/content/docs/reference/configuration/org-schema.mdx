@@ -337,7 +337,7 @@ Team profile definitions.
 | `trust` | object | Trust grants (federated) |
 
 <Aside type="note">
-  Profile-level `network_policy` overrides the org default. It can only be **more restrictive** than the org default (e.g., `open` → `web-egress-enforced` is allowed, but `locked-down-web` → `open` is not).
+  Profile-level `network_policy` can only keep or tighten the org default. Looser profile values are ignored and shown under "Ignored Policy Changes" in `scc config explain`.
 </Aside>
 
 ### Trust Grants
