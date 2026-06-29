@@ -108,12 +108,12 @@ A **sandbox** is the OCI container that isolates the agent from your host system
 
 ## Team Profiles
 
-A **team profile** defines the configuration for a group of users. Each profile includes:
+A **team profile** defines the configuration for a group of users. An inline team profile can set:
 
 | Setting | Description |
 |---------|-------------|
-| `plugins` | Agent plugins enabled for this team |
-| `mcp_servers` | MCP servers available to the agent |
+| `additional_plugins` | Team-level plugin additions |
+| `additional_mcp_servers` | Team-level MCP server additions |
 | `network_policy` | Network egress policy (`open`, `web-egress-enforced`, or `locked-down-web`) |
 | `session` | Timeout settings (auto_resume is advisory in v1) |
 
