@@ -42,10 +42,10 @@ Status values:
 | Claim | Docs location | Implementation owner | Test or diagnostic | Status |
 |-------|---------------|----------------------|--------------------|--------|
 | Running the agent inside the existing devcontainer or attaching the SCC agent container to arbitrary devcontainer/Compose service networks. | [SCC vs Dev Containers](/comparisons/scc-vs-dev-containers/), [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Explicitly excluded by M013 S04 / D056 | future |
-| SSO and SCIM. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Not implemented in M012 | future |
+| OIDC SSO, SAML federation, SCIM users/groups, group-to-team/provider/admin entitlement mapping, provider credential brokering, and read-only enterprise admin visibility. | [Enterprise Identity Roadmap](/architecture/enterprise-identity/), [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1; planned M014 architecture | RFC 7642/7643/7644, Entra ID, and MobilityGuard references only; no implementation or diagnostic yet | future |
 | Central SBOM or CycloneDX inventory generation. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Not implemented in M012 | future |
 | Central project registry. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Explicitly excluded by D052 and M012 | future |
-| Enterprise dashboard. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Not implemented in M012 | future |
+| Full policy editing, billing, chargeback, or prompt/source-code telemetry dashboard beyond the read-only M014 admin visibility plan. | [Enterprise Identity Roadmap](/architecture/enterprise-identity/) | None in v1; not part of M014 | Explicitly excluded from the M014 roadmap | future |
 | Raw TCP/UDP filtering through the proxy. | [Security Model](/architecture/security-model/) | None in v1 | Security Model marks this out of scope | remove |
 
 ## Maintenance Rule

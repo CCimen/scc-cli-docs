@@ -1,0 +1,209 @@
+---
+title: Enterprise Identity Roadmap
+description: Planned OIDC, SAML, SCIM, entitlement, credential broker, and admin visibility architecture for SCC
+sidebar:
+  order: 5
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+  This page describes the planned M014 enterprise identity architecture. SCC v1
+  does not yet implement OIDC login, SAML login, SCIM endpoints, group-to-team
+  entitlement mapping, provider credential brokering, or the enterprise admin
+  dashboard.
+</Aside>
+
+SCC v1 already owns the runtime, policy, provider launch, safety, and audit
+surfaces for AI coding agents. M014 adds enterprise identity as a control-plane
+layer above those surfaces.
+
+The product boundary is:
+
+- the identity provider authenticates people and provisions groups;
+- SCC maps those groups to teams, profiles, providers, admin roles, and policy
+  profiles;
+- SCC starts Claude Code or Codex only after the effective entitlement and
+  runtime policy have been resolved;
+- SCC records launch, safety, support, and credential-broker events without
+  collecting prompt text or source code by default.
+
+## Planned Flow
+
+```text
+Developer CLI
+  -> SCC enterprise control plane
+  -> OIDC or SAML sign-in
+  -> SCIM-provisioned user and group state
+  -> SCC team/profile/provider entitlement resolution
+  -> provider credential broker
+  -> governed sandbox launch
+  -> audit and read-only admin visibility
+```
+
+The CLI remains the developer entry point. The control plane answers questions
+that local config cannot answer safely for a larger organization: who the
+developer is, which groups they belong to, which providers they may use, which
+team profile applies, and whether credentials are available for that provider.
+
+## OIDC And SAML Login
+
+M014 should treat OpenID Connect as the primary browser sign-in path and SAML
+as a federation option for organizations that already use SAML gateways.
+
+The first implementation should validate:
+
+- issuer;
+- audience;
+- token signature;
+- expiry and clock skew;
+- nonce and state for browser flows;
+- key rotation through the identity provider's JWKS endpoint;
+- required group or role claims only when the tenant has explicitly configured
+  claim-based authorization.
+
+SSO authenticates the developer. SCC authorization still happens inside SCC
+after it maps identity-provider groups to SCC teams, provider entitlements, and
+admin roles.
+
+## SCIM 2.0 Provisioning
+
+SCIM should provide SCC with the users and groups that matter for authorization.
+The planned SCC SCIM surface should follow RFC 7642, RFC 7643, and RFC 7644
+instead of inventing a custom user sync API.
+
+The initial SCIM service should expose:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `/scim/v2/ServiceProviderConfig` | Publish supported SCIM behavior. |
+| `/scim/v2/Schemas` | Publish SCC's supported user and group schemas. |
+| `/scim/v2/ResourceTypes` | Publish available resource types. |
+| `/scim/v2/Users` | Create, read, update, search, and deactivate users. |
+| `/scim/v2/Groups` | Create, read, update, search, and sync memberships. |
+
+For Entra ID compatibility, the first release should support assigned user and
+group provisioning, stable external IDs, PATCH-based group membership changes,
+and deprovisioning that removes access before deleting local audit history.
+
+SCC should store the minimum identity data needed for policy decisions:
+
+- immutable local user ID;
+- identity-provider subject and issuer;
+- external SCIM ID;
+- display name and email when provided;
+- active or deprovisioned state;
+- external groups and SCC mapping results;
+- timestamps and audit metadata.
+
+## Entitlements
+
+SCC remains the source of truth for AI coding-agent policy. The identity
+provider tells SCC who a user is and which external groups apply. SCC decides
+what those groups mean.
+
+Planned entitlement resolution:
+
+1. Match the signed-in user to a provisioned SCIM user.
+2. Load active external group memberships.
+3. Resolve explicit group mappings to SCC teams, policy profiles, providers,
+   and admin roles.
+4. Apply the same org -> team -> project inheritance and narrow-only project
+   policy rules that SCC v1 already enforces.
+5. Deny launch when a provider, team, or policy profile is missing or blocked.
+
+Administrators should map groups explicitly. SCC should not infer SCC team
+names from external group display names, because IdP group naming usually drifts
+over time.
+
+## Entra ID Reference
+
+Microsoft Entra ID should be the primary reference implementation for M014
+because many municipalities, agencies, and companies already use it for SSO,
+Conditional Access, MFA, and SCIM provisioning.
+
+The SCC setup guide should cover:
+
+- an enterprise application for SCC;
+- OIDC redirect URI configuration for browser login;
+- token validation expectations;
+- assigned user and group provisioning scope;
+- SCIM bearer token rotation;
+- group claims versus SCIM group provisioning tradeoffs;
+- deprovisioning behavior when a user is disabled or removed from assignment.
+
+Prefer SCIM-provisioned groups for durable entitlement state. Use token group
+claims only as an optimization or for small tenants that understand the claim
+size and overage behavior.
+
+## MobilityGuard Reference
+
+MobilityGuard OneGate should be documented as a Swedish/public-sector
+federation reference, not as a proprietary SCC dependency. When a customer uses
+MobilityGuard as the access gateway, SCC should integrate through standard
+OIDC, SAML, or OAuth2 federation paths exposed by the gateway.
+
+The SCC contract should stay the same:
+
+- the gateway authenticates the user;
+- SCC validates the federated assertion or token;
+- SCC authorizes through its own group mapping and policy model;
+- SCC records the identity provider, subject, team, provider, policy profile,
+  and runtime decision in audit artifacts.
+
+## Provider Credential Broker
+
+The credential broker should never store or replay provider passwords. M014
+should use provider-approved mechanisms only:
+
+- Claude through provider-supported gateway or API-key helper flows;
+- Codex through access-token or API-key mode where the provider supports it;
+- local bring-your-own credentials as a fallback for developer machines that do
+  not use enterprise brokerage.
+
+The broker should answer whether a provider credential is available, who owns
+the credential, when it was last checked, and which launch used it. It should not
+turn SCC into a password vault.
+
+## Admin Visibility MVP
+
+The first enterprise admin panel should be read-only. It should help an
+organization answer operational questions without turning M014 into a full
+policy editing product.
+
+Initial pages:
+
+| Page | Questions answered |
+|------|--------------------|
+| Overview | Which teams and providers are active? Which launches failed? |
+| Users | Which users are provisioned, active, or deprovisioned? |
+| Teams | Which external groups map to SCC teams and profiles? |
+| Providers | Which providers are enabled and which credential mode is active? |
+| Audit | Who launched which provider, from which team, with which policy? |
+| Configuration health | Which mappings, credentials, or policies need attention? |
+
+Token and cost reporting should be exact only when the provider or gateway
+exposes usage data. Otherwise SCC should report session counts, launch outcomes,
+provider selection, and support-bundle evidence.
+
+## Non-Goals For M014
+
+M014 should not add:
+
+- a generic identity provider replacement;
+- a provider password vault;
+- shared personal provider accounts;
+- full policy editing in the first admin UI;
+- billing or chargeback;
+- prompt/source-code telemetry by default;
+- multi-tenant SaaS complexity unless the product direction explicitly changes.
+
+## Standards And References
+
+- [RFC 7642: SCIM Definitions, Overview, Concepts, and Requirements](https://datatracker.ietf.org/doc/html/rfc7642)
+- [RFC 7643: SCIM Core Schema](https://datatracker.ietf.org/doc/html/rfc7643)
+- [RFC 7644: SCIM Protocol](https://datatracker.ietf.org/doc/html/rfc7644)
+- [Microsoft Entra SCIM provisioning guide](https://learn.microsoft.com/en-us/entra/identity/app-provisioning/use-scim-to-provision-users-and-groups)
+- [Microsoft Entra OpenID Connect protocol guide](https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc)
+- [Microsoft Entra single sign-on model](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/understand-microsoft-sso-model)
+- [MobilityGuard OneGate](https://www.mobilityguard.com/products/onegate/)

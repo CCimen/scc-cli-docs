@@ -228,8 +228,10 @@ This is optional. Normal SCC CI does not require Docker.
 
 These are roadmap items, not pilot prerequisites:
 
-- SSO;
-- SCIM;
+- SSO, SAML federation, and SCIM provisioning;
+- group-to-team, provider, policy profile, and admin-role entitlement mapping;
+- provider credential brokering;
+- read-only enterprise admin visibility;
 - centralized SBOM export;
 - CycloneDX inventory generation;
 - running the agent inside the existing devcontainer;
@@ -240,3 +242,5 @@ These are roadmap items, not pilot prerequisites:
 <Aside type="caution">
   Do not promise these roadmap items as implemented controls in a pilot. Present SCC v1 as the governed runtime and configuration layer, then add identity, inventory, and deeper platform integrations once the runtime rollout is stable.
 </Aside>
+
+The planned identity work is tracked in [Enterprise Identity Roadmap](/architecture/enterprise-identity/). That page is a future-state architecture note, not a current SCC v1 capability list.
