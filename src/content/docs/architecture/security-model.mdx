@@ -52,7 +52,8 @@ Topology-based isolation with a Squid proxy sidecar:
 - Agent container runs on an internal-only Docker network (no direct external access)
 - Squid proxy sidecar is dual-homed: internal network + default bridge
 - Proxy enforces an ACL compiled from the team's allowed destinations
-- Default deny rules block IP literals, loopback, private CIDRs, link-local ranges, and cloud metadata endpoints before any allow rules
+- Default deny rules block loopback, private CIDRs, link-local ranges, and cloud metadata endpoints before any allow rules
+- Unlisted destinations, including direct IP-literal attempts, hit the terminal deny-all rule
 - Even if the agent ignores `HTTP_PROXY` env vars, it physically cannot bypass the proxy
 
 <Aside type="caution">
@@ -61,6 +62,10 @@ Topology-based isolation with a Squid proxy sidecar:
 
 ### `locked-down-web`
 The container runs with `--network=none`. No external network access at all.
+
+SCC does not join arbitrary project, devcontainer, or Docker Compose service
+networks in v1. Under `web-egress-enforced`, the agent container must stay on
+SCC's internal network so the proxy sidecar remains the only egress bridge.
 
 ## Enforcement States
 

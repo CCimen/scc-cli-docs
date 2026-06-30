@@ -25,6 +25,9 @@ A git worktree created for parallel development. Each worktree has its own worki
 ### Workspace
 The directory mounted into the sandbox. Typically a git repository root where the agent operates.
 
+### Runtime Mount Source
+The host-visible path passed to the container runtime for the workspace bind mount. It normally matches the workspace path. When SCC runs inside a devcontainer with the host Docker socket, `SCC_WORKSPACE_PATH_MAP` can translate a path such as `/workspaces/app` to the host path the Docker daemon can mount.
+
 ## Configuration
 
 ### Organization Config (org-config.json)

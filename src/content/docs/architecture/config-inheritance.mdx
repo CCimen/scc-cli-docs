@@ -1,37 +1,229 @@
 ---
 title: Config Inheritance
-description: How configuration layers merge
+description: How org, team, and project configuration merge into one effective SCC policy
 sidebar:
   order: 2
 ---
 
+import { Aside } from '@astrojs/starlight/components';
 import DrawioDiagram from '../../../components/DrawioDiagram.astro';
 
-## The Three Layers
+SCC computes one effective configuration before it launches an agent. The merge
+order is:
+
+```text
+organization defaults -> selected team profile -> project .scc.yaml
+```
+
+The selected team comes from `scc team switch`, `scc start --team`, or the
+current setup profile. The project layer is the repository or worktree that SCC
+is launched from; v1 does not have a separate project registry.
 
 <DrawioDiagram src="/diagrams/config-inheritance2.svg" alt="Configuration Inheritance Flow" />
 
-## Merge Behavior
+## Merge Rules
 
-| Setting Type | Behavior |
-|--------------|----------|
-| Plugins | Accumulate (additive) |
-| MCP Servers | Accumulate, later overrides same name |
-| Security Blocks | Cannot be overridden |
-| Session Settings | Last wins |
+| Setting | Org | Team | Project | Effective behavior |
+|---------|-----|------|---------|--------------------|
+| Providers | Sets allowed providers | Can choose within org policy | No provider selection in `.scc.yaml` | Launch fails closed if the selected provider is not allowed |
+| Plugins | Defines defaults, allowlist, and blocks | Adds delegated plugins | Adds delegated plugins | Allowed additions accumulate; org security blocks always win |
+| MCP servers | Defines allowlist, stdio policy, and blocks | Adds delegated MCP servers | Adds delegated MCP servers | Allowed additions accumulate; blocked, disallowed, or policy-incompatible servers are omitted |
+| `network_policy` | Sets baseline | Can keep or tighten | Can keep or tighten | Looser values are ignored and reported under "Ignored Policy Changes" |
+| Session settings | Sets defaults | Overrides defaults | Overrides team values | Last accepted value wins; `session.auto_resume` is advisory in v1 |
 
-## Example
+<Aside type="caution">
+  Do not use `.scc.yaml` to select teams or loosen organization policy. Project
+  config is for project-specific additions and stricter local posture.
+</Aside>
 
-Org defaults: `["safety-net"]`
-Team adds: `["java-tools"]`
-Project adds: `["linter"]`
+## Plugins
 
-Effective: `["safety-net", "java-tools", "linter"]`
+Plugins are additive. For example:
 
-## Tracking Sources
-
-```bash
-scc config explain
+```text
+Org default:  safety-net
+Team adds:    java-tools
+Project adds: repo-linter
+Effective:    safety-net, java-tools, repo-linter
 ```
 
-Shows where each setting comes from.
+An addition is omitted when it matches `security.blocked_plugins`, does not
+match `defaults.allowed_plugins`, or is requested from a layer that lacks
+delegation.
+
+Use:
+
+```bash
+scc config explain --field plugins
+scc config explain --field blocked
+scc config explain --field denied
+```
+
+to see which plugins were accepted, blocked, or denied.
+
+## MCP Servers
+
+MCP servers are also additive, but every server must pass the same governance
+checks before it reaches the effective config:
+
+- org `security.blocked_mcp_servers`;
+- org `defaults.allowed_mcp_servers`, when configured;
+- team or project delegation rules;
+- stdio MCP policy, when `type: stdio`;
+- the effective `network_policy`.
+
+When the effective `network_policy` is `locked-down-web`, network MCP servers
+(`http` or `sse`) are blocked because the runtime has no external network.
+
+Use unique MCP server names. Provider renderers project the accepted effective
+MCP server list into provider-native config, and duplicate native keys can only
+have one final provider value.
+
+## Network Policy
+
+`network_policy` values have this restrictiveness order:
+
+```text
+open < web-egress-enforced < locked-down-web
+```
+
+Teams and projects can keep the inherited value or move right in that order.
+They cannot move left.
+
+Example:
+
+```text
+Org default:  locked-down-web
+Team asks:    open
+Project asks: web-egress-enforced
+Effective:    locked-down-web
+```
+
+The team and project attempts are ignored because both would loosen the
+inherited policy. SCC records those attempts in the explain output:
+
+```bash
+scc config explain --field network
+scc config explain --json
+```
+
+Look for `Ignored Policy Changes` in text output or `ignored_policy_changes` in
+JSON output.
+
+## Session Settings
+
+Session settings use last accepted value wins:
+
+```text
+Org default timeout:  12 hours
+Team timeout:         8 hours
+Project timeout:      4 hours
+Effective timeout:    4 hours
+```
+
+`session.auto_resume` is accepted and shown in explain output, but it is
+advisory in v1. SCC's actual quick-resume behavior is tied to the active
+work context: selected team, repository/worktree path, branch, and provider.
+
+## Work Context
+
+SCC v1 treats the current repository or worktree as project identity. The
+work context includes:
+
+- selected team;
+- repository root;
+- worktree path and branch;
+- provider ID (`claude` or `codex`);
+- last session/container identity.
+
+This keeps switching simple:
+
+```bash
+scc team switch platform
+cd ~/repos/payments-api
+scc start --provider codex
+
+scc team switch support
+cd ~/repos/case-system
+scc start --provider claude
+```
+
+Each provider gets separate session identity, so a Claude session and a Codex
+session in the same repository do not overwrite each other.
+
+## Minimal Example
+
+Organization config:
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": { "name": "Example Municipality", "id": "example-muni" },
+  "defaults": {
+    "allowed_providers": ["claude", "codex"],
+    "allowed_plugins": ["scc-safety-net", "internal-*"],
+    "allowed_mcp_servers": ["*.example.gov"],
+    "network_policy": "web-egress-enforced"
+  },
+  "security": {
+    "blocked_plugins": ["shadow-*"],
+    "blocked_mcp_servers": ["*.personal.example"]
+  },
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["internal-*"],
+      "allow_additional_mcp_servers": ["casework"]
+    },
+    "projects": { "inherit_team_delegation": true }
+  },
+  "profiles": {
+    "casework": {
+      "allowed_plugins": ["scc-safety-net"],
+      "additional_plugins": ["internal-case-helper"],
+      "additional_mcp_servers": [
+        {
+          "name": "casework",
+          "type": "sse",
+          "url": "https://casework.example.gov/mcp"
+        }
+      ],
+      "delegation": { "allow_project_overrides": true }
+    }
+  }
+}
+```
+
+Project config:
+
+```yaml title=".scc.yaml"
+additional_plugins:
+  - internal-repo-linter
+
+additional_mcp_servers:
+  - name: project-docs
+    type: sse
+    url: https://docs.example.gov/mcp
+
+network_policy: locked-down-web
+
+session:
+  timeout_hours: 4
+```
+
+Because the project tightens from `web-egress-enforced` to `locked-down-web`,
+network MCP servers are blocked in the final effective config. SCC reports that
+through `Blocked Items`.
+
+## Commands
+
+```bash
+scc team switch casework
+scc config validate
+scc config explain
+scc config explain --json
+scc config explain --field network
+scc config explain --field blocked
+scc config explain --field denied
+```
+
+For source-backed claim ownership, see [Docs Claim Map](/reference/docs-claim-map/).

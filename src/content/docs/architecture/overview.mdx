@@ -119,7 +119,7 @@ SCC uses a portable OCI runtime path through the Docker CLI. Validated v1 runtim
 
 SCC auto-detects the runtime via `docker info`. The `OciSandboxRuntime` adapter uses standard Docker CLI commands (`docker create`, `docker start`, `docker exec`) — no Docker Desktop-specific APIs.
 
-Each provider gets a persistent named volume for credential and data persistence. Container names are deterministic, derived from the workspace path and provider ID — running Claude and Codex in the same workspace produces separate, identity-isolated containers.
+Each provider gets a persistent named volume for credential and data persistence. Container names are deterministic, derived from the runtime mount source and provider ID — running Claude and Codex in the same workspace produces separate, identity-isolated containers. In devcontainers that use host Docker socket path mapping, the runtime mount source is the host-visible path, so host and devcontainer launches converge on the same Docker-daemon identity.
 
 ## Safety Engine Architecture
 

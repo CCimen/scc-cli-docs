@@ -7,8 +7,8 @@ import { Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 import FAQSchema from '../../../components/FAQSchema.astro';
 
 <FAQSchema faqs={[
-  { question: "Can I use SCC inside a dev container?", answer: "Yes. SCC requires Docker access, so your dev container needs Docker-in-Docker or access to the host Docker socket. SCC then creates its own containers for Claude Code sessions." },
-  { question: "What does SCC provide that dev containers don't?", answer: "SCC adds AI agent-specific features: built-in safety engine (blocks destructive git commands), plugin governance (org-approved plugins only), team profiles (consistent configs), multi-provider support (Claude Code, Codex), and git worktree management. Dev containers provide general containerized development environments." },
+  { question: "Can I use SCC inside a dev container?", answer: "Yes, with the sibling-container model. SCC still creates its own governed agent container. If your devcontainer uses the host Docker socket and the host daemon cannot see the devcontainer workspace path, set SCC_WORKSPACE_PATH_MAP to translate the container-visible workspace path to the host-visible path." },
+  { question: "What does SCC provide that dev containers don't?", answer: "SCC adds AI agent-specific features: built-in safety engine, plugin governance, team profiles, multi-provider support for Claude Code and Codex, network policy, audit surfaces, and git worktree management. Dev containers provide general containerized development environments." },
   { question: "Should I use dev containers or SCC for AI coding?", answer: "They solve different problems. Dev containers standardize your development environment. SCC governs how AI coding agents run within that environment. Many teams use both together." }
 ]} />
 
@@ -18,31 +18,31 @@ This guide compares SCC's purpose-built AI agent sandboxing to using generic dev
 
 **Dev Containers** standardize your entire development environment—language runtimes, tools, extensions, and settings—in a reproducible container.
 
-**SCC** specifically governs how AI coding agents (Claude Code, Codex) run: container isolation, built-in safety engine, plugin control, network enforcement, and team policies. It focuses on the AI agent, not your full dev environment.
+**SCC** specifically governs how AI coding agents such as Claude Code and Codex run: container isolation, built-in safety engine, plugin control, network enforcement, and team policies. It focuses on the AI agent, not your full dev environment.
 
 ## Quick Comparison
 
 | Aspect | SCC CLI | Dev Containers |
 |--------|---------|----------------|
-| **Primary purpose** | Sandbox and govern Claude Code | Standardize dev environment |
-| **Scope** | Claude Code sessions only | Full development workflow |
-| **Claude-specific features** | Safety Net, plugin governance, worktrees | None (runs Claude Code normally) |
+| **Primary purpose** | Sandbox and govern AI coding agents | Standardize dev environment |
+| **Scope** | Claude Code and Codex sessions | Full development workflow |
+| **Agent-specific features** | Safety engine, plugin governance, provider policy, worktrees | None (runs agents normally) |
 | **Configuration** | Org/team JSON configs | devcontainer.json |
 | **IDE integration** | CLI-based | VS Code, JetBrains, Codespaces |
 
 ## What SCC Provides
 
-SCC focuses on Claude Code governance:
+SCC focuses on coding-agent governance:
 
-### Safety Net Plugin
-Blocks destructive git commands that could damage your repository:
+### Built-in Safety Engine
+Blocks destructive commands that could damage your repository and intercepts explicit network tools:
 - `git push --force`
 - `git reset --hard`
 - `git branch -D`
 - `git clean -fd`
 
 ### Plugin Governance
-Organizations control which Claude Code plugins developers can use:
+Organizations control which provider artifacts developers can use:
 
 ```json
 {
@@ -56,7 +56,7 @@ Organizations control which Claude Code plugins developers can use:
 ```
 
 ### Team Profiles
-Consistent Claude Code configuration across all team members:
+Consistent agent configuration across all team members:
 
 ```json
 {
@@ -87,14 +87,14 @@ Dev containers standardize your full development environment:
 - Editor settings
 - Port forwarding
 
-Dev containers don't provide Claude Code-specific governance—Claude Code runs inside them the same way it runs on your host.
+Dev containers don't provide coding-agent-specific governance. Claude Code or Codex run inside them the same way they run on your host unless another tool governs the agent runtime.
 
 ## Using Both Together
 
 Many teams combine both approaches:
 
 1. **Dev Container** defines the development environment (Node.js version, tools, extensions)
-2. **SCC** governs Claude Code sessions within that environment
+2. **SCC** governs Claude Code or Codex sessions within that environment
 
 ```bash
 # Inside your dev container
@@ -103,30 +103,77 @@ scc start .
 ```
 
 <Aside type="note">
-  Running SCC inside a dev container requires Docker access. Configure Docker-in-Docker or mount the host Docker socket in your devcontainer.json.
+  Running SCC inside a devcontainer requires Docker access. SCC creates a sibling
+  agent container; it does not run the agent inside the existing devcontainer.
 </Aside>
+
+### Host Docker socket path mapping
+
+When a devcontainer uses the host Docker socket, SCC may see the workspace as
+`/workspaces/app` while the host Docker daemon needs the host path, such as
+`/Users/name/app`, for bind mounts. Set one explicit path map before launch:
+
+```bash
+export SCC_WORKSPACE_PATH_MAP=/workspaces/app:/Users/name/app
+scc doctor . --json
+scc start . --dry-run --json
+scc start .
+```
+
+In doctor output, the "Workspace Path Map" check reports whether the mapping is
+valid and whether it matches the current workspace. In dry-run JSON,
+`runtime_mount_source` shows the host-visible path SCC will pass to the runtime,
+while `mount_root` and `container_workdir` stay on the logical path used inside
+the agent container.
+
+If your devcontainer uses Docker-in-Docker, the path visible to SCC and the path
+visible to that inner daemon are usually the same, so no path map is needed.
+
+SCC does not attach the agent container to arbitrary devcontainer or Compose
+service networks in v1. Network access remains controlled by SCC's own
+`network_policy` and, in `web-egress-enforced`, by the SCC proxy topology. This
+is a reliability and governance boundary: joining a project service network
+would create another route that needs its own policy, explain output, audit
+event, and runtime smoke tests before it can be called an SCC control.
+
+### Optional real-runtime smoke
+
+Normal SCC tests use fake runtimes so CI does not require Docker. Operators who
+want to verify a local Docker/devcontainer setup can run the opt-in smoke tests:
+
+```bash
+cd scc
+SCC_REAL_RUNTIME_SMOKE=1 \
+SCC_REAL_RUNTIME_IMAGE=scc-agent-claude:latest \
+uv run pytest -q --no-cov -m real_runtime
+```
+
+The smoke checks are skipped unless `SCC_REAL_RUNTIME_SMOKE=1` is set and the
+image named by `SCC_REAL_RUNTIME_IMAGE` exists locally. They validate the
+host-path bind mount used by `SCC_WORKSPACE_PATH_MAP` and the `locked-down-web`
+Docker create path.
 
 ## When to Use Each
 
 ### Choose SCC When
 
-- Your priority is governing Claude Code specifically
-- You need Safety Net to protect against destructive git commands
-- Organization must control Claude Code plugins
-- Team needs consistent Claude Code policies (not just dev environment)
+- Your priority is governing Claude Code, Codex, or both
+- You need runtime safety guardrails for destructive git commands and explicit network tools
+- Organization must control provider artifacts, plugins, MCP servers, and policy
+- Team needs consistent coding-agent policies, not just a repeatable dev environment
 
 ### Choose Dev Containers When
 
 - Your priority is standardizing the overall dev environment
 - You need reproducible builds and consistent tooling
 - IDE integration (VS Code, Codespaces) is important
-- Claude Code governance isn't a concern
+- Coding-agent governance isn't a concern
 
 ### Use Both When
 
-- You want standardized dev environments AND Claude Code governance
+- You want standardized dev environments and coding-agent governance
 - Your org has both general dev standards and AI-specific policies
-- Different teams need different Claude Code configurations within similar dev environments
+- Different teams need different agent configurations within similar dev environments
 
 ## Next Steps
 
