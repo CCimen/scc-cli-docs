@@ -60,15 +60,16 @@ Your org admin and team lead handle all configuration. You just code.
      </TabItem>
    </Tabs>
 
-2. **Run setup and enter your org URL**
+2. **Run setup and enter your organization source**
 
    ```bash
    scc setup
    ```
 
-   Your team lead or org admin will provide the URL. It looks like:
+   Your team lead or org admin will provide the source. It can be a URL or shorthand:
    - `https://github.com/my-org/scc-config/raw/main/org-config.json`
    - `https://gitlab.example.com/devops/scc-config.json`
+   - `github:my-org/scc-config@main:org-config.json`
 
    <Aside type="tip">
      If the config is private, use `--auth env:SCC_ORG_TOKEN` (or `GITHUB_TOKEN` / `GITLAB_TOKEN`). GitLab URLs use `PRIVATE-TOKEN` automatically. See [Config Setup](/guides/organization/config-setup/) for hosting examples.
