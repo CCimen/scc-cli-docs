@@ -304,6 +304,7 @@ export default defineConfig({
 						{ slug: 'architecture/config-inheritance' },
 						{ slug: 'architecture/security-model' },
 						{ slug: 'architecture/governance-model' },
+						{ slug: 'reference/docs-claim-map', label: 'Docs Claim Map' },
 					],
 				},
 				// 13. CLI Reference - Command lookup

@@ -1,0 +1,60 @@
+---
+title: Docs Claim Map
+description: Source ownership, tests, and status for SCC security and governance claims
+sidebar:
+  order: 5
+---
+
+The docs claim map is the review checklist for claims that matter to security,
+platform, and pilot evaluators. A claim should stay in the public docs only when
+it has an implementation owner and a test, diagnostic, or explicit future label.
+
+Status values:
+
+- `true`: implemented and covered by automated tests or deterministic diagnostics.
+- `partial`: implemented only for the documented scope.
+- `future`: roadmap item, not an implemented control.
+- `remove`: do not claim this as an SCC guarantee.
+
+## Current Claims
+
+| Claim | Docs location | Implementation owner | Test or diagnostic | Status |
+|-------|---------------|----------------------|--------------------|--------|
+| Org, team, and project config merge into one effective config. | [Config Inheritance](/architecture/config-inheritance/) | `src/scc_cli/application/compute_effective_config.py` | `tests/test_config_inheritance.py`, `tests/test_config_explain.py`, `tests/e2e/test_cli_journeys.py` | true |
+| Plugins and MCP servers accumulate when allowed, but org blocks and delegation denials remove additions. | [Config Inheritance](/architecture/config-inheritance/), [Security Model](/architecture/security-model/) | `compute_effective_config.py`, `effective_config_models.py` | `tests/test_config_explain.py`, `tests/test_mcp_servers.py`, `tests/e2e/test_cli_journeys.py` | true |
+| Project `network_policy` can keep or tighten inherited policy, but cannot loosen it. | [Config Inheritance](/architecture/config-inheritance/), [Project Schema](/reference/configuration/project-schema/), [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | `merge_restrictive_network_policy_layer()` in `compute_effective_config.py` | `tests/test_effective_context_project_policy.py`, `tests/test_config_explain.py`, `tests/e2e/test_cli_journeys.py` | true |
+| Ignored policy changes, blocked items, and denied additions are visible in text and JSON explain output. | [Config Inheritance](/architecture/config-inheritance/) | `src/scc_cli/commands/config.py`, `src/scc_cli/presentation/json/config_json.py` | `tests/test_config_explain.py`, `tests/e2e/test_cli_journeys.py` | true |
+| Project identity in v1 is repository/worktree work context, not a project registry. | [Config Inheritance](/architecture/config-inheritance/), [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | `src/scc_cli/contexts.py`, `src/scc_cli/application/sessions/use_cases.py` | `tests/test_contexts.py`, `tests/test_sessions.py`, `tests/test_session_provider_id.py` | true |
+| Claude and Codex have provider-separated session identity in the same workspace. | [Architecture Overview](/architecture/overview/), [Config Inheritance](/architecture/config-inheritance/) | `src/scc_cli/application/sessions/use_cases.py`, `src/scc_cli/sessions.py`, `src/scc_cli/contexts.py` | `tests/test_contexts.py`, `tests/test_sessions.py`, `tests/test_session_provider_id.py` | true |
+| All launch paths share provider resolution, image readiness, and auth readiness preflight. | [Architecture Overview](/architecture/overview/) | `src/scc_cli/commands/launch/preflight.py` plus launch callers | `tests/test_launch_preflight_guardrail.py`, `tests/test_dashboard_provider_resume.py`, `tests/test_worktree_autostart.py` | true |
+| Provider-native artifacts are adapter-owned, not core-owned. | [Architecture Overview](/architecture/overview/), [Security Model](/architecture/security-model/) | `src/scc_cli/ports/agent_provider.py`, `src/scc_cli/adapters/*_renderer.py`, `src/scc_cli/application/start_session.py` | `tests/test_import_boundaries.py`, `tests/test_application_start_session.py` | true |
+| `web-egress-enforced` uses an internal-only agent network plus proxy sidecar. | [Security Model](/architecture/security-model/) | `src/scc_cli/adapters/oci_sandbox_runtime.py`, `src/scc_cli/core/egress_policy.py` | `tests/test_oci_egress_integration.py`, `tests/test_oci_sandbox_runtime.py` | partial |
+| The SCC proxy ACL denies loopback, private CIDRs, link-local ranges, metadata endpoints, and unlisted destinations. | [Security Model](/architecture/security-model/) | `src/scc_cli/core/egress_policy.py`, `src/scc_cli/core/destination_registry.py` | `tests/test_egress_policy.py`, `tests/test_destination_registry.py` | true |
+| Host proxy environment variables cannot override SCC-managed proxy settings in enforced web egress. | [Security Model](/architecture/security-model/) | `src/scc_cli/adapters/oci_sandbox_runtime.py` | `tests/test_oci_egress_integration.py` | true |
+| `locked-down-web` starts the agent container with `--network=none`. | [Security Model](/architecture/security-model/) | `src/scc_cli/adapters/oci_sandbox_runtime.py` | `tests/test_oci_egress_integration.py`, `tests/test_real_runtime_smoke.py` behind `SCC_REAL_RUNTIME_SMOKE=1` | partial |
+| Built-in safety wrappers cover destructive git and explicit network tools for both providers. | [Security Model](/architecture/security-model/) | `src/scc_cli/core/safety_engine.py`, `src/scc_cli/adapters/claude_safety_adapter.py`, `src/scc_cli/adapters/codex_safety_adapter.py` | `tests/test_safety_engine.py`, `tests/test_safety_adapter_audit.py`, `tests/test_claude_safety_adapter.py`, `tests/test_codex_safety_adapter.py` | true |
+| Safety policy loading fails closed. | [Security Model](/architecture/security-model/) | `src/scc_cli/core/safety_policy_loader.py` | `tests/test_safety_policy_loader.py`, `tests/test_safety_eval_contract.py` | true |
+| Support bundles include provider, runtime, policy, launch/safety audit, and work-context evidence when available. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | `src/scc_cli/application/support_bundle.py` | `tests/test_support_bundle.py`, `tests/test_launch_audit_support.py`, `tests/test_safety_audit.py` | true |
+| SCC can launch sibling agent containers from a devcontainer by translating the runtime mount source with `SCC_WORKSPACE_PATH_MAP`, and doctor reports path-map readiness. | [SCC vs Dev Containers](/comparisons/scc-vs-dev-containers/) | `src/scc_cli/core/runtime_mounts.py`, `src/scc_cli/application/start_session.py`, `src/scc_cli/commands/launch/render.py`, `src/scc_cli/doctor/checks/environment.py` | `tests/test_runtime_mount_mapping.py`, `tests/test_application_start_session.py`, `tests/test_start_dryrun.py`, `tests/test_provider_machine_readable.py`, `tests/test_doctor_checks.py`, optional `tests/test_real_runtime_smoke.py` | partial |
+
+## Future Or Removed Claims
+
+| Claim | Docs location | Implementation owner | Test or diagnostic | Status |
+|-------|---------------|----------------------|--------------------|--------|
+| Running the agent inside the existing devcontainer or attaching the SCC agent container to arbitrary devcontainer/Compose service networks. | [SCC vs Dev Containers](/comparisons/scc-vs-dev-containers/), [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Explicitly excluded by M013 S04 / D056 | future |
+| SSO and SCIM. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Not implemented in M012 | future |
+| Central SBOM or CycloneDX inventory generation. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Not implemented in M012 | future |
+| Central project registry. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Explicitly excluded by D052 and M012 | future |
+| Enterprise dashboard. | [Enterprise Pilot Blueprint](/guides/organization/enterprise-pilot/) | None in v1 | Not implemented in M012 | future |
+| Raw TCP/UDP filtering through the proxy. | [Security Model](/architecture/security-model/) | None in v1 | Security Model marks this out of scope | remove |
+
+## Maintenance Rule
+
+When you add or change a security, network, provider, audit, or inheritance
+claim:
+
+1. Link the public docs page here.
+2. Name the implementation owner.
+3. Add or name the test, diagnostic, or manual smoke.
+4. Mark unsupported enterprise features as `future`, not as implemented
+   controls.

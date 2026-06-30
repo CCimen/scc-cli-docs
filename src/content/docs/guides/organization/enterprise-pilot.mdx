@@ -78,6 +78,104 @@ Do not start the pilot by designing a new project registry, identity platform, o
    scc support safety-audit
    ```
 
+## Executable Pilot Config
+
+Start with one org config and one project config. Keep identifiers boring and
+auditable; the value is in repeatable inheritance, not a clever naming scheme.
+
+```json title="org-config.json"
+{
+  "schema_version": "1.0.0",
+  "organization": {
+    "name": "Example Municipality",
+    "id": "example-muni"
+  },
+  "defaults": {
+    "allowed_providers": ["claude", "codex"],
+    "allowed_plugins": ["scc-safety-net", "internal-*"],
+    "allowed_mcp_servers": ["*.example.gov"],
+    "network_policy": "web-egress-enforced",
+    "session": {
+      "timeout_hours": 8,
+      "auto_resume": true
+    }
+  },
+  "security": {
+    "blocked_plugins": ["shadow-*"],
+    "blocked_mcp_servers": ["*.personal.example"],
+    "allow_stdio_mcp": false
+  },
+  "delegation": {
+    "teams": {
+      "allow_additional_plugins": ["internal-*"],
+      "allow_additional_mcp_servers": ["casework"]
+    },
+    "projects": {
+      "inherit_team_delegation": true
+    }
+  },
+  "profiles": {
+    "casework": {
+      "description": "Casework pilot team",
+      "allowed_plugins": ["scc-safety-net"],
+      "additional_plugins": ["internal-case-helper"],
+      "additional_mcp_servers": [
+        {
+          "name": "casework",
+          "type": "sse",
+          "url": "https://casework.example.gov/mcp"
+        }
+      ],
+      "delegation": {
+        "allow_project_overrides": true
+      }
+    }
+  }
+}
+```
+
+```yaml title=".scc.yaml"
+additional_plugins:
+  - internal-repo-linter
+
+additional_mcp_servers:
+  - name: project-docs
+    type: sse
+    url: https://docs.example.gov/mcp
+
+# Projects may tighten inherited policy.
+network_policy: locked-down-web
+
+session:
+  timeout_hours: 4
+```
+
+Run the pilot checks from the project repository:
+
+```bash
+scc org validate org-config.json
+scc team switch casework
+scc config validate
+scc config explain
+scc config explain --json
+scc config explain --field network
+scc config explain --field blocked
+scc config explain --field denied
+scc start --provider claude --dry-run --json --non-interactive .
+scc start --provider codex --dry-run --json --non-interactive .
+scc support bundle
+```
+
+Expected review signals:
+
+- effective provider is either `claude` or `codex`;
+- effective team is `casework`;
+- `internal-case-helper` and `internal-repo-linter` appear only if allowed by policy;
+- looser `network_policy` attempts would appear under "Ignored Policy Changes";
+- network MCP servers are blocked when the effective policy is `locked-down-web`;
+- dry-run output contains the provider launch contract without starting Docker;
+- support bundle manifest includes provider, runtime, policy, and work-context evidence.
+
 ## Project Switching Model
 
 In v1, project identity is the repository/worktree path that SCC launches, plus the selected team and provider. Quick resume uses that work context rather than a separate project registry.
@@ -101,6 +199,7 @@ Use `.scc.yaml` for project-specific additions, not for team selection. If a dev
 For a pilot review, collect:
 
 - `scc config explain --json` for each pilot team/project;
+- `scc doctor <project> --json` for each devcontainer-based project;
 - `scc start --dry-run --json --non-interactive <project>` for each provider;
 - `scc support bundle` after representative launches;
 - the org config and any project `.scc.yaml` files reviewed in the pilot.
@@ -112,6 +211,18 @@ Use these artifacts to answer:
 - Which plugins and MCP servers were active?
 - Which additions were blocked, denied, or ignored?
 - Which network policy was effective?
+- If launching from a devcontainer, did `runtime_mount_source` match the
+  host-visible workspace path expected by the Docker daemon?
+
+For pilot machines that intentionally allow live Docker smoke checks, run:
+
+```bash
+SCC_REAL_RUNTIME_SMOKE=1 \
+SCC_REAL_RUNTIME_IMAGE=scc-agent-claude:latest \
+uv run pytest -q --no-cov -m real_runtime
+```
+
+This is optional. Normal SCC CI does not require Docker.
 
 ## Not in v1
 
@@ -121,7 +232,9 @@ These are roadmap items, not pilot prerequisites:
 - SCIM;
 - centralized SBOM export;
 - CycloneDX inventory generation;
-- devcontainer-to-SCC container attachment;
+- running the agent inside the existing devcontainer;
+- attaching the SCC agent container to arbitrary devcontainer or Compose service
+  networks;
 - a central project registry.
 
 <Aside type="caution">
