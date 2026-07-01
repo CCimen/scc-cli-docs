@@ -99,13 +99,21 @@ scc support bundle [OPTIONS]
 | `--json` | Output manifest as JSON instead of creating zip |
 | `--pretty` | Pretty-print JSON output (implies `--json`) |
 | `--no-redact-paths` | Don't redact home directory paths |
+| `--compliance` | Add the `enterprise_audit_v1` evidence index and section checksums |
 
 **What's included:**
 
 - System information (platform, Python version)
 - CLI configuration (secrets automatically redacted)
 - Doctor output (health check results)
-- Diagnostic information
+- Launch and safety audit summaries
+- Runtime, provider, policy, work-context, and governed-artifact diagnostics
+
+`--compliance` keeps the same support-bundle zip and JSON manifest format. It
+adds a deterministic evidence index with SHA-256 checksums for the emitted
+redacted manifest sections, plus explicit non-goals. It is audit evidence for
+reviewers, not a SOC 2/ISO certification, SSO/SCIM implementation, SBOM
+attestation, dashboard, project registry, new provider, or Docker socket access.
 
 **Examples:**
 
@@ -124,8 +132,11 @@ scc support bundle [OPTIONS]
   # Output manifest as JSON (no zip)
   scc support bundle --json
 
+  # Include enterprise audit evidence index
+  scc support bundle --compliance
+
   # Pretty-print JSON
-  scc support bundle --pretty
+  scc support bundle --compliance --pretty
   ```
   </TabItem>
 </Tabs>

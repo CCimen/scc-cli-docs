@@ -39,6 +39,12 @@ Generate a bundle for troubleshooting:
 scc support bundle
 ```
 
+For enterprise or pilot reviews, include the deterministic audit evidence index:
+
+```bash
+scc support bundle --compliance
+```
+
 This creates a zip file with:
 - Configuration (secrets redacted)
 - Recent launch audit entries
@@ -46,9 +52,14 @@ This creates a zip file with:
 - System information
 - Container runtime status
 - Provider readiness states
+- Optional `enterprise_audit_v1` evidence index and SHA-256 checksums when
+  `--compliance` is used
 
 <Aside type="note">
-  Sensitive information like tokens and paths is automatically redacted.
+  Sensitive information like tokens and paths is automatically redacted. The
+  compliance profile is review evidence, not certification, SSO/SCIM support, a
+  generated SBOM, dashboard, project registry, new provider, or Docker socket
+  access.
 </Aside>
 
 ## GitHub Issues
