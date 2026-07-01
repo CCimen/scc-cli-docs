@@ -213,6 +213,9 @@ Use these artifacts to answer:
 - Which network policy was effective?
 - If launching from a devcontainer, did `runtime_mount_source` match the
   host-visible workspace path expected by the Docker daemon?
+- For devcontainer or Compose projects, did the "Dev Environment Bridge" doctor
+  check list the detected files and state that SCC does not mount the Docker
+  socket into agent containers or attach them to arbitrary project networks?
 
 For pilot machines that intentionally allow live Docker smoke checks, run:
 

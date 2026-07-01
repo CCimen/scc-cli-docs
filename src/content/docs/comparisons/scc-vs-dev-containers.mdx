@@ -121,7 +121,12 @@ scc start .
 ```
 
 In doctor output, the "Workspace Path Map" check reports whether the mapping is
-valid and whether it matches the current workspace. In dry-run JSON,
+valid and whether it matches the current workspace. For projects with
+`.devcontainer/devcontainer.json`, `.devcontainer.json`, `compose.yaml`,
+`compose.yml`, `docker-compose.yaml`, or `docker-compose.yml`, the "Dev
+Environment Bridge" check also reports the detected devcontainer/Compose
+evidence, the path-map state, Docker socket visibility to the SCC process, and
+the unsupported bridge actions. In dry-run JSON,
 `runtime_mount_source` shows the host-visible path SCC will pass to the runtime,
 while `mount_root` and `container_workdir` stay on the logical path used inside
 the agent container.
