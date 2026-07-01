@@ -148,11 +148,13 @@ SCC rejects shell strings such as `argv: "uv run pytest -q"`. Use:
 ```bash
 scc config explain --field dev_environment
 scc config explain --json
+scc dev run test .
 ```
 
-to inspect accepted commands, denied additions, and duplicate command names. In
-the current v1 bridge slice, project commands are policy/explain data only and
-are not executed by SCC yet.
+to inspect or execute accepted commands. `scc dev run <name>` writes a
+pre-execution audit event before launching the host process, rejects unknown
+command names, rejects `working_directory` values that escape the workspace
+after symlink resolution, and returns bounded stdout/stderr tails.
 
 ## session
 

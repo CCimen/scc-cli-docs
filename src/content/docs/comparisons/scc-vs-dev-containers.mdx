@@ -131,12 +131,12 @@ the unsupported bridge actions. In dry-run JSON,
 while `mount_root` and `container_workdir` stay on the logical path used inside
 the agent container.
 
-### Named bridge command contract
+### Named bridge commands
 
 Organizations and delegated teams can define named `dev_environment.commands`
 with a fixed `argv` list. These commands are visible in `scc config explain` and
 `scc config explain --json` so reviewers can see which project-support actions
-would be allowed by policy.
+are allowed by policy.
 
 Example project config:
 
@@ -155,11 +155,18 @@ Use:
 ```bash
 scc config explain --field dev_environment
 scc config explain --json
+scc dev run test .
+scc dev run test . --json
 ```
 
-This is a policy and explain contract only. The commands are not executed by SCC
-yet, and the agent container still does not receive Docker socket access or
-arbitrary project-network attachment.
+`scc dev run <name>` is host-owned: SCC resolves the effective config for the
+workspace/team, writes a pre-execution audit event, then runs only the approved
+fixed `argv` list with `shell=false`. The command working directory must stay
+inside the workspace, stdout/stderr are returned as bounded stdout/stderr tails,
+and durable audit metadata stores status and byte counts, not command output.
+
+The agent container still does not receive Docker socket access or arbitrary
+project-network attachment.
 
 If your devcontainer uses Docker-in-Docker, the path visible to SCC and the path
 visible to that inner daemon are usually the same, so no path map is needed.

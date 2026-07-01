@@ -29,7 +29,7 @@ is launched from; v1 does not have a separate project registry.
 | Plugins | Defines defaults, allowlist, and blocks | Adds delegated plugins | Adds delegated plugins | Allowed additions accumulate; org security blocks always win |
 | MCP servers | Defines allowlist, stdio policy, and blocks | Adds delegated MCP servers | Adds delegated MCP servers | Allowed additions accumulate; blocked, disallowed, or policy-incompatible servers are omitted |
 | `network_policy` | Sets baseline | Can keep or tighten | Can keep or tighten | Looser values are ignored and reported under "Ignored Policy Changes" |
-| `dev_environment.commands` | Defines named commands | Adds named commands when `allow_dev_environment_commands` matches the team | Adds named commands when project overrides and team command delegation are enabled | Accepted command names accumulate; duplicate names are ignored and reported under "Ignored Policy Changes" |
+| `dev_environment.commands` | Defines named commands | Adds named commands when `allow_dev_environment_commands` matches the team | Adds named commands when project overrides and team command delegation are enabled | Accepted command names accumulate; duplicate names are ignored and reported under "Ignored Policy Changes"; execution requires `scc dev run <name>` |
 | Session settings | Sets defaults | Overrides defaults | Overrides team values | Last accepted value wins; `session.auto_resume` is advisory in v1 |
 
 <Aside type="caution">
@@ -160,8 +160,19 @@ scc config explain --field dev_environment
 scc config explain --json
 ```
 
-In the current v1 bridge slice, these commands are explained and serialized but
-not executed by SCC yet.
+Run one accepted command with:
+
+```bash
+scc dev run test .
+scc dev run test . --json
+```
+
+Execution is fail-closed around audit: SCC writes a pre-execution audit event
+before starting the host process. If that audit write fails, the command does
+not run. The host process receives only the fixed `argv` list with `shell=false`;
+`working_directory` is resolved inside the workspace after symlink resolution.
+Command output is returned as bounded stdout/stderr tails and is not written to
+durable audit metadata.
 
 ## Session Settings
 

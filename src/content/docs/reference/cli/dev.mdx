@@ -1,0 +1,53 @@
+---
+title: Dev Environment Commands
+description: Host-owned bridge commands for approved project support actions
+sidebar:
+  order: 7
+---
+
+## scc dev
+
+Run host-owned dev environment bridge actions that are already approved by the
+effective org/team/project configuration.
+
+```bash
+scc dev run <name> [workspace] [options]
+```
+
+## scc dev run
+
+`scc dev run <name>` executes one accepted `dev_environment.commands` entry from
+the effective config. SCC runs only the configured fixed `argv` list; it does not
+accept shell strings or ad hoc command text.
+
+```bash
+scc config explain --field dev_environment
+scc dev run test .
+scc dev run test . --json
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--team TEAM` | Team profile to use for effective config resolution |
+| `--provider PROVIDER` | Provider identity to include in audit metadata |
+| `--json` | Output the command result as a JSON envelope |
+| `--pretty` | Pretty-print JSON output |
+| `--output-limit-bytes N` | Maximum stdout/stderr tail bytes to retain per stream |
+
+Execution rules:
+
+- SCC resolves effective config for the selected team and workspace.
+- Unknown command names are denied and audited.
+- SCC writes a pre-execution audit event before starting the host process. If
+  that audit write fails, the command does not run.
+- `working_directory` must be relative and remain inside the workspace after
+  symlink resolution.
+- stdout/stderr are returned as bounded stdout/stderr tails.
+- Durable audit metadata stores status, duration, cwd, timeout, and byte counts;
+  it does not store stdout/stderr content.
+
+This command does not run inside the SCC agent container, does not mount the
+Docker socket into the agent container, and does not attach agent containers to
+project Compose or devcontainer networks.

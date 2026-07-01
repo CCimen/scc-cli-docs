@@ -241,7 +241,7 @@ Organization-wide defaults applied to all teams.
 | `extra_marketplaces` | string[] | Additional marketplace keys to enable by default |
 | `cache_ttl_hours` | number | Cache TTL in hours for org config (1-168, default: 24) |
 | `network_policy` | string | Network egress policy: `open`, `web-egress-enforced`, or `locked-down-web` |
-| `dev_environment.commands` | object | Named dev-environment command contract; each command uses a fixed `argv` list and is explained, not executed by SCC yet |
+| `dev_environment.commands` | object | Named dev-environment command contract; each command uses a fixed `argv` list and can run through `scc dev run <name>` with audit |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
 | `session.auto_resume` | boolean | Advisory only in v1 (accepted but not enforced) |
