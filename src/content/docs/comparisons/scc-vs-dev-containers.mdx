@@ -131,12 +131,13 @@ the unsupported bridge actions. In dry-run JSON,
 while `mount_root` and `container_workdir` stay on the logical path used inside
 the agent container.
 
-### Named bridge commands
+### Named bridge actions
 
-Organizations and delegated teams can define named `dev_environment.commands`
-with a fixed `argv` list. These commands are visible in `scc config explain` and
-`scc config explain --json` so reviewers can see which project-support actions
-are allowed by policy.
+Organizations and delegated teams can define named `dev_environment.commands`,
+`dev_environment.logs`, and `dev_environment.health_checks` with fixed `argv`
+lists. These actions are visible in `scc config explain`,
+`scc config explain --json`, and `scc dev status --json` so reviewers and agents
+can see which project-support actions are allowed by policy.
 
 Example project config:
 
@@ -148,6 +149,16 @@ dev_environment:
       working_directory: "."
       timeout_seconds: 120
       description: "Run the project test suite"
+  logs:
+    api:
+      argv: ["docker", "compose", "logs", "--tail", "100", "api"]
+      timeout_seconds: 30
+      description: "Read recent API logs"
+  health_checks:
+    api:
+      argv: ["curl", "-fsS", "http://localhost:8000/health"]
+      timeout_seconds: 10
+      description: "Check local API health"
 ```
 
 Use:
@@ -155,15 +166,20 @@ Use:
 ```bash
 scc config explain --field dev_environment
 scc config explain --json
+scc dev status . --json
 scc dev run test .
+scc dev logs api .
+scc dev health api .
 scc dev run test . --json
 ```
 
-`scc dev run <name>` is host-owned: SCC resolves the effective config for the
-workspace/team, writes a pre-execution audit event, then runs only the approved
-fixed `argv` list with `shell=false`. The command working directory must stay
-inside the workspace, stdout/stderr are returned as bounded stdout/stderr tails,
-and durable audit metadata stores status and byte counts, not command output.
+`scc dev run <name>`, `scc dev logs <name>`, and `scc dev health <name>` are
+host-owned: SCC resolves the effective config for the workspace/team, writes a
+pre-execution audit event, then runs only the approved fixed `argv` list with
+`shell=false`. The action working directory must stay inside the workspace,
+stdout/stderr are returned as bounded stdout/stderr tails, and durable audit
+metadata stores status and byte counts, not command output. `scc dev status`
+does not run a host process; it only reports the effective bridge contract.
 
 The agent container still does not receive Docker socket access or arbitrary
 project-network attachment.
@@ -192,8 +208,9 @@ uv run pytest -q --no-cov -m real_runtime
 
 The smoke checks are skipped unless `SCC_REAL_RUNTIME_SMOKE=1` is set and the
 image named by `SCC_REAL_RUNTIME_IMAGE` exists locally. They validate the
-host-path bind mount used by `SCC_WORKSPACE_PATH_MAP` and the `locked-down-web`
-Docker create path.
+host-path bind mount used by `SCC_WORKSPACE_PATH_MAP`, the `locked-down-web`
+Docker create path, and one approved bridge log/health action against a live
+local container.
 
 ## When to Use Each
 

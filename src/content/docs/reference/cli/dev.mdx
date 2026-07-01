@@ -1,6 +1,6 @@
 ---
-title: Dev Environment Commands
-description: Host-owned bridge commands for approved project support actions
+title: Dev Environment Bridge
+description: Host-owned bridge commands, logs, health checks, and status output
 sidebar:
   order: 7
 ---
@@ -12,6 +12,9 @@ effective org/team/project configuration.
 
 ```bash
 scc dev run <name> [workspace] [options]
+scc dev logs <name> [workspace] [options]
+scc dev health <name> [workspace] [options]
+scc dev status [workspace] [options]
 ```
 
 ## scc dev run
@@ -51,3 +54,54 @@ Execution rules:
 This command does not run inside the SCC agent container, does not mount the
 Docker socket into the agent container, and does not attach agent containers to
 project Compose or devcontainer networks.
+
+## scc dev logs
+
+`scc dev logs <name>` executes one accepted `dev_environment.logs` entry from
+the effective config. This section is intended for policy-approved, bounded
+service log retrieval such as `docker compose logs --tail 100 api`; SCC enforces
+the fixed `argv`, cwd, timeout, output bounds, and audit contract, not semantic
+read-only behavior inside the tool you choose.
+
+```bash
+scc dev logs api .
+scc dev logs api . --json --output-limit-bytes 4096
+```
+
+The same execution rules as `scc dev run` apply: fixed `argv`, no shell strings,
+workspace-bounded cwd, pre-execution audit, timeout, and bounded stdout/stderr
+tails. Durable audit events use `dev_environment.log.*` event names and store
+byte counts, not log content.
+
+## scc dev health
+
+`scc dev health <name>` executes one accepted `dev_environment.health_checks`
+entry from the effective config. This section is intended for policy-approved,
+bounded health checks such as an HTTP health endpoint or container status check;
+SCC enforces the fixed `argv`, cwd, timeout, output bounds, and audit contract,
+not semantic read-only behavior inside the tool you choose.
+
+```bash
+scc dev health api .
+scc dev health api . --json
+```
+
+Health checks return the same JSON result shape as commands and logs. A non-zero
+exit code or timeout marks the result as failed. Durable audit events use
+`dev_environment.health_check.*` event names.
+
+## scc dev status
+
+`scc dev status` shows the effective dev-environment bridge contract for the
+workspace and team. It does not execute any host process.
+
+```bash
+scc dev status .
+scc dev status . --json
+```
+
+The JSON envelope uses kind `DevEnvironmentStatus` and lists accepted
+`commands`, `logs`, and `health_checks` with their fixed `argv`,
+`working_directory`, `timeout_seconds`, and descriptions. This is the preferred
+machine-readable surface for Claude and Codex sessions to inspect what the
+project allows before requesting an action.

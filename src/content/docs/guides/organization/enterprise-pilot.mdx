@@ -163,11 +163,21 @@ session:
 
 dev_environment:
   commands:
-    repo-test:
+    test:
       argv: ["uv", "run", "pytest", "-q"]
       working_directory: "."
       timeout_seconds: 120
       description: "Run this repository's test suite"
+  logs:
+    api:
+      argv: ["docker", "compose", "logs", "--tail", "100", "api"]
+      timeout_seconds: 30
+      description: "Read recent API logs"
+  health_checks:
+    api:
+      argv: ["curl", "-fsS", "http://localhost:8000/health"]
+      timeout_seconds: 10
+      description: "Check local API health"
 ```
 
 Run the pilot checks from the project repository:
@@ -182,7 +192,10 @@ scc config explain --field network
 scc config explain --field blocked
 scc config explain --field denied
 scc config explain --field dev_environment
+scc dev status . --json
 scc dev run test . --json
+scc dev logs api . --json
+scc dev health api . --json
 scc start --provider claude --dry-run --json --non-interactive .
 scc start --provider codex --dry-run --json --non-interactive .
 scc support bundle
@@ -194,9 +207,14 @@ Expected review signals:
 - effective team is `casework`;
 - `internal-case-helper` and `internal-repo-linter` appear only if allowed by policy;
 - looser `network_policy` attempts would appear under "Ignored Policy Changes";
-- `dev_environment.commands` appear in explain output with fixed `argv` lists;
-- `scc dev run test . --json` writes a pre-execution audit event, returns
-  bounded stdout/stderr tails, and does not put stdout/stderr content in durable
+- `dev_environment.commands`, `dev_environment.logs`, and
+  `dev_environment.health_checks` appear in explain/status output with fixed
+  `argv` lists;
+- `scc dev status . --json` reports the effective bridge contract without
+  executing a host process;
+- `scc dev run test . --json`, `scc dev logs api . --json`, and
+  `scc dev health api . --json` write pre-execution audit events, return
+  bounded stdout/stderr tails, and do not put stdout/stderr content in durable
   audit metadata;
 - network MCP servers are blocked when the effective policy is `locked-down-web`;
 - dry-run output contains the provider launch contract without starting Docker;

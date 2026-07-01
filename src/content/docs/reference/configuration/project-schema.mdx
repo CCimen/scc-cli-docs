@@ -120,10 +120,12 @@ Projects can only keep or tighten the effective org/team policy. For example, a 
 
 Unknown project values fail project-config validation. Looser values are ignored and appear in `scc config explain --field network` under "Ignored Policy Changes".
 
-## dev_environment.commands
+## dev_environment bridge actions
 
-Optional named project-support commands for devcontainer or Compose projects.
-Each command must be a map with a non-empty fixed `argv` list:
+Optional named project-support actions for devcontainer or Compose projects.
+SCC supports `dev_environment.commands`, `dev_environment.logs`, and
+`dev_environment.health_checks`. Each action must be a map with a non-empty
+fixed `argv` list:
 
 ```yaml
 dev_environment:
@@ -133,6 +135,16 @@ dev_environment:
       working_directory: "."
       timeout_seconds: 120
       description: "Run the project test suite"
+  logs:
+    api:
+      argv: ["docker", "compose", "logs", "--tail", "100", "api"]
+      timeout_seconds: 30
+      description: "Read recent API logs"
+  health_checks:
+    api:
+      argv: ["curl", "-fsS", "http://localhost:8000/health"]
+      timeout_seconds: 10
+      description: "Check local API health"
 ```
 
 Requirements:
@@ -140,7 +152,7 @@ Requirements:
 - org enables project delegation with `delegation.projects.inherit_team_delegation: true`;
 - team has `delegation.allow_project_overrides: true`;
 - org `delegation.teams.allow_dev_environment_commands` matches the selected team;
-- command names must be non-empty strings;
+- action names must be non-empty strings within their section;
 - `argv` must be a non-empty list of non-empty strings.
 
 SCC rejects shell strings such as `argv: "uv run pytest -q"`. Use:
@@ -148,13 +160,17 @@ SCC rejects shell strings such as `argv: "uv run pytest -q"`. Use:
 ```bash
 scc config explain --field dev_environment
 scc config explain --json
+scc dev status . --json
 scc dev run test .
+scc dev logs api .
+scc dev health api .
 ```
 
-to inspect or execute accepted commands. `scc dev run <name>` writes a
-pre-execution audit event before launching the host process, rejects unknown
-command names, rejects `working_directory` values that escape the workspace
-after symlink resolution, and returns bounded stdout/stderr tails.
+to inspect or execute accepted actions. `scc dev run <name>`,
+`scc dev logs <name>`, and `scc dev health <name>` write a pre-execution audit
+event before launching the host process, reject unknown names, reject
+`working_directory` values that escape the workspace after symlink resolution,
+and return bounded stdout/stderr tails.
 
 ## session
 

@@ -30,6 +30,8 @@ is launched from; v1 does not have a separate project registry.
 | MCP servers | Defines allowlist, stdio policy, and blocks | Adds delegated MCP servers | Adds delegated MCP servers | Allowed additions accumulate; blocked, disallowed, or policy-incompatible servers are omitted |
 | `network_policy` | Sets baseline | Can keep or tighten | Can keep or tighten | Looser values are ignored and reported under "Ignored Policy Changes" |
 | `dev_environment.commands` | Defines named commands | Adds named commands when `allow_dev_environment_commands` matches the team | Adds named commands when project overrides and team command delegation are enabled | Accepted command names accumulate; duplicate names are ignored and reported under "Ignored Policy Changes"; execution requires `scc dev run <name>` |
+| `dev_environment.logs` | Defines named log actions | Adds named log actions when `allow_dev_environment_commands` matches the team | Adds named log actions when project overrides and team command delegation are enabled | Same fixed-argv and duplicate-name rules as commands; execution requires `scc dev logs <name>` |
+| `dev_environment.health_checks` | Defines named health checks | Adds named health checks when `allow_dev_environment_commands` matches the team | Adds named health checks when project overrides and team command delegation are enabled | Same fixed-argv and duplicate-name rules as commands; execution requires `scc dev health <name>` |
 | Session settings | Sets defaults | Overrides defaults | Overrides team values | Last accepted value wins; `session.auto_resume` is advisory in v1 |
 
 <Aside type="caution">
@@ -111,10 +113,11 @@ scc config explain --json
 Look for `Ignored Policy Changes` in text output or `ignored_policy_changes` in
 JSON output.
 
-## Dev Environment Commands
+## Dev Environment Bridge Actions
 
-`dev_environment.commands` is a named bridge-action contract for projects that
-already use a devcontainer or Docker Compose stack. Each command must use a
+`dev_environment.commands`, `dev_environment.logs`, and
+`dev_environment.health_checks` are named bridge-action contracts for projects
+that already use a devcontainer or Docker Compose stack. Each action must use a
 fixed `argv` list. SCC does not accept shell strings here.
 
 Organization defaults can define baseline commands:
@@ -129,6 +132,20 @@ Organization defaults can define baseline commands:
           "working_directory": ".",
           "timeout_seconds": 120,
           "description": "Run the project test suite"
+        }
+      },
+      "logs": {
+        "api": {
+          "argv": ["docker", "compose", "logs", "--tail", "100", "api"],
+          "timeout_seconds": 30,
+          "description": "Read recent API logs"
+        }
+      },
+      "health_checks": {
+        "api": {
+          "argv": ["curl", "-fsS", "http://localhost:8000/health"],
+          "timeout_seconds": 10,
+          "description": "Check local API health"
         }
       }
     }
@@ -148,10 +165,11 @@ Teams can add commands only when the org delegates that capability:
 }
 ```
 
-Projects can add commands only when project overrides are enabled for the team
-and the team is allowed by `allow_dev_environment_commands`. Accepted command
-names accumulate. A team or project cannot override an already accepted command
-name; SCC reports the duplicate under "Ignored Policy Changes".
+Projects can add commands, logs, and health checks only when project overrides
+are enabled for the team and the team is allowed by
+`allow_dev_environment_commands`. Accepted action names accumulate within each
+section. A team or project cannot override an already accepted name in the same
+section; SCC reports the duplicate under "Ignored Policy Changes".
 
 Inspect the effective contract with:
 
@@ -164,15 +182,19 @@ Run one accepted command with:
 
 ```bash
 scc dev run test .
+scc dev logs api .
+scc dev health api .
+scc dev status . --json
 scc dev run test . --json
 ```
 
 Execution is fail-closed around audit: SCC writes a pre-execution audit event
-before starting the host process. If that audit write fails, the command does
+before starting the host process. If that audit write fails, the action does
 not run. The host process receives only the fixed `argv` list with `shell=false`;
 `working_directory` is resolved inside the workspace after symlink resolution.
-Command output is returned as bounded stdout/stderr tails and is not written to
-durable audit metadata.
+Output is returned as bounded stdout/stderr tails and is not written to durable
+audit metadata. `scc dev status --json` is read-only and reports the effective
+bridge contract without executing a host process.
 
 ## Session Settings
 
