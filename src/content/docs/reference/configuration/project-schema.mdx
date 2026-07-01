@@ -36,6 +36,8 @@ Project `network_policy` is different from plugin and MCP additions: it can only
 additional_plugins: []
 additional_mcp_servers: []
 network_policy: web-egress-enforced
+dev_environment:
+  commands: {}
 session: {}
 ```
 
@@ -118,6 +120,40 @@ Projects can only keep or tighten the effective org/team policy. For example, a 
 
 Unknown project values fail project-config validation. Looser values are ignored and appear in `scc config explain --field network` under "Ignored Policy Changes".
 
+## dev_environment.commands
+
+Optional named project-support commands for devcontainer or Compose projects.
+Each command must be a map with a non-empty fixed `argv` list:
+
+```yaml
+dev_environment:
+  commands:
+    test:
+      argv: ["uv", "run", "pytest", "-q"]
+      working_directory: "."
+      timeout_seconds: 120
+      description: "Run the project test suite"
+```
+
+Requirements:
+
+- org enables project delegation with `delegation.projects.inherit_team_delegation: true`;
+- team has `delegation.allow_project_overrides: true`;
+- org `delegation.teams.allow_dev_environment_commands` matches the selected team;
+- command names must be non-empty strings;
+- `argv` must be a non-empty list of non-empty strings.
+
+SCC rejects shell strings such as `argv: "uv run pytest -q"`. Use:
+
+```bash
+scc config explain --field dev_environment
+scc config explain --json
+```
+
+to inspect accepted commands, denied additions, and duplicate command names. In
+the current v1 bridge slice, project commands are policy/explain data only and
+are not executed by SCC yet.
+
 ## session
 
 Session settings for this project.
@@ -163,6 +199,14 @@ session:
   auto_resume: true
 
 network_policy: locked-down-web
+
+dev_environment:
+  commands:
+    test:
+      argv: ["uv", "run", "pytest", "-q"]
+      working_directory: "."
+      timeout_seconds: 120
+      description: "Run the project test suite"
 ```
 
 <Aside type="note">

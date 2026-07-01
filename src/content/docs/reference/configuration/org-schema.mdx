@@ -214,6 +214,16 @@ Organization-wide defaults applied to all teams.
     "extra_marketplaces": ["internal"],
     "cache_ttl_hours": 24,
     "network_policy": "open",
+    "dev_environment": {
+      "commands": {
+        "test": {
+          "argv": ["uv", "run", "pytest", "-q"],
+          "working_directory": ".",
+          "timeout_seconds": 120,
+          "description": "Run the project test suite"
+        }
+      }
+    },
     "session": {
       "timeout_hours": 12,
       "auto_resume": true
@@ -231,6 +241,7 @@ Organization-wide defaults applied to all teams.
 | `extra_marketplaces` | string[] | Additional marketplace keys to enable by default |
 | `cache_ttl_hours` | number | Cache TTL in hours for org config (1-168, default: 24) |
 | `network_policy` | string | Network egress policy: `open`, `web-egress-enforced`, or `locked-down-web` |
+| `dev_environment.commands` | object | Named dev-environment command contract; each command uses a fixed `argv` list and is explained, not executed by SCC yet |
 | `session` | object | Default session settings |
 | `session.timeout_hours` | number | Session timeout in hours |
 | `session.auto_resume` | boolean | Advisory only in v1 (accepted but not enforced) |
@@ -253,7 +264,8 @@ Controls what teams can add.
   "delegation": {
     "teams": {
       "allow_additional_plugins": ["*"],
-      "allow_additional_mcp_servers": ["platform", "data"]
+      "allow_additional_mcp_servers": ["platform", "data"],
+      "allow_dev_environment_commands": ["platform"]
     }
   }
 }
@@ -263,6 +275,7 @@ Controls what teams can add.
 |-------|------|-------------|
 | `teams.allow_additional_plugins` | string[] | Teams that can add plugins |
 | `teams.allow_additional_mcp_servers` | string[] | Teams that can add MCP servers |
+| `teams.allow_dev_environment_commands` | string[] | Teams that can add named `dev_environment.commands` |
 
 Values:
 - `["*"]` - All teams
@@ -288,6 +301,15 @@ Team profile definitions.
           "url": "https://context7.example.com"
         }
       ],
+      "dev_environment": {
+        "commands": {
+          "logs": {
+            "argv": ["docker", "compose", "logs", "--tail", "100", "api"],
+            "working_directory": ".",
+            "timeout_seconds": 30
+          }
+        }
+      },
       "delegation": {
         "allow_project_overrides": true,
         "allow_additional_plugins": ["project-*"]
@@ -331,6 +353,7 @@ Team profile definitions.
 | `additional_plugins` | string[] | Plugins for this team |
 | `additional_mcp_servers` | array | MCP servers for this team |
 | `network_policy` | string | Network policy override (`open`, `web-egress-enforced`, `locked-down-web`) |
+| `dev_environment.commands` | object | Named dev-environment command contract; requires `delegation.teams.allow_dev_environment_commands` for team additions |
 | `delegation` | object | Project override settings |
 | `session` | object | Session settings |
 | `config_source` | object | External config (federated) |

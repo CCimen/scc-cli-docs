@@ -32,6 +32,7 @@ Do not start the pilot by designing a new project registry, identity platform, o
 | Plugins | Approve marketplaces and default plugins in org config |
 | MCP servers | Allow only declared org/team/project MCP servers |
 | Network policy | Set the org default, then let teams/projects tighten only |
+| Dev environment commands | Use named `dev_environment.commands` only as an explainable contract until bridge execution is implemented |
 | Project config | Allow `.scc.yaml` only for teams that can support it |
 | Exceptions | Use time-bounded local or policy exceptions |
 
@@ -95,6 +96,16 @@ auditable; the value is in repeatable inheritance, not a clever naming scheme.
     "allowed_plugins": ["scc-safety-net", "internal-*"],
     "allowed_mcp_servers": ["*.example.gov"],
     "network_policy": "web-egress-enforced",
+    "dev_environment": {
+      "commands": {
+        "test": {
+          "argv": ["uv", "run", "pytest", "-q"],
+          "working_directory": ".",
+          "timeout_seconds": 120,
+          "description": "Run the project test suite"
+        }
+      }
+    },
     "session": {
       "timeout_hours": 8,
       "auto_resume": true
@@ -108,7 +119,8 @@ auditable; the value is in repeatable inheritance, not a clever naming scheme.
   "delegation": {
     "teams": {
       "allow_additional_plugins": ["internal-*"],
-      "allow_additional_mcp_servers": ["casework"]
+      "allow_additional_mcp_servers": ["casework"],
+      "allow_dev_environment_commands": ["casework"]
     },
     "projects": {
       "inherit_team_delegation": true
@@ -148,6 +160,14 @@ network_policy: locked-down-web
 
 session:
   timeout_hours: 4
+
+dev_environment:
+  commands:
+    repo-test:
+      argv: ["uv", "run", "pytest", "-q"]
+      working_directory: "."
+      timeout_seconds: 120
+      description: "Run this repository's test suite"
 ```
 
 Run the pilot checks from the project repository:
@@ -161,6 +181,7 @@ scc config explain --json
 scc config explain --field network
 scc config explain --field blocked
 scc config explain --field denied
+scc config explain --field dev_environment
 scc start --provider claude --dry-run --json --non-interactive .
 scc start --provider codex --dry-run --json --non-interactive .
 scc support bundle
@@ -172,6 +193,8 @@ Expected review signals:
 - effective team is `casework`;
 - `internal-case-helper` and `internal-repo-linter` appear only if allowed by policy;
 - looser `network_policy` attempts would appear under "Ignored Policy Changes";
+- `dev_environment.commands` appear in explain output with fixed `argv` lists
+  and are not executed by SCC yet;
 - network MCP servers are blocked when the effective policy is `locked-down-web`;
 - dry-run output contains the provider launch contract without starting Docker;
 - support bundle manifest includes provider, runtime, policy, and work-context evidence.
@@ -211,6 +234,7 @@ Use these artifacts to answer:
 - Which plugins and MCP servers were active?
 - Which additions were blocked, denied, or ignored?
 - Which network policy was effective?
+- Which named dev-environment commands were accepted, denied, or ignored?
 - If launching from a devcontainer, did `runtime_mount_source` match the
   host-visible workspace path expected by the Docker daemon?
 - For devcontainer or Compose projects, did the "Dev Environment Bridge" doctor
@@ -237,6 +261,7 @@ These are roadmap items, not pilot prerequisites:
 - read-only enterprise admin visibility;
 - centralized SBOM export;
 - CycloneDX inventory generation;
+- execution of named `dev_environment.commands`;
 - running the agent inside the existing devcontainer;
 - attaching the SCC agent container to arbitrary devcontainer or Compose service
   networks;
